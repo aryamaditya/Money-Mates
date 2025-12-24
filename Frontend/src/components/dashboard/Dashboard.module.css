@@ -1,0 +1,236 @@
+/* src/components/Dashboard.module.css */
+
+/* --- Layout and Structure --- */
+.dashboardLayout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f7fa; /* Light background for the main area */
+}
+
+.mainContent {
+  flex-grow: 1;
+  padding: 30px;
+}
+
+/* --- Sidebar Styling --- */
+.sidebar {
+  width: 250px;
+  background-color: #fff;
+  padding: 30px 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  border-right: 1px solid #e0e0e0;
+}
+
+.sidebarLogo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #5d3fd3; /* Deep purple for brand name */
+  margin-bottom: 40px;
+}
+
+.sidebarNav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebarNav li {
+  margin-bottom: 20px;
+}
+
+.navLink, .navLinkActive, .navLinkLogout {
+  text-decoration: none;
+  display: block;
+  padding: 8px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #6c757d; /* Standard text color */
+  transition: color 0.2s;
+}
+
+.navLink:hover {
+  color: #333;
+}
+
+.navLinkActive {
+  color: #5d3fd3; /* Bright purple for active link */
+  font-weight: 600;
+}
+
+.navLinkLogout {
+  color: #ff4d4f; /* Red for log out */
+ background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;  /* match font of other links */
+  cursor: pointer;
+  text-align: left; /* align with other nav links */
+}
+
+.navSeparator {
+    height: 1px;
+    background-color: #eee;
+    margin: 20px 0;
+}
+
+/* --- Main Header --- */
+.mainHeader {
+  margin-bottom: 30px;
+}
+
+.mainHeader h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.subHeader {
+  font-size: 14px;
+  color: #999;
+}
+
+/* --- Stat Cards Row --- */
+.statCardsRow {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+/* --- Stat Card Component --- */
+.statCard {
+  flex: 1;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.iconWrapper {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  /* Icon colors are set inline in StatCard.jsx */
+}
+
+.statIcon {
+  font-size: 24px;
+  color: #fff;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statTitle {
+  font-size: 14px;
+  color: #999;
+  margin: 0 0 5px 0;
+}
+
+.statAmount {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+/* --- Main Content Cards (Charts, Transactions) --- */
+.chartArea {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 20px;
+}
+
+.mainCard {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  min-height: 250px; /* Placeholder minimum height */
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.cardContent {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.spendingOverview {
+  grid-column: 1 / 3; /* Spans both columns */
+}
+
+.categoryBreakdown {
+  grid-column: 1 / 3; /* Spans both columns */
+  min-height: 350px;
+}
+
+.bottomRow {
+    grid-column: 1 / 3;
+    display: flex;
+    gap: 20px;
+}
+
+.recentTransactions {
+    flex: 1;
+}
+
+.budgetTracker {
+    flex: 1;
+}
+
+/* --- Responsiveness for smaller screens (Optional but Recommended) --- */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px;
+  }
+  .statCardsRow {
+    flex-wrap: wrap;
+  }
+  .statCard {
+    flex: 1 1 45%; /* Allows two cards per row */
+  }
+  .chartArea {
+    grid-template-columns: 1fr; /* Stack everything into one column */
+  }
+  .spendingOverview, .categoryBreakdown, .bottomRow {
+    grid-column: 1 / 2;
+  }
+  .bottomRow {
+      flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboardLayout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  .mainContent {
+    padding: 20px;
+  }
+  .statCard {
+    flex: 1 1 100%; /* One card per row on small mobile */
+  }
+  .sidebarNav {
+      display: none; /* Might hide nav or make it a dropdown on small screens */
+  }
+}
