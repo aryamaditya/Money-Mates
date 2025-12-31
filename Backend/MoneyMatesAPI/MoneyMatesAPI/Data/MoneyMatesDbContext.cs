@@ -10,5 +10,7 @@ namespace MoneyMatesAPI.Data
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Expense> Expenses { get; set; } = null!;
         public DbSet<Budget> Budgets { get; set; } = null!;
+        public DbSet<Income> Income { get; set; }
+ 
     }
 }

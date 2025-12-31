@@ -34,7 +34,6 @@ namespace MoneyMatesAPI.Controllers
             return Ok(new { userID = user.Id, name = user.Name, email = user.Email });
         }
 
-        // POST: api/users/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -44,8 +43,27 @@ namespace MoneyMatesAPI.Controllers
             if (user == null)
                 return BadRequest(new { message = "Invalid email or password." });
 
-            return Ok(new { userID = user.Id, name = user.Name, email = user.Email });
+            return Ok(new
+            {
+                userID = user.Id,
+                name = user.Name,
+                email = user.Email,
+                isFirstLogin = user.IsFirstLogin  // <- new
+            });
         }
+        [HttpPost("complete-setup/{userId}")]
+        public async Task<IActionResult> CompleteSetup(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound(new { message = "User not found." });
+
+            user.IsFirstLogin = false;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Setup completed successfully." });
+        }
+
+
     }
 
     // DTO for login

@@ -2,10 +2,9 @@
 {
     public class Budget
     {
-        public int BudgetID { get; set; }
-        public int UserID { get; set; }
-        public string Category { get; set; }
-        public decimal LimitAmount { get; set; }
-        public string Month { get; set; }
+        public int Id { get; set; }
+        public int UserId { get; set; }  // FK to User
+        public string Category { get; set; } = null!;
+        public decimal Limit { get; set; }
     }
 }

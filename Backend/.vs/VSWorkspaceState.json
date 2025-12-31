@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\MoneyMatesAPI",
+    "\\MoneyMatesAPI\\MoneyMatesAPI",
+    "\\MoneyMatesAPI\\MoneyMatesAPI\\bin",
+    "\\MoneyMatesAPI\\MoneyMatesAPI\\bin\\Debug",
+    "\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers",
+    "\\MoneyMatesAPI\\MoneyMatesAPI\\Data",
+    "\\MoneyMatesAPI\\MoneyMatesAPI\\Models"
+  ],
+  "SelectedNode": "\\MoneyMatesAPI\\MoneyMatesAPI\\Models\\User.cs",
+  "PreviewInSolutionExplorer": false
+}
