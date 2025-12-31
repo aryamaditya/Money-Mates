@@ -1,0 +1,85 @@
+.setup-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  font-family: 'Poppins', sans-serif;
+}
+
+.setup-card {
+  background: #fff;
+  padding: 40px 50px;
+  border-radius: 20px;
+  width: 500px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+}
+
+.setup-card h1 {
+  margin-bottom: 10px;
+  font-size: 28px;
+  color: #333;
+}
+.setup-card p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.budget-step input,
+.category-input input,
+.category-item input {
+  width: 70%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+}
+
+.budget-step button,
+.category-input button,
+.category-item button,
+.btn-primary {
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.budget-step button,
+.category-input button {
+  background: #2575fc;
+  color: #fff;
+}
+.budget-step button:hover,
+.category-input button:hover {
+  background: #1a5fd0;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.delete-btn {
+  background: #ff4d4f;
+  color: #fff;
+}
+.delete-btn:hover {
+  background: #e33b3b;
+}
+
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+  margin-top: 10px;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}

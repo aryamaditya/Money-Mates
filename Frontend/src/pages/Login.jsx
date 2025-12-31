@@ -25,7 +25,11 @@ export default function Login() {
         // Save user info in localStorage
         localStorage.setItem("user", JSON.stringify(data));
         // Redirect to dashboard
-        navigate("/dashboard");
+        if (data.isFirstLogin) {
+          navigate("/setup"); // new page
+        } else {
+          navigate("/dashboard");
+  }
       } else {
         const errData = await response.json();
         setError(errData.message || "Invalid email or password");
