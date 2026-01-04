@@ -3,36 +3,44 @@
   "WorkspaceRootPath": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\data\\moneymatesdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\data\\moneymatesdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\models\\expense.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\models\\expense.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\models\\income.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\models\\income.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\controllers\\budgetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\controllers\\budgetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\controllers\\expensecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\controllers\\expensecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\controllers\\budgetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\controllers\\budgetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\models\\income.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\models\\income.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\models\\expense.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\models\\expense.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\models\\budget.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\models\\budget.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\data\\moneymatesdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\data\\moneymatesdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -42,23 +50,73 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 3,
+              "Title": "CategoryController.cs",
+              "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\CategoryController.cs",
+              "RelativeDocumentMoniker": "MoneyMatesAPI\\Controllers\\CategoryController.cs",
+              "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\CategoryController.cs",
+              "RelativeToolTip": "MoneyMatesAPI\\Controllers\\CategoryController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-03T10:25:24.193Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ExpenseController.cs",
+              "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\ExpenseController.cs",
+              "RelativeDocumentMoniker": "MoneyMatesAPI\\Controllers\\ExpenseController.cs",
+              "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\ExpenseController.cs",
+              "RelativeToolTip": "MoneyMatesAPI\\Controllers\\ExpenseController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAgwB0AAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-03T14:06:31.697Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DashboardController.cs",
+              "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\DashboardController.cs",
+              "RelativeDocumentMoniker": "MoneyMatesAPI\\Controllers\\DashboardController.cs",
+              "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\DashboardController.cs",
+              "RelativeToolTip": "MoneyMatesAPI\\Controllers\\DashboardController.cs",
+              "ViewState": "AgIAAE4AAAAAAAAAAAAAAGMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-03T13:58:15.407Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "MoneyMatesDbContext.cs",
+              "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Data\\MoneyMatesDbContext.cs",
+              "RelativeDocumentMoniker": "MoneyMatesAPI\\Data\\MoneyMatesDbContext.cs",
+              "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Data\\MoneyMatesDbContext.cs",
+              "RelativeToolTip": "MoneyMatesAPI\\Data\\MoneyMatesDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-03T10:20:05.584Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "Expense.cs",
               "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Models\\Expense.cs",
               "RelativeDocumentMoniker": "MoneyMatesAPI\\Models\\Expense.cs",
               "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Models\\Expense.cs",
               "RelativeToolTip": "MoneyMatesAPI\\Models\\Expense.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-27T08:09:05.332Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "Income.cs",
               "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Models\\Income.cs",
               "RelativeDocumentMoniker": "MoneyMatesAPI\\Models\\Income.cs",
@@ -70,19 +128,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "DashboardController.cs",
-              "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\DashboardController.cs",
-              "RelativeDocumentMoniker": "MoneyMatesAPI\\Controllers\\DashboardController.cs",
-              "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\DashboardController.cs",
-              "RelativeToolTip": "MoneyMatesAPI\\Controllers\\DashboardController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAmwBQAAAAzAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-27T08:05:59.041Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 9,
               "Title": "launchSettings.json",
               "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "MoneyMatesAPI\\Properties\\launchSettings.json",
@@ -94,26 +140,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "MoneyMatesDbContext.cs",
-              "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Data\\MoneyMatesDbContext.cs",
-              "RelativeDocumentMoniker": "MoneyMatesAPI\\Data\\MoneyMatesDbContext.cs",
-              "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Data\\MoneyMatesDbContext.cs",
-              "RelativeToolTip": "MoneyMatesAPI\\Data\\MoneyMatesDbContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA7AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-27T07:18:55.514Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 4,
               "Title": "BudgetController.cs",
               "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\BudgetController.cs",
               "RelativeDocumentMoniker": "MoneyMatesAPI\\Controllers\\BudgetController.cs",
               "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\BudgetController.cs",
               "RelativeToolTip": "MoneyMatesAPI\\Controllers\\BudgetController.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAA1wAwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABMAAAAAAAAAAAAgwDkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-27T07:18:30.646Z"
             },
@@ -131,13 +164,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Program.cs",
               "RelativeDocumentMoniker": "MoneyMatesAPI\\Program.cs",
               "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Program.cs",
               "RelativeToolTip": "MoneyMatesAPI\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAIwDYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-27T04:57:25.844Z"
             }

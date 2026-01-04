@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MoneyMatesAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8691548ccf617e7fad23d51e115a4e85c451cb96")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ce3e8f97b6b1a0aaafe7335a771f04f8245349c1")]
 [assembly: System.Reflection.AssemblyProductAttribute("MoneyMatesAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MoneyMatesAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

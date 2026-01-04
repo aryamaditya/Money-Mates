@@ -48,9 +48,120 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "MoneyMatesAPI.Controllers.CategoryController",
+    "Method": "GetCategories",
+    "RelativePath": "api/Category/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.CategoryController",
+    "Method": "UpdateCategoryLimit",
+    "RelativePath": "api/Category/{userId}/{categoryName}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "categoryName",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "MoneyMatesAPI.Controllers.CategoryUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.CategoryController",
+    "Method": "GetCategoryExpenses",
+    "RelativePath": "api/Category/{userId}/{categoryName}/expenses",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "categoryName",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.DashboardController",
+    "Method": "GetCategories",
+    "RelativePath": "api/Dashboard/categories/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.DashboardController",
+    "Method": "GetMonthlySpending",
+    "RelativePath": "api/Dashboard/spending/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "MoneyMatesAPI.Controllers.DashboardController",
     "Method": "GetTotals",
     "RelativePath": "api/Dashboard/totals/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.ExpensesController",
+    "Method": "GetRecentExpenses",
+    "RelativePath": "api/Expenses/recent/{userId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
