@@ -156,6 +156,7 @@
 import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import styles from './Dashboard.module.css';
+import './RecentTransactions.css';
 import Sidebar from './Sidebar';
 import StatCard from './StatCard';
 import CategorySection from "./CategorySection";
@@ -178,13 +179,13 @@ const Dashboard = () => {
     setUserName(user.name);
 
     // Fetch totals
-    fetch(`https://localhost:7167/api/dashboard/totals/${userId}`)
+    fetch(`http://localhost:5262/api/dashboard/totals/${userId}`)
       .then(res => res.json())
       .then(data => setTotals(data))
       .catch(err => console.error("Failed to fetch totals:", err));
 
     // Fetch monthly spending and ensure keys match Recharts
-    fetch(`https://localhost:7167/api/dashboard/spending/${userId}`)
+    fetch(`http://localhost:5262/api/dashboard/spending/${userId}`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -200,7 +201,7 @@ const Dashboard = () => {
       .catch(err => console.error("Failed to fetch spending:", err));
 
     // Fetch category breakdown for PieChart
-    fetch(`https://localhost:7167/api/dashboard/categories/${userId}`)
+    fetch(`http://localhost:5262/api/dashboard/categories/${userId}`)
       .then(res => res.json())
       .then(data => {
         const formattedCategoryData = data.map(d => ({
@@ -212,7 +213,7 @@ const Dashboard = () => {
       .catch(err => console.error("Failed to fetch categories:", err));
 
     // Fetch recent transactions
-    fetch(`https://localhost:7167/api/expenses/recent/${userId}`)
+    fetch(`http://localhost:5262/api/expenses/recent/${userId}`)
       .then(res => res.json())
       .then(data => setRecentTransactions(data))
       .catch(err => console.error("Failed to fetch recent transactions:", err));
@@ -292,29 +293,41 @@ const Dashboard = () => {
         </section>
 
         {/* Category Section */}
-        <CategorySection userId={userId} />
+        <CategorySection userId={userId} totalBalance={totals.totalBalance} />
 
         {/* Recent Transactions */}
-        <section className={styles.recentTransactions}>
-          <h3>Recent Transactions</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Amount ({currency})</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentTransactions.map(tx => (
-                <tr key={tx.id}>
-                  <td>{new Date(tx.dateAdded).toLocaleDateString()}</td>
-                  <td>{tx.description}</td>
-                  <td>{tx.amount}</td>
-                </tr>
+        <section className="recent-transactions-section">
+          <div className="transaction-header">
+            <h3 className="transaction-title">💳 Recent Transactions</h3>
+            <p className="transaction-subtitle">Your latest expense activity</p>
+          </div>
+
+          {recentTransactions.length === 0 ? (
+            <div className="empty-state">
+              <p>No transactions yet</p>
+            </div>
+          ) : (
+            <div className="transactions-list">
+              {recentTransactions.map((tx, index) => (
+                <div key={tx.id || index} className="transaction-item">
+                  <div className="transaction-icon">💰</div>
+                  <div className="transaction-info">
+                    <p className="transaction-description">{tx.description || tx.category || 'Expense'}</p>
+                    <p className="transaction-date">{new Date(tx.dateAdded).toLocaleDateString('en-IN', { 
+                      year: 'numeric', 
+                      month: 'short', 
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}</p>
+                  </div>
+                  <div className="transaction-amount">
+                    <span className="amount">-Rs {tx.amount.toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          )}
         </section>
       </main>
     </div>
