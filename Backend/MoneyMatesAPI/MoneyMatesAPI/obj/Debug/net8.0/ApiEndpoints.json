@@ -160,8 +160,120 @@
   },
   {
     "ContainingType": "MoneyMatesAPI.Controllers.ExpensesController",
+    "Method": "AddExpense",
+    "RelativePath": "api/Expenses",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "expense",
+        "Type": "MoneyMatesAPI.Models.Expense",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.ExpensesController",
+    "Method": "DeleteExpense",
+    "RelativePath": "api/Expenses/{expenseId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "expenseId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.ExpensesController",
+    "Method": "GetUserExpenses",
+    "RelativePath": "api/Expenses/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.ExpensesController",
     "Method": "GetRecentExpenses",
     "RelativePath": "api/Expenses/recent/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.IncomeController",
+    "Method": "AddIncome",
+    "RelativePath": "api/Income",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "income",
+        "Type": "MoneyMatesAPI.Models.Income",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.IncomeController",
+    "Method": "DeleteIncome",
+    "RelativePath": "api/Income/{incomeId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "incomeId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.IncomeController",
+    "Method": "GetUserIncome",
+    "RelativePath": "api/Income/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MoneyMatesAPI.Controllers.IncomeController",
+    "Method": "GetTotalIncome",
+    "RelativePath": "api/Income/total/{userId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,

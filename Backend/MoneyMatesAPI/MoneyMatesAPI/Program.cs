@@ -46,7 +46,8 @@ if (app.Environment.IsDevelopment())
 // ---------------------------
 app.UseCors("AllowReactApp");
 
-app.UseHttpsRedirection();
+// Disabled for development to allow HTTP from React
+// app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();

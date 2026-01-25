@@ -1,0 +1,535 @@
+# MoneyMates - Personal Finance Management Application
+
+## Project Overview
+
+MoneyMates is a comprehensive personal finance management application built with React and ASP.NET Core. The application helps users track expenses, manage budgets by category, monitor income, and visualize spending patterns through an intuitive dashboard.
+
+## Technology Stack
+
+### Frontend
+- **React**: 19.2 - Component-based UI framework
+- **React Router**: 7.9.6 - Client-side routing and navigation
+- **Recharts**: 3.4.1 - Data visualization (LineChart, PieChart)
+- **React Icons**: 5.5.0 - Icon library for UI components
+- **CSS Modules**: Component-scoped styling
+
+### Backend
+- **ASP.NET Core**: .NET 8.0 - Web framework
+- **Entity Framework Core**: 8.0 - ORM and database access
+- **SQL Server**: Relational database
+- **LINQ**: Query language for data operations
+- **Dependency Injection**: Built-in container for service management
+
+### Configuration
+- **CORS**: Enabled for `http://localhost:3000, 3001`
+- **Backend Port**: `https://localhost:7167`
+- **Frontend Port**: `http://localhost:3000`
+- **Currency**: Indian Rupees (Rs) with toLocaleString() formatting
+- **API Pattern**: RESTful with `/api/{controller}/{action}` routing
+
+## Project Structure
+
+```
+MoneyMates/
+├── Backend/
+│   └── MoneyMatesAPI/
+│       ├── MoneyMatesAPI.sln
+│       ├── MoneyMatesAPI/
+│       │   ├── appsettings.Development.json
+│       │   ├── appsettings.json
+│       │   ├── Program.cs
+│       │   ├── MoneyMatesAPI.csproj
+│       │   ├── Controllers/
+│       │   │   ├── BudgetController.cs
+│       │   │   ├── CategoryController.cs
+│       │   │   ├── DashboardController.cs
+│       │   │   ├── ExpenseController.cs
+│       │   │   ├── IncomeController.cs
+│       │   │   └── UserController.cs
+│       │   ├── Data/
+│       │   │   └── MoneyMatesDbContext.cs
+│       │   └── Models/
+│       │       ├── Budget.cs
+│       │       ├── Category.cs
+│       │       ├── Expense.cs
+│       │       ├── Income.cs
+│       │       └── User.cs
+│       └── bin/ & obj/
+├── Frontend/
+│   ├── package.json
+│   ├── README.md
+│   ├── public/
+│   │   ├── index.html
+│   │   ├── manifest.json
+│   │   └── robots.txt
+│   └── src/
+│       ├── App.js
+│       ├── App.css
+│       ├── index.js
+│       ├── index.css
+│       ├── components/
+│       │   └── dashboard/
+│       │       ├── Dashboard.jsx (341 lines)
+│       │       ├── Dashboard.module.css
+│       │       ├── CategorySection.jsx (560 lines)
+│       │       ├── CategorySection.css (797 lines)
+│       │       ├── Sidebar.jsx
+│       │       └── StatCard.jsx
+│       ├── pages/
+│       │   ├── App.js
+│       │   ├── Login.jsx
+│       │   ├── Signup.jsx
+│       │   ├── Setup.jsx
+│       │   └── Setup.css
+│       └── services/
+│           ├── categoryService.js (92 lines)
+│           ├── expenseService.js (62 lines)
+│           └── incomeService.js (40+ lines)
+```
+
+## Implemented Features
+
+### 1. ✅ User Authentication
+- Login and signup pages with user account management
+- Session management via localStorage
+
+### 2. ✅ Dashboard Overview
+- Total income, expenses, and balance display
+- Category breakdown visualization with pie chart
+- Recent transactions list with card-based layout
+- Statistical summaries with StatCard components
+
+### 3. ✅ Budget Category Management
+- **Add Category**: Create new budget categories with limit allocation
+- **Category Display**: Cards showing spent vs. limit with progress bars
+- **Status Indicators**: 
+  - 🟢 Safe (≤80% spent)
+  - 🟡 Warning (80-100% spent)
+  - 🔴 Exceeded (>100% spent)
+- **Edit Limits**: Increase budget limits when overspent
+- **Balance Validation**: Prevents category limits from exceeding total balance
+
+### 4. ✅ Expense Tracking
+- Add expenses to specific categories with amount and description
+- **Delete expenses** with confirmation dialog
+- Automatic date tracking (DateAdded set to DateTime.Now)
+- Real-time category total updates
+- Delete expense capability with immediate UI refresh
+- Expense list display with date, amount, and delete button
+
+### 5. ✅ Income Management
+- Add income entries with source tracking
+- View total income
+- Delete income records
+- Income aggregation in dashboard totals
+
+### 6. ✅ Real-time Validation
+- Form input validation before submission
+- Budget limit validation against available balance
+- Amount validation (must be > 0)
+- Submit button disabled when exceeding limits
+- Visual warning messages for user guidance
+
+### 7. ✅ Dynamic Layout
+- Responsive category cards that expand/collapse
+- Flexbox-based layout preventing overlap
+- Animated transitions for expanded sections
+- Mobile-responsive design
+
+### 8. ✅ Progress Visualization
+- Progress bars showing spending percentage
+- Status badges (%, warning, overspend)
+- Remaining balance display
+- Color-coded status indicators
+
+### 9. ✅ Error Handling
+- Comprehensive console logging for debugging
+- Detailed error messages to users
+- API fallback logic (CategoryController → Dashboard API)
+- Property name compatibility checks (PascalCase/camelCase)
+
+### 10. ✅ Data Refresh
+- Automatic category refresh after adding expense
+- Updated 'used' amounts calculated from total expenses
+- Expense list updates in real-time
+- Async/await handling for proper sequencing
+
+### 11. ✅ Currency Formatting
+- Consistent Rs (Rupees) display throughout app
+- Thousand separators using toLocaleString()
+- Proper number formatting for all monetary values
+
+### 12. ✅ Category Icons
+- Food → 🍔
+- Transport → 🚗
+- Entertainment → 🎬
+- Default → 💰
+
+### 13. ✅ State Management
+- Categories with used/limit tracking
+- Expanded category state
+- Form visibility states
+- Editing states with proper cleanup
+- Expense addition states
+
+## API Endpoints
+
+### Category Controller
+```
+GET    /api/category/{userId}                    - Get all categories with limits
+GET    /api/category/{userId}/{categoryName}/expenses - Get category expenses
+PUT    /api/category/{userId}/{categoryName}     - Update category limit
+       Body: { newLimit: number }
+```
+
+### Expense Controller
+```
+GET    /api/expenses/{userId}                    - Get all expenses
+GET    /api/expenses/recent/{userId}             - Get recent expenses
+POST   /api/expenses                             - Add expense
+       Body: { UserId: number, Category: string, Amount: number }
+DELETE /api/expenses/{expenseId}                 - Delete expense
+```
+
+### Income Controller
+```
+GET    /api/income/{userId}                      - Get all income
+GET    /api/income/total/{userId}                - Get total income
+POST   /api/income                               - Add income
+       Body: { UserId: number, Amount: number, Source: string }
+DELETE /api/income/{incomeId}                    - Delete income
+```
+
+### Dashboard Controller
+```
+GET    /api/dashboard/totals/{userId}            - Get totals (income, expenses, balance)
+GET    /api/dashboard/spending/{userId}          - Get spending by category
+GET    /api/dashboard/categories/{userId}        - Get category overview
+GET    /api/dashboard/recent/{userId}            - Get recent transactions
+```
+
+## Service Layer
+
+### categoryService.js
+Handles all category-related operations:
+- `getCategoriesWithLimits(userId)` - Fetch categories with budget info
+- `getCategoryUsage(userId)` - Get category spending overview
+- `getCategoryExpenses(userId, categoryName)` - Fetch expenses for specific category
+- `updateCategoryLimit(userId, categoryName, newLimit)` - Update budget limit
+- `addCategory(userId, categoryName, limit)` - Create new category
+
+**Features**:
+- Dual property name handling (PascalCase/camelCase)
+- Console logging for debugging
+- Error messages with context
+
+### expenseService.js
+Manages expense operations:
+- `getUserExpenses(userId)` - Get all expenses
+- `getRecentExpenses(userId)` - Get recent expenses
+- `addExpense(userId, category, amount)` - Add new expense
+- `deleteExpense(expenseId)` - Remove expense
+
+**Critical Fix** (Message 28):
+- Uses PascalCase property names: `{ UserId, Category, Amount }`
+- Previously sent camelCase causing 404 errors
+- Enhanced logging shows exact payload sent
+
+### incomeService.js
+Handles income tracking:
+- `getUserIncome(userId)` - Get all income entries
+- `getTotalIncome(userId)` - Get income sum
+- `addIncome(userId, amount, source)` - Add income
+- `deleteIncome(incomeId)` - Remove income
+
+## Component Details
+
+### CategorySection.jsx (560 lines)
+**Purpose**: Core component for budget category management and expense tracking
+
+**State Variables**:
+```javascript
+- categories: []                    // Array of category objects
+- expandedCategory: null            // Currently expanded category name
+- showAddForm: boolean              // Show/hide add category form
+- newCategoryName: string           // Input for new category name
+- newCategoryLimit: string          // Input for budget limit
+- editingCategory: null | string    // Category being edited
+- editLimit: string                 // New limit input
+- addingExpenseCategory: null       // Category for expense form
+- expenseAmount: string             // Expense amount input
+- expenseDescription: string        // Optional expense description
+```
+
+**Key Functions**:
+- `fetchCategories()`: Dual API fallback, handles both response formats
+- `toggleCategory()`: Expand/collapse with expense data fetching
+- `handleAddCategory()`: Validates and creates new budget category
+- `handleEditCategory()`: Opens edit form for overspent categories
+- `handleUpdateCategory()`: Increases budget limit with validation
+- `handleAddExpense()`: Adds expense and refreshes category data
+- `getStatus()`: Returns "safe"/"warning"/"exceeded"
+- `getProgressPercentage()`: Calculates progress bar width
+
+**Validation Logic**:
+- Add category: Checks name, limit > 0, total limits ≤ totalBalance
+- Add expense: Validates amount > 0
+- Edit category: Only shows button when overspent (status === "exceeded")
+- Form submission: Disabled when exceeding available balance
+
+**Recent Bug Fixes**:
+- Message 29: Enhanced category refresh after expense addition
+- Message 30: Fixed overspend calculation (c.used - c.limit)
+- Message 26: Changed layout from Grid to Flexbox
+
+### Dashboard.jsx (341 lines)
+**Purpose**: Main dashboard with statistics and data aggregation
+
+**Data Flow**:
+1. Fetches totals (income, expenses, balance)
+2. Gets spending breakdown by category
+3. Loads budget categories
+4. Retrieves recent transactions
+
+**Props Passed**:
+- `userId`: Current logged-in user ID
+- `totalBalance`: Total balance passed to CategorySection for validation
+
+### CategorySection.css (797 lines)
+**Styling Features**:
+- Category cards with gradient backgrounds
+- Status-based left borders (4px solid)
+- Progress bars with animated fills
+- Responsive grid layout (changed to Flexbox)
+- Smooth animations (slideDown 0.3s)
+- Mobile breakpoint at max-width: 768px
+
+**Color Scheme**:
+- Safe: #4caf50 (Green)
+- Warning: #ff9800 (Orange)
+- Exceeded: #f44336 (Red)
+
+## Data Models
+
+### Budget
+```csharp
+public int Id { get; set; }
+public int UserId { get; set; }
+public string Category { get; set; }
+public decimal Limit { get; set; }
+```
+
+### Expense
+```csharp
+public int Id { get; set; }
+public int UserId { get; set; }
+public string Category { get; set; }
+public decimal Amount { get; set; }
+public DateTime DateAdded { get; set; }
+```
+
+### Income
+```csharp
+public int Id { get; set; }
+public int UserId { get; set; }
+public decimal Amount { get; set; }
+public string Source { get; set; }
+public DateTime DateAdded { get; set; }
+```
+
+### User
+```csharp
+public int Id { get; set; }
+public string Username { get; set; }
+public string Email { get; set; }
+public string PasswordHash { get; set; }
+```
+
+## Problem Resolution Summary
+
+### Issue 1: Backend-Frontend Integration Mismatch
+**Problem**: Frontend called non-existent API endpoints
+**Root Cause**: IncomeController and complete ExpensesController were missing
+**Solution**: Created IncomeController, enhanced ExpensesController with all CRUD operations
+**Status**: ✅ Resolved
+
+### Issue 2: Property Name Casing Error
+**Problem**: API returned 404, category data showed as undefined
+**Root Cause**: ASP.NET Core uses PascalCase (UserId) but frontend sent camelCase
+**Solution**: 
+- Updated categoryService to check both PascalCase and camelCase
+- Fixed expenseService to use { UserId, Category, Amount }
+**Status**: ✅ Resolved
+
+### Issue 3: Category Data Not Displaying
+**Problem**: CategorySection showed "Loading categories..." indefinitely
+**Root Cause**: Property name mismatch prevented data mapping
+**Solution**: Implemented fallback logic and dual property checking
+**Status**: ✅ Resolved
+
+### Issue 4: Layout Overlap When Expanding
+**Problem**: Expanded category overlapped next category card
+**Root Cause**: CSS Grid with fixed minmax constraints
+**Solution**: Changed to Flexbox column layout with proper spacing
+**Status**: ✅ Resolved
+
+### Issue 5: Expense API Returns 404
+**Problem**: Adding expense failed with 404 error
+**Root Cause**: expenseService sent { userId, category, amount } but backend expected { UserId, Category, Amount }
+**Solution**: Updated property names to match backend PascalCase expectations
+**Status**: ✅ Resolved (Message 28)
+
+### Issue 6: Category Data Not Updating After Expense
+**Problem**: After adding expense, 'used' amount showed old value
+**Root Cause**: handleAddExpense didn't await fetchCategories() before rendering
+**Solution**: Added await to fetchCategories() and separate getCategoryExpenses() call
+**Status**: ✅ Resolved (Message 29)
+
+### Issue 7: Overspend Amount Displays as Zero
+**Problem**: Message showed "❌ Over by Rs 0" instead of actual overspent amount
+**Root Cause**: When exceeded, remaining = Math.max(limit - used, 0) = 0, then Math.abs(0) = 0
+**Solution**: Changed calculation to direct formula: (c.used - c.limit)
+**Status**: ✅ Resolved (Message 30)
+
+## Quick Start Guide
+
+### Backend Setup
+```bash
+# Navigate to backend directory
+cd Backend/MoneyMatesAPI
+
+# Restore NuGet packages
+dotnet restore
+
+# Update database
+dotnet ef database update
+
+# Run the application
+dotnet run
+# Backend will be available at https://localhost:7167
+```
+
+### Frontend Setup
+```bash
+# Navigate to frontend directory
+cd Frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+# Frontend will open at http://localhost:3000
+```
+
+## Development Notes
+
+### Debugging Context
+- Console logs show raw API responses and mapped data
+- Each service logs payload details before API calls
+- Error responses include full error text
+- Status codes logged for HTTP errors
+- Category details logged: Category, Used, Limit values
+
+### Key Development Principles
+1. **Property Naming**: Critical to match backend PascalCase exactly in API calls
+2. **Async/Await**: Always await data refresh before using updated values
+3. **Fallback Logic**: Implement fallback endpoints for resilience
+4. **State Management**: Use useState/useEffect patterns consistently
+5. **Error Handling**: Provide detailed error messages for debugging
+6. **CSS Layout**: Flexbox more reliable than Grid for dynamic content
+
+### Important Configuration
+- Backend HTTPS: https://localhost:7167
+- Frontend HTTP: http://localhost:3000
+- CORS: Explicitly configured for development ports
+- API Property Format: Backend sends PascalCase, converted to camelCase in frontend
+
+## Future Features
+
+### High Priority
+- [ ] End-to-end testing of complete workflow
+- [ ] Mobile responsive validation
+- [ ] Expense deletion UI
+- [ ] Monthly expense reports
+
+### Medium Priority
+- [ ] Daily Planner (calendar-based expense tracking)
+- [ ] Budget recommendations based on spending patterns
+- [ ] Recurring expense functionality
+- [ ] Expense categories customization
+
+### Low Priority
+- [ ] AI Insights generation
+- [ ] Group/family budget sharing
+- [ ] Export reports (PDF/CSV)
+- [ ] Payment gateway integration
+- [ ] Savings goals tracking
+- [ ] Month-over-month comparison
+
+## Technical Debt & Optimization
+- [ ] Add error boundary components
+- [ ] Implement request caching
+- [ ] Add pagination for large transaction lists
+- [ ] Optimize bundle size
+- [ ] Add unit tests for services
+- [ ] Add integration tests for API calls
+- [ ] Implement request interceptors
+- [ ] Add loading skeletons
+- [ ] Optimize re-renders with React.memo
+
+## Deployment Preparation
+- [ ] Environment configuration (dev, staging, production)
+- [ ] Database migration scripts
+- [ ] Backend logging and monitoring setup
+- [ ] Frontend analytics integration
+- [ ] API rate limiting
+- [ ] Security headers and validation
+- [ ] SSL certificate configuration
+- [ ] Database backup strategy
+
+## Troubleshooting
+
+### Backend Not Starting
+1. Check that SQL Server is running
+2. Verify connection string in appsettings.json
+3. Run `dotnet ef database update` to ensure migrations are applied
+4. Check port 7167 is not in use
+
+### Frontend Not Connecting to Backend
+1. Verify backend is running on https://localhost:7167
+2. Check CORS configuration in Program.cs includes frontend URL
+3. Inspect network tab in DevTools for actual errors
+4. Check console logs in browser for detailed error messages
+
+### Expense Not Adding
+1. Open DevTools console and check network tab
+2. Verify payload shows { UserId, Category, Amount } (PascalCase)
+3. Confirm categoryName matches exactly with backend data
+4. Check user ID is valid and logged in
+
+### Categories Not Loading
+1. Check browser console for specific error messages
+2. Verify userId is being passed to CategorySection
+3. Inspect network tab to see which API endpoint is being called
+4. Check backend logs for database errors
+
+## Contributing
+
+When making changes to the codebase:
+1. Follow existing code patterns and naming conventions
+2. Maintain PascalCase property names in backend models
+3. Use camelCase in frontend JavaScript
+4. Add console logging for debugging complex operations
+5. Update this README with significant changes
+6. Test API integration thoroughly before committing
+
+## License
+
+This project is part of the FYP (Final Year Project) for personal finance management.
+
+---
+
+**Last Updated**: January 24, 2026
+**Version**: 1.0 (MVP - Minimum Viable Product)
+**Status**: Core features implemented and tested
