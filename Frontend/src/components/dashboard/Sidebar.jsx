@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTachometerAlt, FaCalendarAlt, FaUsers, FaLightbulb, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaTachometerAlt, FaUsers, FaLightbulb, FaUser, FaSignOutAlt } from 'react-icons/fa';
 import styles from './Dashboard.module.css';
 
 /**
@@ -8,16 +8,14 @@ import styles from './Dashboard.module.css';
  * Defines menu items shown in sidebar
  * isSelected: indicates which item is currently active
  * 
- * Future features: Daily Planner, Groups, AI Insights, Profile, Settings
- * Currently: Dashboard is the main (and only fully implemented) feature
+ * Currently implemented: Dashboard, Groups, Profile
+ * Future features: AI Insights
  */
 const navItems = [
-  { name: 'Dashboard', icon: <FaTachometerAlt />, isSelected: true },
-  { name: 'Daily Planner', icon: <FaCalendarAlt />, isSelected: false },
-  { name: 'Groups', icon: <FaUsers />, isSelected: false },
-  { name: 'AI Insights', icon: <FaLightbulb />, isSelected: false },
-  { name: 'Profile', icon: <FaUser />, isSelected: false },
-  { name: 'Settings', icon: <FaCog />, isSelected: false },
+  { name: 'Dashboard', icon: <FaTachometerAlt />, isSelected: true, path: '/dashboard' },
+  { name: 'Groups', icon: <FaUsers />, isSelected: false, path: '/groups' },
+  { name: 'AI Insights', icon: <FaLightbulb />, isSelected: false, path: '#' },
+  { name: 'Profile', icon: <FaUser />, isSelected: false, path: '/profile' },
 ];
 
 /**
@@ -43,6 +41,16 @@ const Sidebar = () => {
     navigate('/'); // Redirect to login page
   };
 
+  /**
+   * handleNavClick - Navigate to menu item if path is valid
+   * @param {string} path - The path to navigate to
+   */
+  const handleNavClick = (path) => {
+    if (path && path !== '#') {
+      navigate(path);
+    }
+  };
+
   return (
     <aside className={styles.sidebar}>
       {/* App branding/logo */}
@@ -55,7 +63,11 @@ const Sidebar = () => {
           {navItems.map((item) => (
             <li key={item.name}>
               <a
-                href="#"
+                href={item.path}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavClick(item.path);
+                }}
                 className={item.isSelected ? styles.navLinkActive : styles.navLink}
               >
                 <span style={{ marginRight: '10px' }}>{item.icon}</span>

@@ -79,7 +79,7 @@ export default function Setup() {
     try {
       // Save each category to backend
       for (let cat of categories) {
-        await fetch(`https://localhost:7167/api/Budget`, {
+        await fetch(`http://localhost:5262/api/Budget`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -91,7 +91,7 @@ export default function Setup() {
       }
 
       // Mark first login complete
-      await fetch(`https://localhost:7167/api/users/complete-setup/${user.userID}`, {
+      await fetch(`http://localhost:5262/api/users/complete-setup/${user.userID}`, {
         method: "POST",
       });
 

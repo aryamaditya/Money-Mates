@@ -1,7 +1,17 @@
+using MoneyMatesAPI.Hubs;
 using MoneyMatesAPI.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ---------------------------
+// Configure Logging
+// ---------------------------
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
+builder.Logging.AddFilter("MoneyMatesAPI", LogLevel.Information);
 
 // ---------------------------
 // Add DbContext
@@ -29,6 +39,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -51,5 +62,6 @@ app.UseCors("AllowReactApp");
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<GroupChatHub>("/hubs/groupchat");
 
 app.Run();

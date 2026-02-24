@@ -4,7 +4,7 @@ import expenseService from "../../services/expenseService";
 import styles from "./Dashboard.module.css";
 import "./CategorySection.css";
 
-const CategorySection = ({ userId, totalBalance = 0 }) => {
+const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
   const [categories, setCategories] = useState([]);
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -23,12 +23,7 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
   const [billImagePreview, setBillImagePreview] = useState(null);
   const [viewingBillImage, setViewingBillImage] = useState(null); // For modal viewer
 
-  // Icon mapping for categories
-  const CATEGORY_ICONS = {
-    Food: "🍔",
-    Transport: "🚗",
-    Entertainment: "🎬",
-  };
+  // Icon mapping for categories - removed emojis for cleaner look
 
   const fetchCategories = async () => {
     if (!userId) {
@@ -100,6 +95,7 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
   };
 
   useEffect(() => {
+    console.log("CategorySection - totalBalance received:", totalBalance);
     fetchCategories();
   }, [userId]);
 
@@ -254,6 +250,11 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
       } catch (err) {
         console.warn("Failed to fetch category expenses:", err);
       }
+
+      // Call the callback to refresh transactions in parent Dashboard
+      if (onExpenseAdded) {
+        await onExpenseAdded();
+      }
     } catch (err) {
       console.error("Failed to add expense:", err);
       alert("Failed to add expense. Please try again.");
@@ -289,6 +290,11 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
         );
       } catch (err) {
         console.warn("Failed to fetch category expenses:", err);
+      }
+
+      // Call the callback to refresh transactions in parent Dashboard
+      if (onExpenseAdded) {
+        await onExpenseAdded();
       }
     } catch (err) {
       console.error("Failed to delete expense:", err);
@@ -343,7 +349,7 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
       <div className="category-header">
         <div className="header-top">
           <div>
-            <h3 className="category-title">📊 Budget Categories</h3>
+            <h3 className="category-title">Budget Categories</h3>
             <p className="category-subtitle">Track your spending by category</p>
           </div>
           <button 
@@ -366,6 +372,25 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
                 required
               />
             </div>
+            
+            {/* Show warning if overallocated */}
+            {categories.reduce((sum, cat) => sum + cat.limit, 0) > totalBalance && (
+              <div style={{ 
+                padding: '12px', 
+                background: '#fff3cd', 
+                border: '1px solid #ffc107', 
+                borderRadius: '8px', 
+                marginBottom: '16px',
+                color: '#856404',
+                fontSize: '13px'
+              }}>
+                <strong>Budget Overallocated!</strong><br/>
+                Your category limits (Rs {categories.reduce((sum, cat) => sum + cat.limit, 0).toLocaleString()}) 
+                exceed your balance (Rs {totalBalance.toLocaleString()}) by Rs {(categories.reduce((sum, cat) => sum + cat.limit, 0) - totalBalance).toLocaleString()}.
+                <br/>You need to reduce category limits or increase balance before adding new categories.
+              </div>
+            )}
+            
             <div className="form-group">
               <label>Budget Limit (Rs)</label>
               <input
@@ -376,6 +401,7 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
                 required
                 min="0"
                 max={Math.max(totalBalance - categories.reduce((sum, cat) => sum + cat.limit, 0), 0)}
+                disabled={totalBalance <= categories.reduce((sum, cat) => sum + cat.limit, 0)}
               />
               <small className="available-balance">
                 Available: Rs {Math.max(totalBalance - categories.reduce((sum, cat) => sum + cat.limit, 0), 0).toLocaleString()} 
@@ -383,14 +409,14 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
               </small>
               {newCategoryLimit && parseFloat(newCategoryLimit) > Math.max(totalBalance - categories.reduce((sum, cat) => sum + cat.limit, 0), 0) && (
                 <small className="limit-warning">
-                  ⚠️ Exceeds available balance
+                  Exceeds available balance
                 </small>
               )}
             </div>
             <button 
               type="submit" 
               className="btn-submit"
-              disabled={addingCategory || (newCategoryLimit && parseFloat(newCategoryLimit) > Math.max(totalBalance - categories.reduce((sum, cat) => sum + cat.limit, 0), 0))}
+              disabled={addingCategory || (newCategoryLimit && parseFloat(newCategoryLimit) > Math.max(totalBalance - categories.reduce((sum, cat) => sum + cat.limit, 0), 0)) || totalBalance <= categories.reduce((sum, cat) => sum + cat.limit, 0)}
             >
               {addingCategory ? "Adding..." : "Add Category"}
             </button>
@@ -414,7 +440,6 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
                 >
                   <div className="category-card-header">
                     <div className="category-info">
-                      <span className="category-icon">{CATEGORY_ICONS[c.name] || "💰"}</span>
                       <div className="category-text">
                         <h4 className="category-name">{c.name}</h4>
                         <p className="category-stat">
@@ -442,8 +467,8 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
                     <div className="remaining-info">
                       <p className={`remaining ${status}`}>
                         {status === "exceeded"
-                          ? `❌ Over by Rs ${(c.used - c.limit).toLocaleString()}`
-                          : `✅ Rs ${remaining.toLocaleString()} remaining`}
+                          ? `Over by Rs ${(c.used - c.limit).toLocaleString()}`
+                          : `Rs ${remaining.toLocaleString()} remaining`}
                       </p>
                     </div>
                     <div className="footer-actions">
@@ -456,7 +481,7 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
                           }}
                           title="Increase budget limit"
                         >
-                          ⬆️ Increase Limit
+                          Increase Limit
                         </button>
                       )}
                       <span className="expand-icon">
@@ -484,7 +509,7 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
                       {c.used > c.limit && (
                         <div className="overspend-info">
                           <p className="overspend-alert">
-                            💰 You have overspent by Rs {(c.used - c.limit).toLocaleString()} in this category!
+                            You have overspent by Rs {(c.used - c.limit).toLocaleString()} in this category!
                           </p>
                           <p className="overspend-detail">
                             Spent: Rs {c.used.toLocaleString()} | Current Limit: Rs {c.limit.toLocaleString()}
@@ -552,12 +577,12 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
                                 </div>
                                 <div className="expense-amount">Rs {e.amount.toLocaleString()}</div>
                                 {e.billImageBase64 && (
-                                  <span 
-                                    className="bill-icon" 
+                                  <button 
+                                    className="bill-icon-btn" 
                                     title="Click to view bill photo"
                                     onClick={() => setViewingBillImage(e.billImageBase64)}
-                                    style={{ cursor: 'pointer' }}
-                                  >📷</span>
+                                    style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#667eea', fontSize: '12px', padding: '4px' }}
+                                  >View Bill</button>
                                 )}
                               </div>
                               <button
@@ -566,7 +591,7 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
                                 disabled={deletingExpenseId === e.id}
                                 title="Delete this expense"
                               >
-                                {deletingExpenseId === e.id ? "Deleting..." : "🗑️ Delete"}
+                                {deletingExpenseId === e.id ? "Deleting..." : "Delete"}
                               </button>
                             </div>
                           ))}
@@ -580,7 +605,7 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
                       </>
                     ) : (
                       <div className="no-expenses">
-                        <p>📭 No expenses recorded yet</p>
+                        <p>No expenses recorded yet</p>
                       </div>
                     )}
                     
@@ -620,7 +645,7 @@ const CategorySection = ({ userId, totalBalance = 0 }) => {
                           </div>
                           {billImagePreview && (
                             <div className="bill-preview">
-                              <p className="preview-label">📸 Bill Preview:</p>
+                              <p className="preview-label">Bill Preview:</p>
                               <img src={billImagePreview} alt="Bill preview" className="preview-image" />
                               <button
                                 type="button"
