@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTachometerAlt, FaUsers, FaLightbulb, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaTachometerAlt, FaUsers, FaLightbulb, FaUser, FaSignOutAlt, FaHistory } from 'react-icons/fa';
 import styles from './Dashboard.module.css';
 
 /**
@@ -13,6 +13,7 @@ import styles from './Dashboard.module.css';
  */
 const navItems = [
   { name: 'Dashboard', icon: <FaTachometerAlt />, isSelected: true, path: '/dashboard' },
+  { name: 'Past Data', icon: <FaHistory />, isSelected: false, path: '/past-data' },
   { name: 'Groups', icon: <FaUsers />, isSelected: false, path: '/groups' },
   { name: 'AI Insights', icon: <FaLightbulb />, isSelected: false, path: '#' },
   { name: 'Profile', icon: <FaUser />, isSelected: false, path: '/profile' },

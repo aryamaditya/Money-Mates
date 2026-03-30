@@ -36,7 +36,7 @@ const Dashboard = () => {
     const user = JSON.parse(storedUser);
     setUserName(user.name);
 
-    // Fetch totals
+    // Fetch totals (for current month - always show current balance)
     fetch(`http://localhost:5262/api/dashboard/totals/${userId}`)
       .then(res => res.json())
       .then(data => {
@@ -45,7 +45,7 @@ const Dashboard = () => {
       })
       .catch(err => console.error("Failed to fetch totals:", err));
 
-    // Fetch monthly spending
+    // Fetch monthly spending (all months for year view)
     fetch(`http://localhost:5262/api/dashboard/spending/${userId}`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);

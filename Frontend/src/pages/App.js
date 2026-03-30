@@ -5,8 +5,8 @@ import Setup from "./Setup";
 import Dashboard from "../components/dashboard/Dashboard";
 import CategoryDetail from "./CategoryDetail";
 import Profile from "./Profile";
+import PastData from "./PastData";
 import Group from "../components/Group";
-import InviteGroup from "../components/InviteGroup";
 import GroupChat from "../components/GroupChat";
 
 function App() {
@@ -19,10 +19,11 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/setup" element={<Setup />} />
         <Route path="/dashboard" element={<Dashboard userId={userId} />} />
+        <Route path="/past-data" element={<PastData />} />
         <Route path="/category/:categoryName" element={<CategoryDetail userId={userId} />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/groups" element={<Group />} />
-        <Route path="/group/invite/:groupId" element={<InviteGroup />} />
+        <Route path="/group/invite/:inviteCode" element={<Group />} />
         <Route path="/groups/:groupId/chat" element={<GroupChat />} />
       </Routes>
     </BrowserRouter>

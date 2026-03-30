@@ -1,0 +1,425 @@
+/* Past Data Page Styles */
+
+* {
+  box-sizing: border-box;
+}
+
+.pastDataLayout {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.mainContent {
+  flex: 1;
+  margin-left: 280px;
+  padding: 40px;
+}
+
+/* ===== HERO SECTION ===== */
+.heroSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
+  margin-bottom: 40px;
+  animation: slideInDown 0.6s ease-out;
+}
+
+.heroContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 40px;
+}
+
+.heroContent h1 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.5px;
+}
+
+.heroSubtitle {
+  font-size: 16px;
+  color: #7f8c8d;
+  margin: 0;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+
+/* ===== MONTH SELECTION SECTION ===== */
+.monthSelectionSection {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  margin-bottom: 30px;
+  animation: slideInUp 0.6s ease-out 0.1s both;
+}
+
+.monthSelectionSection h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 20px 0;
+}
+
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.monthButton {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.monthButton:hover {
+  border-color: #667eea;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+}
+
+.monthButton.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: white;
+}
+
+.monthName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 10px 0;
+}
+
+.monthButton.active .monthName {
+  color: white;
+}
+
+.monthStats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  margin: 0;
+}
+
+.monthStats .income {
+  color: #43e97b;
+  font-weight: 600;
+}
+
+.monthButton.active .monthStats .income {
+  color: #98FF98;
+}
+
+.monthStats .expense {
+  color: #fa709a;
+  font-weight: 600;
+}
+
+.monthButton.active .monthStats .expense {
+  color: #FFB6C6;
+}
+
+.noDataMessage {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 16px;
+}
+
+/* ===== SUMMARY SECTION ===== */
+.summarySection {
+  margin-bottom: 30px;
+  animation: slideInUp 0.6s ease-out 0.2s both;
+}
+
+.summarySection h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 20px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.summaryCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.summaryCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+.summaryIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 28px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.summaryContent {
+  flex: 1;
+}
+
+.summaryLabel {
+  margin: 0;
+  font-size: 13px;
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summaryValue {
+  margin: 8px 0 0 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+/* ===== CHART SECTION ===== */
+.chartSection {
+  margin-bottom: 30px;
+  animation: slideInUp 0.6s ease-out 0.3s both;
+}
+
+.chartCard {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.chartHeader {
+  margin-bottom: 25px;
+}
+
+.chartCard h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 5px 0;
+}
+
+.chartSubtitle {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+}
+
+/* ===== TRANSACTIONS SECTION ===== */
+.transactionsSection {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  animation: slideInUp 0.6s ease-out 0.4s both;
+}
+
+.transactionsSection h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 20px 0;
+}
+
+.transactionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transactionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #fafbfc;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.transactionItem:hover {
+  background: #f5f7fa;
+  border-color: #e0e0e0;
+  transform: translateX(4px);
+}
+
+.txInfo {
+  flex: 1;
+}
+
+.txCategory {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.txDate {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #999;
+}
+
+.txAmount {
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 120px;
+  text-align: right;
+}
+
+.txAmount.income {
+  color: #43e97b;
+}
+
+.txAmount.expense {
+  color: #fa709a;
+}
+
+/* ===== EMPTY STATES ===== */
+.noTransactions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 16px;
+  text-align: center;
+  background: #fafbfc;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+}
+
+.emptyStateSection,
+.loadingSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+  color: #999;
+  font-size: 18px;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  margin-top: 30px;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
+  .mainContent {
+    padding: 30px;
+  }
+
+  .monthGrid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
+
+  .summaryCards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .heroContent h1 {
+    font-size: 28px;
+  }
+
+  .monthGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .monthSelectionSection {
+    padding: 20px;
+  }
+
+  .summarySection h2 {
+    font-size: 24px;
+  }
+
+  .summaryCard {
+    padding: 20px;
+    gap: 15px;
+  }
+
+  .summaryValue {
+    font-size: 22px;
+  }
+
+  .transactionsSection {
+    padding: 20px;
+  }
+
+  .txAmount {
+    font-size: 14px;
+  }
+}

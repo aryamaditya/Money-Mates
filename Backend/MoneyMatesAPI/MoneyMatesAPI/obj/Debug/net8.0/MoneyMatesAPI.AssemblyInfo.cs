@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MoneyMatesAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6ceac825d64450ea7b7ff443e65ef016c4291679")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9824daf7bdbf73b5436e5aa2fcf26f4dd7a16726")]
 [assembly: System.Reflection.AssemblyProductAttribute("MoneyMatesAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MoneyMatesAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

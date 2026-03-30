@@ -20,10 +20,22 @@ namespace MoneyMatesAPI.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> Signup([FromBody] User user)
         {
+            // Validate input
+            var validationErrors = ValidateSignup(user);
+            if (validationErrors.Any())
+            {
+                return BadRequest(new { errors = validationErrors });
+            }
+
+            // Check for duplicate email
             if (await _context.Users.AnyAsync(u => u.Email == user.Email))
             {
-                return BadRequest(new { message = "Email already exists." });
+                return BadRequest(new { message = "Email already exists. Please use a different email." });
             }
+
+            // Trim whitespace
+            user.Name = user.Name.Trim();
+            user.Email = user.Email.Trim();
 
             // Ensure Id is not set manually
             user.Id = 0;
@@ -32,6 +44,48 @@ namespace MoneyMatesAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { userID = user.Id, name = user.Name, email = user.Email });
+        }
+
+        /// <summary>
+        /// Validate signup input
+        /// </summary>
+        private List<string> ValidateSignup(User user)
+        {
+            var errors = new List<string>();
+
+            // Name validation
+            if (string.IsNullOrWhiteSpace(user.Name))
+                errors.Add("Name is required");
+            else if (user.Name.Trim().Length < 2)
+                errors.Add("Name must be at least 2 characters");
+            else if (user.Name.Trim().Length > 50)
+                errors.Add("Name cannot exceed 50 characters");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(user.Name, @"^[a-zA-Z\s'-]+$"))
+                errors.Add("Name can only contain letters, spaces, hyphens, and apostrophes");
+
+            // Email validation
+            if (string.IsNullOrWhiteSpace(user.Email))
+                errors.Add("Email is required");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(user.Email, @"^[^\s@]+@[^\s@]+\.[^\s@]+$"))
+                errors.Add("Email format is invalid");
+            else if (user.Email.Length > 100)
+                errors.Add("Email is too long");
+
+            // Password validation
+            if (string.IsNullOrWhiteSpace(user.Password))
+                errors.Add("Password is required");
+            else if (user.Password.Length < 8)
+                errors.Add("Password must be at least 8 characters");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(user.Password, @"[A-Z]"))
+                errors.Add("Password must contain at least one uppercase letter");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(user.Password, @"[a-z]"))
+                errors.Add("Password must contain at least one lowercase letter");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(user.Password, @"[0-9]"))
+                errors.Add("Password must contain at least one number");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(user.Password, @"[!@#$%^&*]"))
+                errors.Add("Password must contain at least one special character (!@#$%^&*)");
+
+            return errors;
         }
 
         [HttpPost("login")]

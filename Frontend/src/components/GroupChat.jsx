@@ -364,16 +364,16 @@ const GroupChat = () => {
                 <div className="invite-link-box">
                   <input 
                     type="text" 
-                    value={`http://localhost:3000/group/invite/${groupId}`}
+                    value={group?.inviteLink || `http://localhost:3000/group/invite/${group?.inviteCode}`}
                     readOnly 
                     className="invite-link-input"
                   />
                   <button 
                     className="btn-copy-invite"
                     onClick={() => {
-                      navigator.clipboard.writeText(`http://localhost:3000/group/invite/${groupId}`);
+                      const linkToCopy = group?.inviteLink || `http://localhost:3000/group/invite/${group?.inviteCode}`;
+                      navigator.clipboard.writeText(linkToCopy);
                       setSuccess('Invite link copied to clipboard!');
-                      setTimeout(() => setSuccess(''), 2000);
                     }}
                   >
                     Copy Link

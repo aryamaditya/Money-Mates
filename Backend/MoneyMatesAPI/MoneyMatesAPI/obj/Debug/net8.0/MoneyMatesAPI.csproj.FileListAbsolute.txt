@@ -1,11 +1,6 @@
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\appsettings.Development.json
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\MoneyMatesAPI.staticwebassets.endpoints.json
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\MoneyMatesAPI.exe
-D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\appsettings.json
-D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\MoneyMatesAPI.deps.json
-D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\MoneyMatesAPI.runtimeconfig.json
-D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\MoneyMatesAPI.dll
-D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\MoneyMatesAPI.pdb
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\Azure.Core.dll
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\Azure.Identity.dll
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\Humanizer.dll
@@ -136,6 +131,10 @@ D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\net
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\net8.0\MoneyMatesAPI.dll
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\net8.0\refint\MoneyMatesAPI.dll
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\net8.0\MoneyMatesAPI.pdb
+D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\appsettings.json
+D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\MoneyMatesAPI.deps.json
+D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\MoneyMatesAPI.runtimeconfig.json
+D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\MoneyMatesAPI.dll
+D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\MoneyMatesAPI.pdb
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\net8.0\MoneyMatesAPI.genruntimeconfig.cache
 D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\net8.0\ref\MoneyMatesAPI.dll
-D:\College Work\FYP\MoneyMates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

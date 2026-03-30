@@ -30,7 +30,8 @@ namespace MoneyMatesAPI.Controllers
                 Name = request.Name,
                 Description = request.Description,
                 CreatedBy = request.CreatedBy,
-                CreatedDate = DateTime.Now
+                CreatedDate = DateTime.Now,
+                InviteCode = GenerateInviteCode() // Generate unique invite code
             };
 
             _context.Groups.Add(group);
@@ -48,12 +49,13 @@ namespace MoneyMatesAPI.Controllers
             await _context.SaveChangesAsync();
 
             // Generate invite link
-            var inviteLink = $"http://localhost:3000/group/invite/{group.Id}";
+            var inviteLink = $"http://localhost:3000/group/invite/{group.InviteCode}";
 
             return Ok(new 
             { 
                 id = group.Id, 
                 name = group.Name,
+                inviteCode = group.InviteCode,
                 inviteLink = inviteLink,
                 message = "Group created successfully" 
             });
@@ -111,6 +113,8 @@ namespace MoneyMatesAPI.Controllers
                 description = group.Description,
                 createdBy = group.Creator!.Name,
                 createdDate = group.CreatedDate,
+                inviteCode = group.InviteCode,
+                inviteLink = $"http://localhost:3000/group/invite/{group.InviteCode}",
                 memberCount = group.Members!.Count(),
                 members = group.Members!.Select(m => new
                 {
@@ -129,20 +133,21 @@ namespace MoneyMatesAPI.Controllers
         [HttpPost("join")]
         public async Task<IActionResult> JoinGroup([FromBody] JoinGroupRequest request)
         {
-            var group = await _context.Groups.FindAsync(request.GroupId);
+            // Find group by invite code (not by group ID for security)
+            var group = await _context.Groups.FirstOrDefaultAsync(g => g.InviteCode == request.InviteCode);
             if (group == null)
-                return NotFound(new { message = "Group not found" });
+                return NotFound(new { message = "Invalid invite code or group not found" });
 
             // Check if user is already a member
             var isMember = await _context.GroupMembers
-                .AnyAsync(gm => gm.GroupId == request.GroupId && gm.UserId == request.UserId);
+                .AnyAsync(gm => gm.GroupId == group.Id && gm.UserId == request.UserId);
 
             if (isMember)
                 return BadRequest(new { message = "User is already a member of this group" });
 
             var groupMember = new GroupMember
             {
-                GroupId = request.GroupId,
+                GroupId = group.Id,
                 UserId = request.UserId,
                 JoinedDate = DateTime.Now
             };
@@ -150,7 +155,11 @@ namespace MoneyMatesAPI.Controllers
             _context.GroupMembers.Add(groupMember);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Successfully joined the group" });
+            return Ok(new { 
+                message = "Successfully joined the group",
+                groupId = group.Id,
+                groupName = group.Name
+            });
         }
 
         /// <summary>
@@ -177,6 +186,46 @@ namespace MoneyMatesAPI.Controllers
 
             return Ok(groups);
         }
+
+        /// <summary>
+        /// Fix: Generate invite codes for groups without them (for existing groups in database)
+        /// </summary>
+        [HttpPost("fix-invite-codes")]
+        public async Task<IActionResult> FixInviteCodes()
+        {
+            var groupsWithoutCodes = await _context.Groups
+                .Where(g => string.IsNullOrEmpty(g.InviteCode))
+                .ToListAsync();
+
+            foreach (var group in groupsWithoutCodes)
+            {
+                group.InviteCode = GenerateInviteCode();
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = $"Fixed {groupsWithoutCodes.Count} groups by generating invite codes",
+                groupsUpdated = groupsWithoutCodes.Count
+            });
+        }
+
+        /// <summary>
+        /// Helper method to generate unique invite code
+        /// </summary>
+        private string GenerateInviteCode()
+        {
+            // Generate a random 8-character code (alphanumeric)
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var random = new Random();
+            var result = new char[8];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = chars[random.Next(chars.Length)];
+            }
+            return new string(result);
+        }
     }
 
     public class CreateGroupRequest
@@ -188,7 +237,7 @@ namespace MoneyMatesAPI.Controllers
 
     public class JoinGroupRequest
     {
-        public int GroupId { get; set; }
+        public string InviteCode { get; set; } = null!;
         public int UserId { get; set; }
     }
 }

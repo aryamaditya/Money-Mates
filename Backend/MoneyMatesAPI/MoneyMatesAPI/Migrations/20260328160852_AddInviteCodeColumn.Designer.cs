@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneyMatesAPI.Data;
 
@@ -11,9 +12,11 @@ using MoneyMatesAPI.Data;
 namespace MoneyMatesAPI.Migrations
 {
     [DbContext(typeof(MoneyMatesDbContext))]
-    partial class MoneyMatesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260328160852_AddInviteCodeColumn")]
+    partial class AddInviteCodeColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

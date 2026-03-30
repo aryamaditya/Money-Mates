@@ -18,6 +18,9 @@ namespace MoneyMatesAPI.Models
         [Required]
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
+        [Required]
+        public string InviteCode { get; set; } = null!; // Unique invite code for joining
+
         // Navigation property
         [ForeignKey("CreatedBy")]
         public User? Creator { get; set; }

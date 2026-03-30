@@ -77,12 +77,12 @@ export const getGroupDetails = async (groupId) => {
 };
 
 /**
- * Join a group
- * @param {number} groupId - Group ID to join
+ * Join a group using invite code
+ * @param {string} inviteCode - Invite code for the group
  * @param {number} userId - User ID joining the group
- * @returns {Promise<Object>} - Response message
+ * @returns {Promise<Object>} - Response message with group details
  */
-export const joinGroup = async (groupId, userId) => {
+export const joinGroup = async (inviteCode, userId) => {
   try {
     const response = await fetch(`${BASE_URL}/join`, {
       method: 'POST',
@@ -90,7 +90,7 @@ export const joinGroup = async (groupId, userId) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        groupId,
+        inviteCode,
         userId,
       }),
     });

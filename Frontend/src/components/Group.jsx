@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FaArrowLeft, FaPlus, FaUserPlus, FaSpinner, FaCheck, FaTimes } from 'react-icons/fa';
 import * as groupService from '../services/groupService';
 import './Group.css';
 
 const Group = () => {
   const navigate = useNavigate();
+  const { inviteCode } = useParams(); // Get invite code from URL if present
   const user = JSON.parse(localStorage.getItem('user')) || {};
   const userId = user.userID;
 
   // State management
   const [view, setView] = useState('main'); // 'main', 'create', 'join', 'list'
   const [groups, setGroups] = useState([]);
-  const [availableGroups, setAvailableGroups] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -25,8 +26,13 @@ const Group = () => {
   useEffect(() => {
     if (userId) {
       fetchUserGroups();
+      
+      // If user came via invite link, auto-join
+      if (inviteCode) {
+        handleJoinGroupWithCode(inviteCode);
+      }
     }
-  }, [userId]);
+  }, [userId, inviteCode]);
 
   const fetchUserGroups = async () => {
     try {
@@ -37,20 +43,6 @@ const Group = () => {
     } catch (err) {
       console.error('Failed to fetch groups:', err);
       setError('Failed to load groups');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchAvailableGroups = async () => {
-    try {
-      setLoading(true);
-      const data = await groupService.getAvailableGroups(userId);
-      setAvailableGroups(data);
-      setError('');
-    } catch (err) {
-      console.error('Failed to fetch available groups:', err);
-      setError('Failed to load available groups');
     } finally {
       setLoading(false);
     }
@@ -70,11 +62,6 @@ const Group = () => {
       setInviteLink(response.inviteLink);
       setCreateForm({ name: '', description: '' });
       await fetchUserGroups();
-      setTimeout(() => {
-        setView('list');
-        setSuccess('');
-        setInviteLink('');
-      }, 3000);
     } catch (err) {
       console.error('Failed to create group:', err);
       setError('Failed to create group');
@@ -83,20 +70,65 @@ const Group = () => {
     }
   };
 
-  const handleJoinGroup = async (groupId) => {
+  const handleJoinGroup = async (inviteInput) => {
     try {
       setLoading(true);
-      await groupService.joinGroup(groupId, userId);
+      // Extract invite code from link if user pasted a full link
+      let code = inviteInput.trim();
+      
+      // If it's a full URL, extract the code from the end
+      if (code.includes('/')) {
+        code = code.split('/').pop();
+      }
+      
+      if (!code) {
+        setError('Please enter a valid invite code or link');
+        setLoading(false);
+        return;
+      }
+
+      await groupService.joinGroup(code, userId);
       setSuccess('Successfully joined the group!');
+      setJoinCode('');
       await fetchUserGroups();
-      await fetchAvailableGroups();
       setTimeout(() => {
         setSuccess('');
         setView('list');
       }, 1500);
     } catch (err) {
       console.error('Failed to join group:', err);
-      setError(err.message || 'Failed to join group');
+      setError(err.message || 'Failed to join group. Check your invite code/link.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCloseInviteLink = () => {
+    setInviteLink('');
+    setSuccess('');
+  };
+
+  const handleViewGroupsList = () => {
+    setInviteLink('');
+    setSuccess('');
+    setView('list');
+  };
+
+  const handleJoinGroupWithCode = async (code) => {
+    try {
+      setLoading(true);
+      setView('main'); // Show loading state on main view
+      await groupService.joinGroup(code, userId);
+      setSuccess(`Successfully joined the group!`);
+      await fetchUserGroups();
+      setTimeout(() => {
+        setSuccess('');
+        setView('list');
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to join group with code:', err);
+      setError('Invalid invite link or you might already be a member of this group');
+      setView('main');
     } finally {
       setLoading(false);
     }
@@ -143,16 +175,13 @@ const Group = () => {
 
             <button
               className="option-card join-card"
-              onClick={() => {
-                setView('join');
-                fetchAvailableGroups();
-              }}
+              onClick={() => setView('join')}
             >
               <div className="option-icon join-icon">
                 <FaUserPlus />
               </div>
               <h3>Join Group</h3>
-              <p>Join an existing group</p>
+              <p>Join an existing group with invite link</p>
             </button>
           </div>
 
@@ -222,7 +251,28 @@ const Group = () => {
 
           {inviteLink && (
             <div className="invite-link-card">
-              <h3>Share this invite link with your friends:</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{ margin: 0 }}>Share this invite link with your friends:</h3>
+                <button 
+                  onClick={handleCloseInviteLink}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '24px',
+                    cursor: 'pointer',
+                    color: '#666',
+                    padding: '0',
+                    width: '30px',
+                    height: '30px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title="Close"
+                >
+                  ✕
+                </button>
+              </div>
               <div className="invite-link-display">
                 <input 
                   type="text" 
@@ -235,13 +285,19 @@ const Group = () => {
                   onClick={() => {
                     navigator.clipboard.writeText(inviteLink);
                     setSuccess('Invite link copied to clipboard!');
-                    setTimeout(() => setSuccess(''), 2000);
                   }}
                 >
                   Copy Link
                 </button>
               </div>
               <p className="invite-hint">Anyone with this link can join the group</p>
+              <button 
+                className="btn-primary" 
+                onClick={handleViewGroupsList}
+                style={{ marginTop: '12px', width: '100%' }}
+              >
+                View Your Groups
+              </button>
             </div>
           )}
         </div>
@@ -257,40 +313,39 @@ const Group = () => {
             <h2>Join a Group</h2>
           </div>
 
-          {loading && availableGroups.length === 0 ? (
-            <div className="loading-spinner">
-              <FaSpinner className="spinner" />
-              <p>Loading available groups...</p>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (joinCode.trim()) {
+              handleJoinGroup(joinCode);
+            }
+          }} className="group-form">
+            <div className="form-group">
+              <label>Invite Link or Code *</label>
+              <input
+                type="text"
+                placeholder="Paste the invite link or code (e.g., http://localhost:3000/group/invite/ABC12XYZ or just ABC12XYZ)"
+                value={joinCode}
+                onChange={(e) => setJoinCode(e.target.value)}
+              />
+              <p className="form-hint">Paste the invite link that the group creator shared with you</p>
             </div>
-          ) : availableGroups.length === 0 ? (
-            <div className="no-groups">
-              <p>No available groups to join at the moment</p>
-            </div>
-          ) : (
-            <div className="groups-list">
-              {availableGroups.map((group) => (
-                <div key={group.id} className="group-card">
-                  <div className="group-card-header">
-                    <h3>{group.name}</h3>
-                    <span className="members-badge">{group.memberCount} members</span>
-                  </div>
-                  {group.description && (
-                    <p className="group-description">{group.description}</p>
-                  )}
-                  <div className="group-card-footer">
-                    <small>Created by {group.createdBy}</small>
-                    <button
-                      className="btn-join"
-                      onClick={() => handleJoinGroup(group.id)}
-                      disabled={loading}
-                    >
-                      <FaUserPlus /> Join
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+
+            <button
+              type="submit"
+              className="btn-submit"
+              disabled={loading || !joinCode.trim()}
+            >
+              {loading ? (
+                <>
+                  <FaSpinner className="spinner" /> Joining...
+                </>
+              ) : (
+                <>
+                  <FaUserPlus /> Join Group
+                </>
+              )}
+            </button>
+          </form>
         </div>
       )}
 
