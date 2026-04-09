@@ -125,3 +125,34 @@ export const getAvailableGroups = async (userId) => {
     throw error;
   }
 };
+
+/**
+ * Leave a group
+ * @param {number} groupId - Group ID
+ * @param {number} userId - User ID leaving the group
+ * @returns {Promise<Object>} - Response message
+ */
+export const leaveGroup = async (groupId, userId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/leave`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        groupId,
+        userId,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Error leaving group: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error in leaveGroup:', error);
+    throw error;
+  }
+};

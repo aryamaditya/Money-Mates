@@ -1,12 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Load saved email on component mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("savedEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,12 +34,16 @@ export default function Login() {
         const data = await response.json();
         // Save user info in localStorage
         localStorage.setItem("user", JSON.stringify(data));
-        // Redirect to dashboard
-        if (data.isFirstLogin) {
-          navigate("/setup"); // new page
+        
+        // Save email if "Remember me" is checked
+        if (rememberMe) {
+          localStorage.setItem("savedEmail", email);
         } else {
-          navigate("/dashboard");
-  }
+          localStorage.removeItem("savedEmail");
+        }
+        
+        // Redirect directly to dashboard
+        navigate("/dashboard");
       } else {
         const errData = await response.json();
         setError(errData.message || "Invalid email or password");
@@ -61,6 +75,8 @@ export default function Login() {
             type="email"
             placeholder="you@example.com"
             required
+            autoComplete="off"
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
 
@@ -70,6 +86,7 @@ export default function Login() {
             type="password"
             placeholder="***********"
             required
+            autoComplete="off"
             onChange={(e) => setPassword(e.target.value)}
           />
 
@@ -77,9 +94,14 @@ export default function Login() {
 
           <div className="row-between">
             <label className="checkbox-label">
-              <input type="checkbox" /> <span>Remember me</span>
+              <input 
+                type="checkbox" 
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              /> 
+              <span>Remember me</span>
             </label>
-            <a href="#" className="link">Forgot Password?</a>
+            <Link to="/forgot-password" className="link">Forgot Password?</Link>
           </div>
 
           <button className="btn-primary" type="submit" disabled={loading}>

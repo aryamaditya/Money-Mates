@@ -3,16 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   FaArrowLeft,
   FaPaperPlane,
-  FaImage,
-  FaMicrophone,
   FaSpinner,
   FaCheck,
   FaTimes,
-  FaPlay,
   FaShareAlt,
+  FaComments,
+  FaMoneyBillWave,
 } from 'react-icons/fa';
 import * as groupChatService from '../services/groupChatService';
 import * as groupService from '../services/groupService';
+import GroupExpense from './GroupExpense';
 import './GroupChat.css';
 
 const GroupChat = () => {
@@ -26,16 +26,14 @@ const GroupChat = () => {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' or 'expenses'
 
   // Refs
   const messagesEndRef = useRef(null);
-  const fileInputRef = useRef(null);
-  const audioInputRef = useRef(null);
 
   // Load group info and messages on mount
   useEffect(() => {
@@ -133,58 +131,22 @@ const GroupChat = () => {
     }
   };
 
-  const handleFileUpload = async (file, fileType) => {
-    if (!file) return;
 
-    try {
-      setUploading(true);
-      const { fileUrl, fileType: uploadedType } = await groupChatService.uploadFile(file);
-      
-      // Send message with file
-      await groupChatService.sendMessage(
-        groupId,
-        userId,
-        `[${uploadedType.toUpperCase()}]`,
-        fileUrl,
-        uploadedType
-      );
-      setError('');
-    } catch (err) {
-      console.error('Failed to upload file:', err);
-      setError('Failed to upload file');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleAudioClick = () => {
-    audioInputRef.current?.click();
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file, 'image');
-    }
-  };
-
-  const handleAudioChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file, 'audio');
-    }
-  };
 
   // Clean up on unmount
   useEffect(() => {
     return async () => {
-      if (groupId && userId) {
-        await groupChatService.leaveGroup(groupId, userId);
+      try {
+        if (groupId && userId) {
+          // Try to notify the server that we're leaving (only if connection is active)
+          await groupChatService.leaveGroup(groupId, userId);
+        }
+        // Remove all event listeners
         groupChatService.removeAllListeners();
+        // Disconnect from SignalR
+        await groupChatService.disconnect();
+      } catch (err) {
+        console.error("Error during cleanup:", err);
       }
     };
   }, [groupId, userId]);
@@ -218,6 +180,22 @@ const GroupChat = () => {
         </button>
       </div>
 
+      {/* Tabs */}
+      <div className="chat-tabs">
+        <button
+          className={`tab-button ${activeTab === 'chat' ? 'active' : ''}`}
+          onClick={() => setActiveTab('chat')}
+        >
+          <FaComments /> Chat
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'expenses' ? 'active' : ''}`}
+          onClick={() => setActiveTab('expenses')}
+        >
+          <FaMoneyBillWave /> Expenses
+        </button>
+      </div>
+
       {/* Alerts */}
       {error && (
         <div className="alert alert-error">
@@ -230,7 +208,8 @@ const GroupChat = () => {
         </div>
       )}
 
-      {/* Messages Container */}
+      {/* Messages Container - Chat Tab */}
+      {activeTab === 'chat' && (
       <div className="messages-container">
         {messages.length === 0 ? (
           <div className="no-messages">
@@ -251,36 +230,29 @@ const GroupChat = () => {
                 </span>
               </div>
 
-              {message.fileType === 'image' ? (
-                <div className="message-content">
-                  <img
-                    src={message.fileUrl}
-                    alt="Message"
-                    className="message-image"
-                  />
-                </div>
-              ) : message.fileType === 'audio' ? (
-                <div className="message-content">
-                  <div className="audio-player">
-                    <FaPlay className="play-icon" />
-                    <audio controls className="audio-element">
-                      <source src={message.fileUrl} type="audio/mpeg" />
-                      Your browser does not support the audio element.
-                    </audio>
-                  </div>
-                </div>
-              ) : (
-                <div className="message-content">
-                  <p>{message.content}</p>
-                </div>
-              )}
+              <div className="message-content">
+                <p>{message.content}</p>
+              </div>
             </div>
           ))
         )}
         <div ref={messagesEndRef} />
       </div>
+      )}
 
-      {/* Input Area */}
+      {/* Expenses Tab */}
+      {activeTab === 'expenses' && (
+        <div className="expenses-container">
+          <GroupExpense 
+            groupId={groupId} 
+            userId={userId} 
+            groupMembers={group?.members}
+          />
+        </div>
+      )}
+
+      {/* Input Area - Only show in chat tab */}
+      {activeTab === 'chat' && (
       <div className="chat-input-area">
         <form onSubmit={handleSendMessage} className="message-form">
           <div className="input-wrapper">
@@ -289,63 +261,26 @@ const GroupChat = () => {
               placeholder="Type a message..."
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
-              disabled={uploading}
             />
 
             <div className="input-buttons">
               <button
-                type="button"
-                className="btn-attach"
-                onClick={handleImageClick}
-                disabled={uploading}
-                title="Send image"
-              >
-                <FaImage />
-              </button>
-
-              <button
-                type="button"
-                className="btn-attach"
-                onClick={handleAudioClick}
-                disabled={uploading}
-                title="Send audio"
-              >
-                <FaMicrophone />
-              </button>
-
-              <button
                 type="submit"
                 className="btn-send"
-                disabled={loading || uploading || !messageInput.trim()}
+                disabled={loading || !messageInput.trim()}
               >
-                {uploading ? (
-                  <FaSpinner className="spinner" />
-                ) : (
-                  <FaPaperPlane />
-                )}
+                <FaPaperPlane />
               </button>
             </div>
           </div>
         </form>
 
-        {/* Hidden file inputs */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          style={{ display: 'none' }}
-        />
-        <input
-          ref={audioInputRef}
-          type="file"
-          accept="audio/*"
-          onChange={handleAudioChange}
-          style={{ display: 'none' }}
-        />
 
-        {/* Invite Modal */}
-        {showInviteModal && (
+      </div>
+      )}
+
+      {/* Invite Modal */}
+      {showInviteModal && (
           <div className="modal-overlay" onClick={() => setShowInviteModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
@@ -393,8 +328,7 @@ const GroupChat = () => {
               </div>
             </div>
           </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };

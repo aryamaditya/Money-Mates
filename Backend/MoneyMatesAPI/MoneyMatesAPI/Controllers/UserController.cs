@@ -169,6 +169,61 @@ namespace MoneyMatesAPI.Controllers
             return Ok(new { message = "Password changed successfully." });
         }
 
+        // POST: api/users/verify-email
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (user == null)
+                return BadRequest(new { message = "Email not found in our records." });
+
+            return Ok(new { message = "Email verified. You can now reset your password." });
+        }
+
+        // POST: api/users/reset-password
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (user == null)
+                return BadRequest(new { message = "Email not found." });
+
+            // Validate new password
+            var passwordErrors = ValidatePassword(request.NewPassword);
+            if (passwordErrors.Any())
+                return BadRequest(new { errors = passwordErrors });
+
+            // Update password
+            user.Password = request.NewPassword;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Password reset successfully." });
+        }
+
+        /// <summary>
+        /// Validate password
+        /// </summary>
+        private List<string> ValidatePassword(string password)
+        {
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(password))
+                errors.Add("Password is required");
+            else if (password.Length < 8)
+                errors.Add("Password must be at least 8 characters");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(password, @"[A-Z]"))
+                errors.Add("Password must contain at least one uppercase letter");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(password, @"[a-z]"))
+                errors.Add("Password must contain at least one lowercase letter");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(password, @"[0-9]"))
+                errors.Add("Password must contain at least one number");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(password, @"[!@#$%^&*]"))
+                errors.Add("Password must contain at least one special character (!@#$%^&*)");
+
+            return errors;
+        }
+
     }
 
     // DTO for login
@@ -189,6 +244,19 @@ namespace MoneyMatesAPI.Controllers
     public class ChangePasswordRequest
     {
         public string OldPassword { get; set; } = null!;
+        public string NewPassword { get; set; } = null!;
+    }
+
+    // DTO for verifying email
+    public class VerifyEmailRequest
+    {
+        public string Email { get; set; } = null!;
+    }
+
+    // DTO for resetting password
+    public class ResetPasswordRequest
+    {
+        public string Email { get; set; } = null!;
         public string NewPassword { get; set; } = null!;
     }
 }

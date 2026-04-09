@@ -97,12 +97,13 @@ export const leaveGroup = async (groupId, userId) => {
     const gId = Number(groupId);
     const uId = Number(userId);
     
-    if (connection) {
+    // Only invoke if connection exists and is in Connected state
+    if (connection && connection.state === signalR.HubConnectionState.Connected) {
       await connection.invoke("LeaveGroup", gId, uId);
     }
   } catch (error) {
     console.error("Error leaving group:", error);
-    throw error;
+    // Don't throw - just log the error since the connection might already be closing
   }
 };
 

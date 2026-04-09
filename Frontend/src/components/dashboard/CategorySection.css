@@ -146,6 +146,29 @@
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
+/* Delete Category Button */
+.btn-delete-category {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #ef4444 0%, #e11d48 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 8px;
+}
+
+.btn-delete-category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-delete-category:active {
+  transform: translateY(0);
+}
+
 .btn-edit-overspent {
   background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
 }

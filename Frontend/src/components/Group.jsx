@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaArrowLeft, FaPlus, FaUserPlus, FaSpinner, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaArrowLeft, FaPlus, FaUserPlus, FaSpinner, FaCheck, FaTimes, FaSignOutAlt } from 'react-icons/fa';
 import * as groupService from '../services/groupService';
 import './Group.css';
 
@@ -129,6 +129,24 @@ const Group = () => {
       console.error('Failed to join group with code:', err);
       setError('Invalid invite link or you might already be a member of this group');
       setView('main');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLeaveGroup = async (groupId) => {
+    if (!window.confirm('Are you sure you want to leave this group?')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await groupService.leaveGroup(groupId, userId);
+      setSuccess('You have left the group');
+      await fetchUserGroups();
+    } catch (err) {
+      console.error('Failed to leave group:', err);
+      setError(err.message || 'Failed to leave group');
     } finally {
       setLoading(false);
     }
@@ -374,28 +392,42 @@ const Group = () => {
                 <div
                   key={group.id}
                   className="group-card your-group"
-                  onClick={() => navigate(`/groups/${group.id}/chat`)}
-                  style={{ cursor: 'pointer' }}
                 >
-                  <div className="group-card-header">
-                    <h3>{group.name}</h3>
-                    <span className="members-badge">{group.memberCount} members</span>
+                  <div 
+                    onClick={() => navigate(`/groups/${group.id}/chat`)}
+                    style={{ cursor: 'pointer', flex: 1 }}
+                  >
+                    <div className="group-card-header">
+                      <h3>{group.name}</h3>
+                      <span className="members-badge">{group.memberCount} members</span>
+                    </div>
+                    {group.description && (
+                      <p className="group-description">{group.description}</p>
+                    )}
+                    <div className="group-info">
+                      <small>Created by {group.createdBy}</small>
+                      <small>Joined on {new Date(group.joinedDate).toLocaleDateString()}</small>
+                    </div>
+                    <div className="members-section">
+                      <h4>Members:</h4>
+                      <ul className="members-list">
+                        {group.members.map((member) => (
+                          <li key={member.id}>{member.name}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  {group.description && (
-                    <p className="group-description">{group.description}</p>
-                  )}
-                  <div className="group-info">
-                    <small>Created by {group.createdBy}</small>
-                    <small>Joined on {new Date(group.joinedDate).toLocaleDateString()}</small>
-                  </div>
-                  <div className="members-section">
-                    <h4>Members:</h4>
-                    <ul className="members-list">
-                      {group.members.map((member) => (
-                        <li key={member.id}>{member.name}</li>
-                      ))}
-                    </ul>
-                  </div>
+                  <button
+                    className="btn-leave-group"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLeaveGroup(group.id);
+                    }}
+                    disabled={loading}
+                    title="Leave this group"
+                  >
+                    <FaSignOutAlt /> Leave
+                  </button>
                 </div>
               ))}
             </div>

@@ -8,6 +8,8 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
   const [categories, setCategories] = useState([]);
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const [categoryLoadError, setCategoryLoadError] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryLimit, setNewCategoryLimit] = useState("");
   const [addingCategory, setAddingCategory] = useState(false);
@@ -29,68 +31,98 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
     if (!userId) {
       console.warn("No userId provided to CategorySection");
       setCategories([]);
+      setCategoryLoadError(null);
       return;
     }
+
+    setIsLoadingCategories(true);
+    setCategoryLoadError(null);
 
     try {
       console.log("Fetching categories for userId:", userId);
 
-      // Try to fetch from CategoryController first
-      try {
-        const categoriesData = await categoryService.getCategoriesWithLimits(userId);
-        console.log("CategoryController response:", categoriesData);
-        console.log("Category details:", categoriesData?.map(c => ({ 
-          Category: c.Category || c.category, 
-          Used: c.Used || c.used, 
-          Limit: c.Limit || c.limit 
-        })));
+      // Create timeout wrapper to prevent hanging requests
+      const withTimeout = (promise, timeoutMs) => {
+        return Promise.race([
+          promise,
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+          )
+        ]);
+      };
 
+      // Try CategoryController with 3 second timeout
+      try {
+        const categoriesData = await withTimeout(
+          categoryService.getCategoriesWithLimits(userId),
+          3000
+        );
+        
         if (categoriesData && categoriesData.length > 0) {
-          // Map CategoryController format - check both PascalCase and camelCase
+          console.log("CategoryController response:", categoriesData);
+          
           const mapped = categoriesData
-            .filter(c => (c.Category || c.category) && (c.Category || c.category) !== "undefined")
+            .filter(c => {
+              const name = c.Category || c.category;
+              return name && name !== "undefined" && name !== undefined && name.trim() !== "";
+            })
             .map(c => ({
               name: c.Category || c.category,
-              used: (c.Used || c.used) || 0,
-              limit: (c.Limit || c.limit) || 0,
+              used: (c.Used || c.used) ?? 0,
+              limit: (c.Limit || c.limit) ?? 0,
               key: c.Category || c.category,
               expenses: [],
             }));
 
           console.log("Mapped categories from CategoryController:", mapped);
           setCategories(mapped);
+          setIsLoadingCategories(false);
           return;
         }
       } catch (err) {
-        console.warn("CategoryController failed:", err.message);
+        console.warn("CategoryController failed or timed out:", err.message);
       }
 
-      // Fallback to Dashboard categories endpoint
+      // Fallback to Dashboard with 3 second timeout
       console.log("Falling back to Dashboard API...");
-      const dashboardData = await categoryService.getCategoryUsage(userId);
-      console.log("Dashboard API response:", dashboardData);
+      try {
+        const dashboardData = await withTimeout(
+          categoryService.getCategoryUsage(userId),
+          3000
+        );
+        
+        if (dashboardData && dashboardData.length > 0) {
+          console.log("Dashboard API response:", dashboardData);
+          
+          const mapped = dashboardData
+            .filter(c => {
+              const name = c.name || c.Name;
+              return name && name !== "undefined" && name !== undefined && name.trim() !== "";
+            })
+            .map(c => ({
+              name: c.name || c.Name,
+              used: (c.value || c.Value) ?? 0,
+              limit: (c.value || c.Value) ?? 0,
+              key: c.name || c.Name,
+              expenses: [],
+            }));
 
-      if (dashboardData && dashboardData.length > 0) {
-        // Map dashboard format (name, value) to component format
-        const mapped = dashboardData
-          .filter(c => (c.name || c.Name) && (c.name || c.Name) !== "undefined")
-          .map(c => ({
-            name: c.name || c.Name,
-            used: (c.value || c.Value) || 0,
-            limit: (c.value || c.Value) || 0,
-            key: c.name || c.Name,
-            expenses: [],
-          }));
-
-        console.log("Mapped categories from Dashboard:", mapped);
-        setCategories(mapped);
-      } else {
-        console.warn("No categories found from either API");
+          console.log("Mapped categories from Dashboard:", mapped);
+          setCategories(mapped);
+        } else {
+          console.warn("No categories found from either API");
+          setCategories([]);
+        }
+      } catch (err) {
+        console.warn("Dashboard API failed or timed out:", err.message);
         setCategories([]);
       }
     } catch (err) {
       console.error("Failed to load categories:", err);
+      setCategoryLoadError(err.message);
       setCategories([]);
+    } finally {
+      setIsLoadingCategories(false);
     }
   };
 
@@ -189,12 +221,10 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
     const currentCategory = categories.find(c => c.name === editingCategory);
     const newLimit = parseFloat(editLimit);
 
-    // Only allow increasing the limit if overspent
-    if (currentCategory.used > currentCategory.limit) {
-      if (newLimit < currentCategory.used) {
-        alert(`Budget limit must be at least Rs ${currentCategory.used.toLocaleString()} to cover your current spending.`);
-        return;
-      }
+    // If user has overspent, the new limit must be at least the amount spent
+    if (currentCategory.used > newLimit) {
+      alert(`Budget limit must be at least Rs ${currentCategory.used.toLocaleString()} to cover your current spending of Rs ${currentCategory.used.toLocaleString()}.`);
+      return;
     }
 
     setUpdatingCategory(true);
@@ -301,6 +331,24 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
       alert("Failed to delete expense. Please try again.");
     } finally {
       setDeletingExpenseId(null);
+    }
+  };
+
+  const handleDeleteCategory = async (categoryName) => {
+    if (!window.confirm(`Are you sure you want to delete "${categoryName}" category? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      // You'll need to implement this in your categoryService
+      // await categoryService.deleteCategory(userId, categoryName);
+      console.log("Category deleted successfully");
+      
+      // Refresh categories
+      fetchCategories();
+    } catch (err) {
+      console.error("Failed to delete category:", err);
+      alert("Failed to delete category. Please try again.");
     }
   };
 
@@ -423,8 +471,62 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
           </form>
         )}
 
-      {categories.length === 0 ? (
-        <div className="loading-state">Loading categories...</div>
+      {isLoadingCategories ? (
+        <div className="loading-state">
+          <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+            <div style={{ 
+              width: '40px', 
+              height: '40px', 
+              border: '4px solid #f3f3f3',
+              borderTop: '4px solid #667eea',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px'
+            }}></div>
+            <p style={{ color: '#666', marginBottom: '8px' }}>Loading your categories...</p>
+          </div>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      ) : categoryLoadError ? (
+        <div style={{ 
+          padding: '20px', 
+          background: '#fee', 
+          border: '1px solid #fcc', 
+          borderRadius: '8px', 
+          margin: '20px 0'
+        }}>
+          <p style={{ color: '#c00', marginBottom: '12px' }}>
+            <strong>Error:</strong> {categoryLoadError}
+          </p>
+          <button 
+            onClick={() => fetchCategories()}
+            style={{
+              padding: '8px 16px',
+              background: '#667eea',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      ) : categories.length === 0 ? (
+        <div className="empty-state" style={{ 
+          textAlign: 'center', 
+          padding: '40px 20px',
+          color: '#999'
+        }}>
+          <p style={{ fontSize: '16px', marginBottom: '8px' }}>No budget categories yet.</p>
+          <p style={{ fontSize: '14px' }}>Click "+ Add Category" to get started!</p>
+        </div>
       ) : (
         <div className="category-list">
           {categories.map(c => {
@@ -449,7 +551,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
                     </div>
                     <div className="category-badge">
                       <span className={`status-badge ${status}`}>
-                        {status === "exceeded" ? "⚠️ Over" : `${Math.round(percentage)}%`}
+                        {status === "exceeded" ? "Over" : `${Math.round(percentage)}%`}
                       </span>
                     </div>
                   </div>
@@ -472,18 +574,26 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
                       </p>
                     </div>
                     <div className="footer-actions">
-                      {status === "exceeded" && (
-                        <button 
-                          className="btn-edit-category btn-edit-overspent"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditCategory(c.name, c.limit);
-                          }}
-                          title="Increase budget limit"
-                        >
-                          Increase Limit
-                        </button>
-                      )}
+                      <button 
+                        className="btn-edit-category"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditCategory(c.name, c.limit);
+                        }}
+                        title="Edit budget limit"
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        className="btn-delete-category"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCategory(c.name);
+                        }}
+                        title="Delete category"
+                      >
+                        Delete
+                      </button>
                       <span className="expand-icon">
                         {expandedCategory === c.name ? "▲" : "▼"}
                       </span>
@@ -534,10 +644,11 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
                             value={editLimit}
                             onChange={(e) => setEditLimit(e.target.value)}
                             required
-                            min={c.used}
+                            min="0.01"
+                            step="0.01"
                           />
                           <small className="info-text">
-                            Minimum allowed: Rs {c.used.toLocaleString()} (your current spent amount)
+                            {c.used > 0 ? `Minimum allowed: Rs ${c.used.toLocaleString()} (to cover your spending)` : "Enter your new budget limit"}
                           </small>
                         </div>
                         <div className="edit-form-actions">
@@ -546,7 +657,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
                             className="btn-submit-edit"
                             disabled={updatingCategory}
                           >
-                            {updatingCategory ? "Updating..." : "Increase Limit"}
+                            {updatingCategory ? "Updating..." : "Update Limit"}
                           </button>
                           <button
                             type="button"

@@ -1,9 +1,11 @@
+//Imports haru ho , useState le chai state manage garna help garcha, useNavigate le chai page navigate garna help garcha
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+//State Management
 export default function Signup() {
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
+  const navigate = useNavigate(); 
+  const [name, setName] = useState(""); //Hooks where name is current value and setName is function to update the value
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -43,7 +45,7 @@ export default function Signup() {
     return "";
   };
 
-  // Handle field changes with real-time validation
+  //Event Handlers  
   const handleNameChange = (e) => {
     const value = e.target.value;
     setName(value);
@@ -78,6 +80,7 @@ export default function Signup() {
     setValidationErrors(prev => ({ ...prev, confirm: error }));
   };
 
+  //Main logic
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
@@ -145,6 +148,7 @@ export default function Signup() {
             placeholder="Your Name"
             value={name}
             onChange={handleNameChange}
+            autoComplete="off"
             style={{borderColor: validationErrors.name ? "red" : ""}}
           />
           {validationErrors.name && <p style={{ color: "red", fontSize: "0.85em", marginTop: "4px" }}>{validationErrors.name}</p>}
@@ -157,6 +161,7 @@ export default function Signup() {
             placeholder="you@example.com"
             value={email}
             onChange={handleEmailChange}
+            autoComplete="off"
             style={{borderColor: validationErrors.email ? "red" : ""}}
           />
           {validationErrors.email && <p style={{ color: "red", fontSize: "0.85em", marginTop: "4px" }}>{validationErrors.email}</p>}
@@ -169,6 +174,7 @@ export default function Signup() {
             placeholder="***********"
             value={password}
             onChange={handlePasswordChange}
+            autoComplete="new-password"
             style={{borderColor: validationErrors.password ? "red" : ""}}
           />
           {validationErrors.password && <p style={{ color: "red", fontSize: "0.85em", marginTop: "4px" }}>{validationErrors.password}</p>}
@@ -184,6 +190,7 @@ export default function Signup() {
             placeholder="***********"
             value={confirm}
             onChange={handleConfirmChange}
+            autoComplete="new-password"
             style={{borderColor: validationErrors.confirm ? "red" : ""}}
           />
           {validationErrors.confirm && <p style={{ color: "red", fontSize: "0.85em", marginTop: "4px" }}>{validationErrors.confirm}</p>}

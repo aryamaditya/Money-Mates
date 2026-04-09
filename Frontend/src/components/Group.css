@@ -309,12 +309,14 @@
 
 .group-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-start;
   background: #f8f9fa;
   border: 2px solid #ecf0f1;
   border-radius: 8px;
   padding: 20px;
   transition: all 0.3s ease;
+  gap: 15px;
 }
 
 .group-card:hover {
@@ -390,6 +392,35 @@
 }
 
 .btn-join:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Leave Group Button */
+.btn-leave-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #f5576c 0%, #e74c3c 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  height: fit-content;
+}
+
+.btn-leave-group:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+}
+
+.btn-leave-group:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

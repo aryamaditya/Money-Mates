@@ -212,6 +212,26 @@ namespace MoneyMatesAPI.Controllers
         }
 
         /// <summary>
+        /// Leave a group
+        /// </summary>
+        [HttpPost("leave")]
+        public async Task<IActionResult> LeaveGroup([FromBody] LeaveGroupRequest request)
+        {
+            // Check if user is a member of the group
+            var groupMember = await _context.GroupMembers
+                .FirstOrDefaultAsync(gm => gm.GroupId == request.GroupId && gm.UserId == request.UserId);
+
+            if (groupMember == null)
+                return BadRequest(new { message = "You are not a member of this group" });
+
+            // Remove the member from the group
+            _context.GroupMembers.Remove(groupMember);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Successfully left the group" });
+        }
+
+        /// <summary>
         /// Helper method to generate unique invite code
         /// </summary>
         private string GenerateInviteCode()
@@ -238,6 +258,12 @@ namespace MoneyMatesAPI.Controllers
     public class JoinGroupRequest
     {
         public string InviteCode { get; set; } = null!;
+        public int UserId { get; set; }
+    }
+
+    public class LeaveGroupRequest
+    {
+        public int GroupId { get; set; }
         public int UserId { get; set; }
     }
 }

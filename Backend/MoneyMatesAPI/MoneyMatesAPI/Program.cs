@@ -1,6 +1,8 @@
 using MoneyMatesAPI.Hubs;
 using MoneyMatesAPI.Data;
+using MoneyMatesAPI.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,11 @@ builder.Services.AddDbContext<MoneyMatesDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ---------------------------
+// Add File Upload Service
+// ---------------------------
+builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+
+// ---------------------------
 // Add CORS for React
 // ---------------------------
 builder.Services.AddCors(options =>
@@ -36,7 +43,14 @@ builder.Services.AddCors(options =>
 // ---------------------------
 // Add Controllers and Swagger
 // ---------------------------
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Accept both camelCase and PascalCase from frontend
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        // Output responses in camelCase
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
@@ -56,6 +70,31 @@ if (app.Environment.IsDevelopment())
 // Enable CORS
 // ---------------------------
 app.UseCors("AllowReactApp");
+
+// ---------------------------
+// Configure Static File Serving for Uploads
+// ---------------------------
+string uploadsPath = @"D:\College Work\FYP\MoneyMates\GroupUploads";
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation($"Configuring static files at: {uploadsPath}");
+
+// Create the GroupUploads directory if it doesn't exist
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+    logger.LogInformation($"Created GroupUploads directory at {uploadsPath}");
+}
+else
+{
+    logger.LogInformation($"GroupUploads directory already exists at {uploadsPath}");
+}
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 
 // Disabled for development to allow HTTP from React
 // app.UseHttpsRedirection();

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./Login";
 import Signup from "./Signup";
+import ForgotPassword from "./ForgotPassword";
 import Setup from "./Setup";
 import Dashboard from "../components/dashboard/Dashboard";
 import CategoryDetail from "./CategoryDetail";
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/setup" element={<Setup />} />
         <Route path="/dashboard" element={<Dashboard userId={userId} />} />
         <Route path="/past-data" element={<PastData />} />

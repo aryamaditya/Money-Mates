@@ -45,6 +45,59 @@ namespace MoneyMatesAPI.Migrations
                     b.ToTable("Budgets");
                 });
 
+            modelBuilder.Entity("MoneyMatesAPI.Models.DailyBudget", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("ActualSpending")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("AllocatedAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("TotalDailyBudget")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DailyBudgets");
+                });
+
             modelBuilder.Entity("MoneyMatesAPI.Models.Expense", b =>
                 {
                     b.Property<int>("Id")
@@ -104,6 +157,80 @@ namespace MoneyMatesAPI.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("MoneyMatesAPI.Models.GroupExpense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BillImageBase64")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PaidByUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("PaidByUserId");
+
+                    b.ToTable("GroupExpenses");
+                });
+
+            modelBuilder.Entity("MoneyMatesAPI.Models.GroupExpenseSplit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("GroupExpenseId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSettled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SettlementImageBase64")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserIdOwes")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupExpenseId");
+
+                    b.HasIndex("UserIdOwes");
+
+                    b.ToTable("GroupExpenseSplits");
                 });
 
             modelBuilder.Entity("MoneyMatesAPI.Models.GroupMember", b =>
@@ -222,6 +349,17 @@ namespace MoneyMatesAPI.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("MoneyMatesAPI.Models.DailyBudget", b =>
+                {
+                    b.HasOne("MoneyMatesAPI.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MoneyMatesAPI.Models.Group", b =>
                 {
                     b.HasOne("MoneyMatesAPI.Models.User", "Creator")
@@ -231,6 +369,44 @@ namespace MoneyMatesAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("MoneyMatesAPI.Models.GroupExpense", b =>
+                {
+                    b.HasOne("MoneyMatesAPI.Models.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MoneyMatesAPI.Models.User", "PaidBy")
+                        .WithMany()
+                        .HasForeignKey("PaidByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("PaidBy");
+                });
+
+            modelBuilder.Entity("MoneyMatesAPI.Models.GroupExpenseSplit", b =>
+                {
+                    b.HasOne("MoneyMatesAPI.Models.GroupExpense", "GroupExpense")
+                        .WithMany("Splits")
+                        .HasForeignKey("GroupExpenseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MoneyMatesAPI.Models.User", "UserOwes")
+                        .WithMany()
+                        .HasForeignKey("UserIdOwes")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("GroupExpense");
+
+                    b.Navigation("UserOwes");
                 });
 
             modelBuilder.Entity("MoneyMatesAPI.Models.GroupMember", b =>
@@ -274,6 +450,11 @@ namespace MoneyMatesAPI.Migrations
             modelBuilder.Entity("MoneyMatesAPI.Models.Group", b =>
                 {
                     b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("MoneyMatesAPI.Models.GroupExpense", b =>
+                {
+                    b.Navigation("Splits");
                 });
 #pragma warning restore 612, 618
         }

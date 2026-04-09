@@ -3,6 +3,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import styles from './Dashboard.module.css';
 import Sidebar from './Sidebar';
 import CategorySection from "./CategorySection";
+import DailyPlanner from '../DailyPlanner';
 import { FaArrowUp, FaArrowDown, FaPiggyBank, FaEye, FaEyeSlash, FaPlus, FaCalendarAlt, FaClock } from 'react-icons/fa';
 import incomeService from '../../services/incomeService';
 
@@ -272,6 +273,11 @@ const Dashboard = () => {
               <h3 className={styles.statValue}>{currency} {totals.totalSavings?.toLocaleString()}</h3>
             </div>
           </div>
+        </section>
+
+        {/* Daily Planner Section */}
+        <section className={styles.chartsSection}>
+          <DailyPlanner userId={userId} />
         </section>
 
         {/* Charts Section */}
