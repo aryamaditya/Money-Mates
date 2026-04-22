@@ -9,10 +9,12 @@ import {
   FaShareAlt,
   FaComments,
   FaMoneyBillWave,
+  FaChartPie,
 } from 'react-icons/fa';
 import * as groupChatService from '../services/groupChatService';
 import * as groupService from '../services/groupService';
 import GroupExpense from './GroupExpense';
+import GroupAnalytics from './GroupAnalytics';
 import './GroupChat.css';
 
 const GroupChat = () => {
@@ -194,6 +196,12 @@ const GroupChat = () => {
         >
           <FaMoneyBillWave /> Expenses
         </button>
+        <button
+          className={`tab-button ${activeTab === 'analytics' ? 'active' : ''}`}
+          onClick={() => setActiveTab('analytics')}
+        >
+          <FaChartPie /> Analytics
+        </button>
       </div>
 
       {/* Alerts */}
@@ -246,6 +254,16 @@ const GroupChat = () => {
           <GroupExpense 
             groupId={groupId} 
             userId={userId} 
+            groupMembers={group?.members}
+          />
+        </div>
+      )}
+
+      {/* Analytics Tab */}
+      {activeTab === 'analytics' && (
+        <div className="analytics-container">
+          <GroupAnalytics 
+            groupId={groupId}
             groupMembers={group?.members}
           />
         </div>

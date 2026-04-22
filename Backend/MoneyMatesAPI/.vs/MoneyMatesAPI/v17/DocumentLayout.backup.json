@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\controllers\\groupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\controllers\\groupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|solutionrelative:moneymatesapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{499F76CD-C93F-4E8D-9CA8-FC28926C9059}|MoneyMatesAPI\\MoneyMatesAPI.csproj|d:\\college work\\fyp\\moneymates\\backend\\moneymatesapi\\moneymatesapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -76,14 +76,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "User.cs",
-              "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Models\\User.cs",
-              "RelativeDocumentMoniker": "MoneyMatesAPI\\Models\\User.cs",
-              "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Models\\User.cs",
-              "RelativeToolTip": "MoneyMatesAPI\\Models\\User.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAA2AAAAAAAAAA==",
+              "Title": "GroupController.cs",
+              "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\GroupController.cs",
+              "RelativeDocumentMoniker": "MoneyMatesAPI\\Controllers\\GroupController.cs",
+              "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\GroupController.cs",
+              "RelativeToolTip": "MoneyMatesAPI\\Controllers\\GroupController.cs",
+              "ViewState": "AgIAAEQAAAAAAAAAAAAYwEQAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-04T07:07:33.872Z",
+              "WhenOpened": "2026-03-29T03:40:55.894Z",
               "EditorCaption": ""
             },
             {
@@ -97,6 +97,18 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-27T08:09:05.332Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "User.cs",
+              "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Models\\User.cs",
+              "RelativeDocumentMoniker": "MoneyMatesAPI\\Models\\User.cs",
+              "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Models\\User.cs",
+              "RelativeToolTip": "MoneyMatesAPI\\Models\\User.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-04T07:07:33.872Z"
             },
             {
               "$type": "Document",
@@ -145,18 +157,6 @@
               "ViewState": "AgIAADMAAAAAAAAAAAAAAD0AAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-27T04:57:25.844Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "GroupController.cs",
-              "DocumentMoniker": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\GroupController.cs",
-              "RelativeDocumentMoniker": "MoneyMatesAPI\\Controllers\\GroupController.cs",
-              "ToolTip": "D:\\College Work\\FYP\\MoneyMates\\Backend\\MoneyMatesAPI\\MoneyMatesAPI\\Controllers\\GroupController.cs",
-              "RelativeToolTip": "MoneyMatesAPI\\Controllers\\GroupController.cs",
-              "ViewState": "AgIAADAAAAAAAAAAAAAowD4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-29T03:40:55.894Z"
             },
             {
               "$type": "Document",

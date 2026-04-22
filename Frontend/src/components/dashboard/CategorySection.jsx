@@ -378,7 +378,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
       setBillImagePreview(base64String);
       console.log("Image converted to base64, size:", base64String?.length || 0);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file); 
   };
 
   // Calculate status: "safe", "warning", or "exceeded"

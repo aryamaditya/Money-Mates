@@ -1,18 +1,15 @@
-//Imports haru ho , useState le chai state manage garna help garcha, useNavigate le chai page navigate garna help garcha
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-//State Management
 export default function Signup() {
   const navigate = useNavigate(); 
-  const [name, setName] = useState(""); //Hooks where name is current value and setName is function to update the value
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [validationErrors, setValidationErrors] = useState({});
 
-  // Validation rules
   const validateName = (value) => {
     if (!value.trim()) return "Name is required";
     if (value.trim().length < 2) return "Name must be at least 2 characters";
@@ -45,7 +42,6 @@ export default function Signup() {
     return "";
   };
 
-  //Event Handlers  
   const handleNameChange = (e) => {
     const value = e.target.value;
     setName(value);
@@ -66,7 +62,6 @@ export default function Signup() {
     const error = validatePassword(value);
     setValidationErrors(prev => ({ ...prev, password: error }));
     
-    // Also revalidate confirm if it was already filled
     if (confirm) {
       const confirmError = value !== confirm ? "Passwords do not match" : "";
       setValidationErrors(prev => ({ ...prev, confirm: confirmError }));
@@ -80,12 +75,10 @@ export default function Signup() {
     setValidationErrors(prev => ({ ...prev, confirm: error }));
   };
 
-  //Main logic
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Validate all fields before submission
     const nameError = validateName(name);
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
@@ -127,87 +120,143 @@ export default function Signup() {
   };
 
   return (
-    <div className="page">
-      <div className="card left">
-        <div className="brand">
-          <h1 className="brand-title">MoneyMates</h1>
-          <div className="brand-sub">Smart Expense Tracker</div>
+    <div className="page-wrapper">
+      <div className="page">
+        {/* Full Page Video Background */}
+        <video autoPlay muted loop playsInline className="page-bg-video">
+          <source src="/videos/final video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Page Content Overlay */}
+        <div className="page-content">
+          {/* Logo positioned top-right */}
+          <img src="/logos/logo.png" alt="MoneyMates Logo" className="page-logo" />
+          
+          <div className="card left">
+            <div className="login-content">
+          <div className="signup-brand">
+            <h1 className="brand-title">MoneyMates</h1>
+            <div className="brand-sub">Smart Expense Tracker & Financial Management</div>
+          </div>
+
+          <div className="welcome">
+            <h2>Create Your Account</h2>
+            <p className="muted">Join our community and take control of your finances</p>
+          </div>
+
+          <form className="form" onSubmit={handleSignup}>
+            <label className="label">Full Name</label>
+            <input
+              className={`input ${validationErrors.name ? "error" : ""}`}
+              type="text"
+              required
+              placeholder="John Doe"
+              value={name}
+              onChange={handleNameChange}
+              autoComplete="off"
+            />
+            {validationErrors.name && <p className="error-message">{validationErrors.name}</p>}
+
+            <label className="label">Email Address</label>
+            <input
+              className={`input ${validationErrors.email ? "error" : ""}`}
+              type="email"
+              required
+              placeholder="you@example.com"
+              value={email}
+              onChange={handleEmailChange}
+              autoComplete="off"
+            />
+            {validationErrors.email && <p className="error-message">{validationErrors.email}</p>}
+
+            <label className="label">Password</label>
+            <input
+              className={`input ${validationErrors.password ? "error" : ""}`}
+              type="password"
+              required
+              placeholder="Create a strong password"
+              value={password}
+              onChange={handlePasswordChange}
+              autoComplete="new-password"
+            />
+            {validationErrors.password && <p className="error-message">{validationErrors.password}</p>}
+            <p className="helper-text">
+              Must include: 8+ chars, uppercase, lowercase, number, special character (!@#$%^&*)
+            </p>
+
+            <label className="label">Confirm Password</label>
+            <input
+              className={`input ${validationErrors.confirm ? "error" : ""}`}
+              type="password"
+              required
+              placeholder="Confirm your password"
+              value={confirm}
+              onChange={handleConfirmChange}
+              autoComplete="new-password"
+            />
+            {validationErrors.confirm && <p className="error-message">{validationErrors.confirm}</p>}
+
+            {error && <div className="error-banner">{error}</div>}
+
+            <button className="btn-primary" type="submit">
+              Create Account
+            </button>
+
+            <p className="center muted">
+              Already have an account? <Link to="/login" className="link">Log in here</Link>
+            </p>
+          </form>
         </div>
-
-        <div className="welcome">
-          <h2>Create an Account</h2>
-          <p className="muted">Fill in your details to get started</p>
-        </div>
-
-        <form className="form" onSubmit={handleSignup}>
-          <label className="label">Full Name</label>
-          <input
-            className="input"
-            type="text"
-            required
-            placeholder="Your Name"
-            value={name}
-            onChange={handleNameChange}
-            autoComplete="off"
-            style={{borderColor: validationErrors.name ? "red" : ""}}
-          />
-          {validationErrors.name && <p style={{ color: "red", fontSize: "0.85em", marginTop: "4px" }}>{validationErrors.name}</p>}
-
-          <label className="label">Email</label>
-          <input
-            className="input"
-            type="email"
-            required
-            placeholder="you@example.com"
-            value={email}
-            onChange={handleEmailChange}
-            autoComplete="off"
-            style={{borderColor: validationErrors.email ? "red" : ""}}
-          />
-          {validationErrors.email && <p style={{ color: "red", fontSize: "0.85em", marginTop: "4px" }}>{validationErrors.email}</p>}
-
-          <label className="label">Password</label>
-          <input
-            className="input"
-            type="password"
-            required
-            placeholder="***********"
-            value={password}
-            onChange={handlePasswordChange}
-            autoComplete="new-password"
-            style={{borderColor: validationErrors.password ? "red" : ""}}
-          />
-          {validationErrors.password && <p style={{ color: "red", fontSize: "0.85em", marginTop: "4px" }}>{validationErrors.password}</p>}
-          <p style={{ fontSize: "0.8em", color: "#666", marginTop: "4px" }}>
-            Password must have: 8+ chars, uppercase, lowercase, number, special character (!@#$%^&*)
-          </p>
-
-          <label className="label">Confirm Password</label>
-          <input
-            className="input"
-            type="password"
-            required
-            placeholder="***********"
-            value={confirm}
-            onChange={handleConfirmChange}
-            autoComplete="new-password"
-            style={{borderColor: validationErrors.confirm ? "red" : ""}}
-          />
-          {validationErrors.confirm && <p style={{ color: "red", fontSize: "0.85em", marginTop: "4px" }}>{validationErrors.confirm}</p>}
-
-          {error && <p style={{ color: "red", marginTop: "8px", fontWeight: "bold" }}>{error}</p>}
-
-          <button className="btn-primary" type="submit">
-            Create Account
-          </button>
-
-          <p className="center muted">
-            Already have an account? <Link to="/" className="link">Log in</Link>
-          </p>
-        </form>
+      </div>
+      </div>
       </div>
 
-      <div className="card right">{/* promo panel */}</div>
+      {/* About Us Section */}
+      <div className="about-us-section">
+        {/* Video Background for About Us */}
+        <video autoPlay muted loop playsInline className="about-bg-video">
+          <source src="/videos/Video 3.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        
+        <div className="about-container">
+          <h2 className="about-title">About MoneyMates</h2>
+          <p className="about-subtitle">Smart expense tracking for you and your friends</p>
+
+          <div className="features-grid">
+            <div className="feature-card">
+              <h3 className="feature-title">Smart Tracking</h3>
+              <p className="feature-desc">Track your daily expenses effortlessly with our intuitive dashboard</p>
+            </div>
+
+            <div className="feature-card">
+              <h3 className="feature-title">Group Expenses</h3>
+              <p className="feature-desc">Split expenses with friends and settle debts easily</p>
+            </div>
+
+            <div className="feature-card">
+              <h3 className="feature-title">Analytics</h3>
+              <p className="feature-desc">Visualize spending patterns with detailed charts and reports</p>
+            </div>
+
+            <div className="feature-card">
+              <h3 className="feature-title">Secure</h3>
+              <p className="feature-desc">Your financial data is encrypted and protected</p>
+            </div>
+
+            <div className="feature-card">
+              <h3 className="feature-title">Responsive</h3>
+              <p className="feature-desc">Access your finances on any device, anytime, anywhere</p>
+            </div>
+
+            <div className="feature-card">
+              <h3 className="feature-title">Group Chat</h3>
+              <p className="feature-desc">Communicate with your group members in real-time</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

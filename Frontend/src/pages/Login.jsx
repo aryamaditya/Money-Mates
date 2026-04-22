@@ -56,19 +56,32 @@ export default function Login() {
   };
 
   return (
-    <div className="page">
-      <div className="card left">
-        <div className="brand">
-          <h1 className="brand-title">MoneyMates</h1>
-          <div className="brand-sub">Smart Expense Tracker</div>
-        </div>
+    <div className="page-wrapper">
+      <div className="page">
+        {/* Full Page Video Background */}
+        <video autoPlay muted loop playsInline className="page-bg-video">
+          <source src="/videos/final video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
 
-        <div className="welcome">
-          <h2>Welcome Back</h2>
-          <p className="muted">Enter your credentials to access your account</p>
-        </div>
+        {/* Page Content Overlay */}
+        <div className="page-content">
+          {/* Logo positioned top-right */}
+          <img src="/logos/logo.png" alt="MoneyMates Logo" className="page-logo" />
+          
+          <div className="card left">
+            <div className="login-content">
+            <div className="brand">
+              <h1 className="brand-title">MoneyMates</h1>
+              <div className="brand-sub">Smart Expense Tracker</div>
+            </div>
 
-        <form className="form" onSubmit={handleLogin}>
+            <div className="welcome">
+              <h2>Welcome Back</h2>
+              <p className="muted">Enter your credentials to access your account</p>
+            </div>
+
+            <form className="form" onSubmit={handleLogin}>
           <label className="label">Email</label>
           <input
             className="input"
@@ -112,36 +125,52 @@ export default function Login() {
             Don’t have an account? <Link to="/signup" className="link">Sign up</Link>
           </p>
         </form>
+        </div>
+      </div>
+      </div>
       </div>
 
-      <div className="card right">
-        <div className="promo">
-          <h2>Take control of your finances</h2>
-          <p className="muted light">
-            Track expenses, get AI-powered insights and achieve your financial goals with ease.
-          </p>
+      {/* About Us Section */}
+      <div className="about-us-section">
+        {/* Video Background for About Us */}
+        <video autoPlay muted loop playsInline className="about-bg-video">
+          <source src="/videos/Video 3.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        
+        <div className="about-container">
+          <h2 className="about-title">About MoneyMates</h2>
+          <p className="about-subtitle">Smart expense tracking for you and your friends</p>
 
-          <div className="feature">
-            <div className="feature-icon"></div>
-            <div>
-              <div className="feature-title">Smart Analytics</div>
-              <div className="feature-sub muted">Visualize spending patterns</div>
+          <div className="features-grid">
+            <div className="feature-card">
+              <h3 className="feature-title">Smart Tracking</h3>
+              <p className="feature-desc">Track your daily expenses effortlessly with our intuitive dashboard</p>
             </div>
-          </div>
 
-          <div className="feature">
-            <div className="feature-icon"></div>
-            <div>
-              <div className="feature-title">AI Suggestions</div>
-              <div className="feature-sub muted">Get personalized saving tips</div>
+            <div className="feature-card">
+              <h3 className="feature-title">Group Expenses</h3>
+              <p className="feature-desc">Split expenses with friends and settle debts easily</p>
             </div>
-          </div>
 
-          <div className="feature">
-            <div className="feature-icon"></div>
-            <div>
-              <div className="feature-title">Group Expenses</div>
-              <div className="feature-sub muted">Split bills with friends</div>
+            <div className="feature-card">
+              <h3 className="feature-title">Analytics</h3>
+              <p className="feature-desc">Visualize spending patterns with detailed charts and reports</p>
+            </div>
+
+            <div className="feature-card">
+              <h3 className="feature-title">Secure</h3>
+              <p className="feature-desc">Your financial data is encrypted and protected</p>
+            </div>
+
+            <div className="feature-card">
+              <h3 className="feature-title">Responsive</h3>
+              <p className="feature-desc">Access your finances on any device, anytime, anywhere</p>
+            </div>
+
+            <div className="feature-card">
+              <h3 className="feature-title">Group Chat</h3>
+              <p className="feature-desc">Communicate with your group members in real-time</p>
             </div>
           </div>
         </div>

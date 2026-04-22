@@ -57,13 +57,15 @@ const PastData = () => {
     const currentYear = new Date().getFullYear();
     
     const filtered = recentTransactions.filter(transaction => {
-      // Use dateAdded property (not date)
-      const txDate = new Date(transaction.dateAdded);
+      // Use date property (or dateAdded as fallback)
+      const dateString = transaction.date || transaction.dateAdded;
+      const txDate = new Date(dateString);
       const sameMonth = txDate.getMonth() === monthIndex;
       const sameYear = txDate.getFullYear() === currentYear;
       return sameMonth && sameYear;
     });
     
+    console.log(`Filtered transactions for ${selectedMonth}:`, filtered);
     return filtered;
   };
 
@@ -79,29 +81,28 @@ const PastData = () => {
     const storedUser = localStorage.getItem('user');
     if (!storedUser) return;
 
-    // Fetch all data
+    // Fetch all data including both expenses AND income
     Promise.all([
-      fetch(`http://localhost:5262/api/dashboard/spending/${userId}`).then(r => r.json()),
-      fetch(`http://localhost:5262/api/expenses/recent/${userId}`).then(r => r.json())
+      fetch(`http://localhost:5262/api/dashboard/spending/${userId}`).then(r => r.json()).catch(e => { console.error("Spending API failed:", e); return []; }),
+      fetch(`http://localhost:5262/api/expenses/${userId}`).then(r => r.json()).catch(e => { console.error("Expenses API failed:", e); return []; }),
+      fetch(`http://localhost:5262/api/income/${userId}`).then(r => r.json()).catch(e => { console.error("Income API failed:", e); return []; })
     ])
-      .then(([spendingRes, transactionsRes]) => {
+      .then(([spendingRes, expensesRes, incomeRes]) => {
         console.log("Raw Spending Data:", spendingRes);
-        console.log("Raw Transactions Data:", transactionsRes);
+        console.log("Raw Expenses Data:", expensesRes);
+        console.log("Raw Income Data:", incomeRes);
         
-        // Month name mapping - handle both 0-11 and 1-12 indexing
+        // Month name mapping
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                            'July', 'August', 'September', 'October', 'November', 'December'];
         
-        // Format spending data - handle both lowercase and uppercase keys, and convert month numbers to names
+        // Format spending data
         const formattedSpending = Array.isArray(spendingRes) 
           ? spendingRes.map(d => {
-              // Convert month to name: if it's a number, use as index; if it's already a string, use as-is
               let monthName = d.month;
               if (typeof d.month === 'number') {
-                // Handle both 0-11 (JavaScript) and 1-12 (API might use) indexing
                 const monthIndex = d.month > 12 ? d.month : (d.month >= 1 ? d.month - 1 : d.month);
                 monthName = monthNames[monthIndex];
-                console.log(`Converting month number ${d.month} to name:`, monthName);
               }
               return {
                 month: monthName,
@@ -111,14 +112,39 @@ const PastData = () => {
             })
           : [];
         
-        // Ensure transactions is an array
-        const transactionsArray = Array.isArray(transactionsRes) ? transactionsRes : [];
+        // Combine expenses and income into single transactions array
+        const expensesArray = Array.isArray(expensesRes) ? expensesRes : [];
+        const incomeArray = Array.isArray(incomeRes) ? incomeRes : [];
+        
+        // Format expenses
+        const formattedExpenses = expensesArray.map(e => ({
+          id: e.id,
+          date: e.dateAdded,
+          dateAdded: e.dateAdded,
+          description: e.category,
+          amount: -Math.abs(e.amount), // Negative for expenses
+          type: 'expense'
+        }));
+        
+        // Format income
+        const formattedIncome = incomeArray.map(i => ({
+          id: i.id,
+          date: i.dateAdded,
+          dateAdded: i.dateAdded,
+          description: i.source || 'Income',
+          amount: Math.abs(i.amount), // Positive for income
+          type: 'income'
+        }));
+        
+        // Combine and sort by date (newest first)
+        const allTransactions = [...formattedExpenses, ...formattedIncome]
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
         
         console.log("Formatted Spending Data:", formattedSpending);
-        console.log("Transactions Array:", transactionsArray);
+        console.log("All Transactions Combined:", allTransactions);
         
         setSpendingData(formattedSpending);
-        setRecentTransactions(transactionsArray);
+        setRecentTransactions(allTransactions);
         setIsDataLoaded(true);
       })
       .catch(err => {
@@ -244,7 +270,7 @@ const PastData = () => {
                     <div key={idx} className={styles.transactionItem}>
                       <div className={styles.txInfo}>
                         <p className={styles.txCategory}>{tx.description}</p>
-                        <p className={styles.txDate}>{new Date(tx.date).toLocaleDateString('en-IN', { 
+                        <p className={styles.txDate}>{new Date(tx.date || tx.dateAdded).toLocaleDateString('en-IN', { 
                           year: 'numeric', 
                           month: 'short', 
                           day: 'numeric',
@@ -260,7 +286,7 @@ const PastData = () => {
                 </div>
               ) : (
                 <div className={styles.noTransactions}>
-                  <p>No past Data found</p>
+                  <p>No transactions found for {getMonthLabel(selectedMonth)}</p>
                 </div>
               )}
             </section>

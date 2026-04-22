@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import styles from './Dashboard.module.css';
 import Sidebar from './Sidebar';
@@ -20,8 +20,45 @@ const Dashboard = () => {
   const [addingIncome, setAddingIncome] = useState(false);
   const [incomeError, setIncomeError] = useState('');
   const [showAllTransactionsModal, setShowAllTransactionsModal] = useState(false);
+  
   const currency = 'Rs';
   const userId = JSON.parse(localStorage.getItem("user"))?.userID || 1;
+
+  // Get current month date range
+  const getCurrentMonthRange = () => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return { startOfMonth, endOfMonth };
+  };
+
+  // Filter transactions by current month
+  const filterByCurrentMonth = (transactions) => {
+    if (!Array.isArray(transactions)) return [];
+    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
+    
+    return transactions.filter(tx => {
+      const txDate = new Date(tx.dateAdded || tx.date);
+      return txDate >= startOfMonth && txDate <= endOfMonth;
+    });
+  };
+
+  // Calculate current month totals
+  const calculateCurrentMonthTotals = (expenses, incomes) => {
+    const currentMonthExpenses = filterByCurrentMonth(expenses || []);
+    const currentMonthIncomes = filterByCurrentMonth(incomes || []);
+
+    const totalExpenses = currentMonthExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+    const totalIncome = currentMonthIncomes.reduce((sum, inc) => sum + (inc.amount || 0), 0);
+    const totalSavings = totalIncome - totalExpenses;
+
+    return {
+      totalBalance: totalIncome,
+      totalIncome,
+      totalExpenses,
+      totalSavings
+    };
+  };
 
   // Calculate days left in month
   const getDaysLeftInMonth = () => {
@@ -36,51 +73,93 @@ const Dashboard = () => {
     if (!storedUser) return;
     const user = JSON.parse(storedUser);
     setUserName(user.name);
+  }, []);
 
-    // Fetch totals (for current month - always show current balance)
-    fetch(`http://localhost:5262/api/dashboard/totals/${userId}`)
+  // Fetch dashboard data
+  useEffect(() => {
+    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
+    
+    // Fetch all expenses and income to filter by current month
+    Promise.all([
+      fetch(`http://localhost:5262/api/expenses/${userId}`).then(r => r.json()),
+      fetch(`http://localhost:5262/api/income/${userId}`).then(r => r.json())
+    ])
+      .then(([expenses, incomes]) => {
+        // Filter both by current month
+        const currentMonthExpenses = filterByCurrentMonth(expenses || []);
+        const currentMonthIncomes = filterByCurrentMonth(incomes || []);
+
+        // Calculate current month totals
+        const monthTotals = calculateCurrentMonthTotals(expenses, incomes);
+        setTotals(monthTotals);
+        console.log("Dashboard - Current month totals:", monthTotals);
+
+        // Combine and sort transactions by date (most recent first)
+        const allCurrentMonth = [
+          ...currentMonthExpenses.map(exp => ({ ...exp, amount: -exp.amount })),
+          ...currentMonthIncomes.map(inc => ({ ...inc, amount: inc.amount }))
+        ].sort((a, b) => new Date(b.dateAdded || b.date) - new Date(a.dateAdded || a.date));
+
+        // Get last 5 transactions
+        setRecentTransactions(allCurrentMonth.slice(0, 5));
+        console.log("Dashboard - Last 5 current month transactions:", allCurrentMonth.slice(0, 5));
+      })
+      .catch(err => console.error("Failed to fetch expenses and income:", err));
+
+    // Fetch category breakdown for current month
+    fetch(`http://localhost:5262/api/dashboard/categories/${userId}`)
       .then(res => res.json())
       .then(data => {
-        console.log("Dashboard - Fetched totals:", data);
-        setTotals(data);
+        const filtered = filterByCurrentMonth(data);
+        setCategoryData(filtered);
       })
-      .catch(err => console.error("Failed to fetch totals:", err));
+      .catch(err => console.error("Failed to fetch categories:", err));
 
-    // Fetch monthly spending (all months for year view)
+    // Fetch monthly spending (ALL 12 months for chart)
     fetch(`http://localhost:5262/api/dashboard/spending/${userId}`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
       })
       .then(data => {
+        // Format all months data
         const formattedData = data.map(d => ({
           month: d.month,
           Income: d.income ?? d.Income ?? 0,
           Expense: d.expense ?? d.Expense ?? 0
         }));
+        
         setSpendingData(formattedData);
+        console.log("Dashboard - Chart data (all 12 months):", formattedData);
       })
       .catch(err => console.error("Failed to fetch spending:", err));
-
-    // Fetch category breakdown
-    fetch(`http://localhost:5262/api/dashboard/categories/${userId}`)
-      .then(res => res.json())
-      .then(data => setCategoryData(data))
-      .catch(err => console.error("Failed to fetch categories:", err));
-
-    // Fetch recent transactions
-    fetch(`http://localhost:5262/api/expenses/recent/${userId}`)
-      .then(res => res.json())
-      .then(data => setRecentTransactions(data))
-      .catch(err => console.error("Failed to fetch recent transactions:", err));
   }, [userId]);
 
   // Refresh totals after adding income
   const refreshTotals = async () => {
     try {
-      const response = await fetch(`http://localhost:5262/api/dashboard/totals/${userId}`);
-      const data = await response.json();
-      setTotals(data);
+      const [expenses, incomes] = await Promise.all([
+        fetch(`http://localhost:5262/api/expenses/${userId}`).then(r => r.json()),
+        fetch(`http://localhost:5262/api/income/${userId}`).then(r => r.json())
+      ]);
+
+      const monthTotals = calculateCurrentMonthTotals(expenses, incomes);
+      setTotals(monthTotals);
+      console.log("Totals refreshed - Current month totals:", monthTotals);
+
+      // Also refresh chart data
+      fetch(`http://localhost:5262/api/dashboard/spending/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          const formattedData = data.map(d => ({
+            month: d.month,
+            Income: d.income ?? d.Income ?? 0,
+            Expense: d.expense ?? d.Expense ?? 0
+          }));
+          setSpendingData(formattedData);
+          console.log("Chart refreshed after income added");
+        })
+        .catch(err => console.error("Failed to refresh chart:", err));
     } catch (err) {
       console.error("Failed to refresh totals:", err);
     }
@@ -89,10 +168,38 @@ const Dashboard = () => {
   // Refresh recent transactions after adding expense
   const refreshTransactions = async () => {
     try {
-      const response = await fetch(`http://localhost:5262/api/expenses/recent/${userId}`);
-      const data = await response.json();
-      setRecentTransactions(data);
-      console.log("Transactions refreshed after expense added");
+      const [expenses, incomes] = await Promise.all([
+        fetch(`http://localhost:5262/api/expenses/${userId}`).then(r => r.json()),
+        fetch(`http://localhost:5262/api/income/${userId}`).then(r => r.json())
+      ]);
+
+      // Filter by current month
+      const currentMonthExpenses = filterByCurrentMonth(expenses || []);
+      const currentMonthIncomes = filterByCurrentMonth(incomes || []);
+
+      // Combine and sort
+      const allCurrentMonth = [
+        ...currentMonthExpenses.map(exp => ({ ...exp, amount: -exp.amount })),
+        ...currentMonthIncomes.map(inc => ({ ...inc, amount: inc.amount }))
+      ].sort((a, b) => new Date(b.dateAdded || b.date) - new Date(a.dateAdded || a.date));
+
+      // Get last 5
+      setRecentTransactions(allCurrentMonth.slice(0, 5));
+      console.log("Transactions refreshed - Last 5 current month:", allCurrentMonth.slice(0, 5));
+
+      // Also refresh chart data
+      fetch(`http://localhost:5262/api/dashboard/spending/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          const formattedData = data.map(d => ({
+            month: d.month,
+            Income: d.income ?? d.Income ?? 0,
+            Expense: d.expense ?? d.Expense ?? 0
+          }));
+          setSpendingData(formattedData);
+          console.log("Chart refreshed after expense added");
+        })
+        .catch(err => console.error("Failed to refresh chart:", err));
     } catch (err) {
       console.error("Failed to refresh transactions:", err);
     }
@@ -242,7 +349,6 @@ const Dashboard = () => {
           </div>
         </section>
 
-        {/* Stats Grid */}
         <section className={styles.statsGrid}>
           <div className={styles.statItem}>
             <div className={styles.statIconIncome}>
@@ -335,11 +441,11 @@ const Dashboard = () => {
             </button>
           </div>
           <div className={styles.transactionList}>
-            {recentTransactions?.slice(0, 3).map((tx, idx) => (
+            {recentTransactions?.slice(0, 5).map((tx, idx) => (
               <div key={idx} className={styles.transactionItem}>
                 <div className={styles.txInfo}>
                   <p className={styles.txCategory}>{tx.description}</p>
-                  <p className={styles.txDate}>{new Date(tx.date).toLocaleDateString()}</p>
+                  <p className={styles.txDate}>{new Date(tx.dateAdded || tx.date).toLocaleDateString()}</p>
                 </div>
                 <span className={`${styles.txAmount} ${tx.amount < 0 ? styles.expense : styles.income}`}>
                   {tx.amount < 0 ? '-' : '+'} {currency} {Math.abs(tx.amount).toLocaleString()}
@@ -369,7 +475,7 @@ const Dashboard = () => {
                       <div key={idx} className={styles.transactionItemModal}>
                         <div className={styles.txInfoModal}>
                           <p className={styles.txCategoryModal}>{tx.description}</p>
-                          <p className={styles.txDateModal}>{new Date(tx.date).toLocaleDateString('en-IN', { 
+                          <p className={styles.txDateModal}>{new Date(tx.dateAdded || tx.date).toLocaleDateString('en-IN', { 
                             year: 'numeric', 
                             month: 'short', 
                             day: 'numeric',

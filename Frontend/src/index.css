@@ -6,11 +6,37 @@ html,body,#root { height:100%; }
 .page {
   display: flex;
   min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Full page video background */
+.page-bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  display: block;
+}
+
+/* Page content overlay */
+.page-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Card common */
 .card {
-  width: 50%;
+  width: 100%;
+  max-width: 1000px;
   padding: 64px;
   display: flex;
   align-items: center;
@@ -19,88 +45,199 @@ html,body,#root { height:100%; }
 
 /* LEFT panel */
 .left {
-  background: #ffffff;
+  background: transparent;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+}
+
+/* Content overlay */
+.login-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 64px 56px;
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  border: 1px solid rgba(34, 197, 94, 0.15);
 }
 
 /* BRAND */
 .brand {
-  margin-bottom: 18px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .brand-title {
-  font-size: 28px;
-  color: #111827;
-  margin-bottom: 4px;
+  font-size: 32px;
+  color: #22c55e;
+  margin-bottom: 6px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 .brand-sub {
-  color: #9aa0a6;
-  font-size: 13px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Page Logo - positioned top-right */
+.page-logo {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  max-width: 80px;
+  height: auto;
+  z-index: 10;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 /* Welcome */
 .welcome h2 {
-  font-size: 24px;
-  margin-bottom: 6px;
-  color: #111827;
+  font-size: 26px;
+  margin-bottom: 10px;
+  color: #f1f5f9;
+  font-weight: 700;
 }
-.muted { color: #8b949a; }
+.welcome p {
+  color: #cbd5e1;
+  font-size: 15px;
+}
+.muted { color: #94a3b8; }
 .muted.light { color: rgba(255,255,255,0.9); }
 
 /* FORM */
 .form {
   width: 100%;
   max-width: 420px;
-  margin-top: 18px;
+  margin-top: 28px;
 }
 .label {
   display:block;
-  margin: 14px 0 6px;
-  color: #4b5563;
-  font-size: 14px;
+  margin: 18px 0 10px;
+  color: #cbd5e1;
+  font-size: 15px;
+  font-weight: 500;
 }
 .input {
   width:100%;
-  padding: 12px 14px;
+  padding: 14px 16px;
   border-radius: 8px;
-  border: 1px solid #e6e9ee;
-  background: #f3f4f6;
-  font-size: 15px;
+  border: 1px solid #334155;
+  background: rgba(15, 23, 42, 0.6);
+  font-size: 16px;
   outline: none;
+  color: #f1f5f9;
+  transition: all 0.3s ease;
 }
-.input:focus { border-color: #d1d5db; background:#fff; box-shadow: 0 0 0 3px rgba(99,102,241,0.06); }
+.input::placeholder {
+  color: #64748b;
+}
+.input:focus { 
+  border-color: #22c55e; 
+  background: rgba(15, 23, 42, 0.8);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
 
 .row-between {
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin: 12px 0 18px;
+  margin: 18px 0 24px;
 }
-.checkbox-label { display:flex; align-items:center; gap:8px; color:#6b7280; font-size:14px; }
-.link { color: #b32bbf; text-decoration: none; font-size:14px; }
-.link:hover { text-decoration: underline; }
+.checkbox-label { 
+  display:flex; 
+  align-items:center; 
+  gap:8px; 
+  color:#cbd5e1; 
+  font-size:15px;
+  cursor: pointer;
+}
+.checkbox-label input {
+  cursor: pointer;
+  accent-color: #22c55e;
+}
+.link { 
+  color: #22c55e; 
+  text-decoration: none; 
+  font-size:15px;
+  transition: all 0.3s ease;
+}
+.link:hover { 
+  color: #16a34a;
+  text-decoration: underline;
+}
 
 /* Button */
 .btn-primary {
   width:100%;
-  padding: 12px 16px;
+  padding: 14px 16px;
   border-radius: 10px;
-  background: linear-gradient(90deg,#ff2ecc,#c42bdb);
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
   color:white;
   font-size:16px;
   font-weight:600;
   border:none;
   cursor:pointer;
-  margin-top: 8px;
-  box-shadow: 0 6px 18px rgba(196,43,219,0.18);
+  margin-top: 12px;
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+  transition: all 0.3s ease;
 }
-.btn-primary:hover { transform: translateY(-2px); }
+.btn-primary:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.45);
+  background: linear-gradient(90deg, #16a34a 0%, #15803d 100%);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Error and Helper Text */
+.error-message {
+  color: #ff6b6b;
+  font-size: 13px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.helper-text {
+  color: #cbd5e1;
+  font-size: 13px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.error-banner {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid #ff6b6b;
+  color: #ff6b6b;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-top: 16px;
+  margin-bottom: 12px;
+}
+
+.input.error {
+  border-color: #ff6b6b;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.input.error:focus {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
 
 /* RIGHT panel */
 .right {
   color: white;
-  background: linear-gradient(180deg,#6b21a8,#3b0d6a);
+  background: rgba(0, 0, 0, 0.3);
   flex-direction: column;
+  backdrop-filter: blur(8px);
 }
 .promo {
   width: 100%;
@@ -143,11 +280,140 @@ html,body,#root { height:100%; }
 }
 .feature-sub { font-size:13px; color: rgba(255,255,255,0.85); }
 
+/* Center text utility */
+.center {
+  text-align: center;
+}
+
+/* Page wrapper for scrolling */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* About Us Section */
+.about-us-section {
+  position: relative;
+  overflow: hidden;
+  padding: 80px 40px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* About Us Video Background */
+.about-bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  display: block;
+}
+
+.about-us-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.85) 100%);
+  z-index: 0.5;
+  pointer-events: none;
+}
+
+.about-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.about-title {
+  font-size: 48px;
+  color: #22c55e;
+  text-align: center;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.about-subtitle {
+  font-size: 24px;
+  color: #cbd5e1;
+  text-align: center;
+  margin-bottom: 60px;
+  font-weight: 500;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 32px;
+  border-radius: 16px;
+  border: 1px solid rgba(34, 197, 94, 0.1);
+  text-align: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+
+.feature-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(34, 197, 94, 0.3);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(34, 197, 94, 0.15);
+}
+
+.feature-card .feature-title {
+  font-size: 20px;
+  color: #f1f5f9;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.feature-card .feature-desc {
+  color: #cbd5e1;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
 /* small screens: stack vertically */
 @media (max-width: 900px) {
   .page { flex-direction: column; }
-  .card { width:100%; padding:32px; }
-  .promo h2 { font-size:28px; }
-  .left { align-items:center; text-align:left; }
+  .card { width:100%; padding:32px; max-width: 100%; }
+  .left { align-items:center; text-align:center; }
   .form { max-width:100%; }
+  
+  .about-title {
+    font-size: 36px;
+  }
+  
+  .about-subtitle {
+    font-size: 18px;
+    margin-bottom: 40px;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .about-us-section {
+    padding: 40px 20px;
+  }
 }
