@@ -1,13 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import styles from './Dashboard.module.css';
 import Sidebar from './Sidebar';
 import CategorySection from "./CategorySection";
 import DailyPlanner from '../DailyPlanner';
-import { FaArrowUp, FaArrowDown, FaPiggyBank, FaEye, FaEyeSlash, FaPlus, FaCalendarAlt, FaClock } from 'react-icons/fa';
+import { FaArrowUp, FaArrowDown, FaPiggyBank, FaEye, FaEyeSlash, FaPlus, FaCalendarAlt, FaClock, FaBrain } from 'react-icons/fa';
 import incomeService from '../../services/incomeService';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [userName, setUserName] = useState('');
   const [totals, setTotals] = useState({ totalBalance: 0, totalIncome: 0, totalExpenses: 0, totalSavings: 0 });
   const [spendingData, setSpendingData] = useState([]);
@@ -377,6 +379,20 @@ const Dashboard = () => {
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Savings</p>
               <h3 className={styles.statValue}>{currency} {totals.totalSavings?.toLocaleString()}</h3>
+            </div>
+          </div>
+        </section>
+
+        {/* AI Insights Card */}
+        <section className={styles.aiInsightsSection}>
+          <div className={styles.aiInsightsCard} onClick={() => navigate('/ai-insights')}>
+            <div className={styles.aiCardContent}>
+              <FaBrain className={styles.aiCardIcon} />
+              <div className={styles.aiCardText}>
+                <h3>AI Insights</h3>
+                <p>Get intelligent financial analysis and personalized recommendations</p>
+              </div>
+              <span className={styles.aiCardArrow}>→</span>
             </div>
           </div>
         </section>

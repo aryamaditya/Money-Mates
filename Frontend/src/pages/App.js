@@ -10,6 +10,7 @@ import Profile from "./Profile";
 import PastData from "./PastData";
 import Group from "../components/Group";
 import GroupChat from "../components/GroupChat";
+import AIInsights from "./AIInsights";
 
 function App() {
   const userId = JSON.parse(localStorage.getItem("user"))?.userID || 1;
@@ -29,6 +30,7 @@ function App() {
         <Route path="/groups" element={<Group />} />
         <Route path="/group/invite/:inviteCode" element={<Group />} />
         <Route path="/groups/:groupId/chat" element={<GroupChat />} />
+        <Route path="/ai-insights" element={<AIInsights />} />
       </Routes>
     </BrowserRouter>
   );

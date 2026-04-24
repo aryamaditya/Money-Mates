@@ -1499,6 +1499,9 @@
           "billImageBase64": {
             "type": "string",
             "nullable": true
+          },
+          "isSimulated": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -1525,6 +1528,9 @@
           "dateAdded": {
             "type": "string",
             "format": "date-time"
+          },
+          "isSimulated": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -1634,6 +1640,9 @@
             "type": "string"
           },
           "isFirstLogin": {
+            "type": "boolean"
+          },
+          "isSimulated": {
             "type": "boolean"
           }
         },

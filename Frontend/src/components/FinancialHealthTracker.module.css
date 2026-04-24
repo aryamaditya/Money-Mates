@@ -1,0 +1,464 @@
+.tracker {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  margin-bottom: 30px;
+  animation: slideInDown 0.6s ease-out;
+}
+
+.header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.month {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Overall Score Section */
+.overallSection {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  margin-bottom: 30px;
+  animation: slideInUp 0.6s ease-out 0.1s both;
+}
+
+.gaugeContainer {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 40px;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.gauge {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.gaugeSvg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.scoreArc {
+  transition: stroke-dasharray 0.8s ease-out;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.scoreText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.scoreNumber {
+  font-size: 44px;
+  font-weight: 700;
+  color: #1a1a2e;
+  line-height: 1;
+}
+
+.scoreLabel {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.statusBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f0f0 100%);
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px solid;
+  gap: 12px;
+}
+
+.statusIcon {
+  font-size: 40px;
+}
+
+.statusLabel {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+/* Summary Box */
+.summaryBox {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 10px;
+  border-left: 4px solid #667eea;
+}
+
+.summaryLabel {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.summaryValue {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* Metrics Section */
+.metricsSection {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  margin-bottom: 30px;
+  animation: slideInUp 0.6s ease-out 0.2s both;
+}
+
+.metricsTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 25px 0;
+  border-bottom: 2px solid #f5f5f5;
+  padding-bottom: 15px;
+}
+
+.metricCard {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  animation: slideInUp 0.5s ease-out;
+}
+
+.metricCard:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.metricHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.metricIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.metricInfo {
+  flex: 1;
+}
+
+.metricInfo h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.metricWeight {
+  font-size: 12px;
+  color: #999;
+  margin: 4px 0 0 0;
+}
+
+.metricScore {
+  font-size: 24px;
+  font-weight: 700;
+  min-width: 50px;
+  text-align: center;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background: #e8e8e8;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.metricDetails {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Recommendations Section */
+.recommendationsSection {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  animation: slideInUp 0.6s ease-out 0.3s both;
+}
+
+.recommendationsTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 20px 0;
+  border-bottom: 2px solid #f5f5f5;
+  padding-bottom: 15px;
+}
+
+.recommendationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recommendation {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #f8f9fa;
+  padding: 14px 16px;
+  border-radius: 10px;
+  animation: slideInUp 0.4s ease-out;
+}
+
+.recommendationIcon {
+  font-size: 18px;
+  font-weight: 700;
+  color: #667eea;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.recommendation p {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Loading & Error States */
+.loadingContainer,
+.errorContainer {
+  background: white;
+  border-radius: 16px;
+  padding: 60px 30px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.loadingContainer p,
+.errorContainer p {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+}
+
+/* Animations */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .gaugeContainer {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+  }
+
+  .summaryBox {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .header h2 {
+    font-size: 24px;
+  }
+
+  .overallSection {
+    padding: 20px;
+  }
+
+  .gaugeContainer {
+    gap: 20px;
+  }
+
+  .gauge {
+    width: 150px;
+    height: 150px;
+  }
+
+  .scoreNumber {
+    font-size: 36px;
+  }
+
+  .summaryBox {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryItem {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .summaryLabel {
+    margin-bottom: 0;
+  }
+
+  .metricsSection {
+    padding: 20px;
+  }
+
+  .metricsTitle {
+    font-size: 18px;
+  }
+
+  .metricHeader {
+    flex-wrap: wrap;
+  }
+
+  .metricScore {
+    order: -1;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 8px;
+  }
+
+  .recommendationsSection {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h2 {
+    font-size: 20px;
+  }
+
+  .overallSection {
+    padding: 15px;
+  }
+
+  .gauge {
+    width: 120px;
+    height: 120px;
+  }
+
+  .scoreNumber {
+    font-size: 32px;
+  }
+
+  .statusBox {
+    padding: 15px;
+  }
+
+  .summaryBox {
+    gap: 12px;
+  }
+
+  .summaryItem {
+    padding: 12px;
+  }
+
+  .summaryLabel {
+    font-size: 10px;
+  }
+
+  .summaryValue {
+    font-size: 16px;
+  }
+
+  .metricCard {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+  }
+
+  .metricIcon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .metricInfo h4 {
+    font-size: 14px;
+  }
+
+  .recommendation {
+    padding: 12px 12px;
+    gap: 10px;
+  }
+
+  .recommendation p {
+    font-size: 12px;
+  }
+}

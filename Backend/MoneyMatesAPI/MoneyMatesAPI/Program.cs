@@ -27,6 +27,11 @@ builder.Services.AddDbContext<MoneyMatesDbContext>(options =>
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
 // ---------------------------
+// Add SimulatedDataSeeder
+// ---------------------------
+builder.Services.AddScoped<SimulatedDataSeeder>();
+
+// ---------------------------
 // Add CORS for React
 // ---------------------------
 builder.Services.AddCors(options =>
@@ -56,6 +61,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 
 var app = builder.Build();
+
+// ---------------------------
+// Seed Simulated Data on Startup
+// ---------------------------
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<SimulatedDataSeeder>();
+    await seeder.SeedSimulatedUsersAsync();
+}
 
 // ---------------------------
 // Use Swagger in Development

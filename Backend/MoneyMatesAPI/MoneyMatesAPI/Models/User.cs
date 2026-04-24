@@ -16,5 +16,7 @@ namespace MoneyMatesAPI.Models
         public string Password { get; set; } = null!;
 
         public bool IsFirstLogin { get; set; } = true;
+
+        public bool IsSimulated { get; set; } = false;
     }
 }

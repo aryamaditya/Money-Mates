@@ -8,5 +8,6 @@
         public decimal Amount { get; set; }
         public DateTime DateAdded { get; set; } = DateTime.Now;
         public string? BillImageBase64 { get; set; } // Optional: stores image as base64 string
+        public bool IsSimulated { get; set; } = false;
     }
 }

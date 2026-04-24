@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTachometerAlt, FaUsers, FaLightbulb, FaUser, FaSignOutAlt, FaHistory } from 'react-icons/fa';
+import { FaTachometerAlt, FaUsers, FaUser, FaSignOutAlt, FaHistory, FaBrain } from 'react-icons/fa';
 import styles from './Dashboard.module.css';
 
 /**
@@ -9,13 +9,13 @@ import styles from './Dashboard.module.css';
  * isSelected: indicates which item is currently active
  * 
  * Currently implemented: Dashboard, Groups, Profile
- * Future features: AI Insights
+ * Future features: More analytics modules
  */
 const navItems = [
   { name: 'Dashboard', icon: <FaTachometerAlt />, isSelected: true, path: '/dashboard' },
   { name: 'Past Data', icon: <FaHistory />, isSelected: false, path: '/past-data' },
   { name: 'Groups', icon: <FaUsers />, isSelected: false, path: '/groups' },
-  { name: 'AI Insights', icon: <FaLightbulb />, isSelected: false, path: '#' },
+  { name: 'AI Insights', icon: <FaBrain />, isSelected: false, path: '/ai-insights' },
   { name: 'Profile', icon: <FaUser />, isSelected: false, path: '/profile' },
 ];
 
