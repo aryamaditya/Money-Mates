@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/dashboard/Sidebar';
 import FinancialHealthTracker from '../components/FinancialHealthTracker';
+import SpendingPatterns from '../components/SpendingPatterns';
+import PeerComparison from '../components/PeerComparison';
 import dashboardStyles from '../components/dashboard/Dashboard.module.css';
 import styles from './AIInsights.module.css';
 
 const AIInsights = () => {
   const [userId, setUserId] = useState(null);
+  const [activeTab, setActiveTab] = useState('health');
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -28,11 +31,41 @@ const AIInsights = () => {
           </div>
         </section>
 
-        {/* Financial Health Tracker */}
         {userId && (
-          <section className={styles.aiContent}>
-            <FinancialHealthTracker userId={userId} />
-          </section>
+          <>
+            <div className={styles.tabContainer}>
+              <button 
+                className={`${styles.tabButton} ${activeTab === 'health' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('health')}
+              >
+                Financial Health
+              </button>
+              <button 
+                className={`${styles.tabButton} ${activeTab === 'patterns' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('patterns')}
+              >
+                Spending Patterns
+              </button>
+              <button 
+                className={`${styles.tabButton} ${activeTab === 'comparison' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('comparison')}
+              >
+                Peer Comparison
+              </button>
+            </div>
+
+            <section className={styles.aiContent}>
+              {activeTab === 'health' && (
+                <FinancialHealthTracker userId={userId} />
+              )}
+              {activeTab === 'patterns' && (
+                <SpendingPatterns userId={userId} />
+              )}
+              {activeTab === 'comparison' && (
+                <PeerComparison userId={userId} />
+              )}
+            </section>
+          </>
         )}
       </main>
     </div>

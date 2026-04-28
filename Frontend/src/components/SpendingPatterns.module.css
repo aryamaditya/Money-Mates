@@ -1,0 +1,108 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
+}
+
+.loadingContainer, .errorContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.errorContainer p {
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+.loadingContainer p {
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.insightsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.insightCard {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border-left: 4px solid #3498db;
+}
+
+.insightIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+.insightContent h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.insightContent p {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .chartsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.chartCard {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.chartHeader {
+  margin-bottom: 1.5rem;
+}
+
+.chartHeader h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.chartSubtitle {
+  margin: 0.25rem 0 0 0;
+  color: #95a5a6;
+  font-size: 0.85rem;
+}
+
+.chartWrapper {
+  width: 100%;
+  height: 300px;
+}

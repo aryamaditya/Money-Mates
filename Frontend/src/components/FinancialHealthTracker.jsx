@@ -212,63 +212,7 @@ const FinancialHealthTracker = ({ userId }) => {
         </div>
       </div>
 
-      {/* Recommendations */}
-      <div className={styles.recommendationsSection}>
-        <h3 className={styles.recommendationsTitle}>Smart Recommendations</h3>
-        <div className={styles.recommendationsList}>
-          {overallScore >= 90 && (
-            <div className={styles.recommendation} style={{ borderLeft: '4px solid #27ae60' }}>
-              <span className={styles.recommendationIcon}>✓</span>
-              <p>Excellent financial health! Keep maintaining your current spending habits and savings rate.</p>
-            </div>
-          )}
-          {overallScore >= 80 && overallScore < 90 && (
-            <div className={styles.recommendation} style={{ borderLeft: '4px solid #2ecc71' }}>
-              <span className={styles.recommendationIcon}>→</span>
-              <p>Good progress! Try to increase your savings rate slightly to reach excellent status.</p>
-            </div>
-          )}
-          {overallScore >= 70 && overallScore < 80 && (
-            <div className={styles.recommendation} style={{ borderLeft: '4px solid #f39c12' }}>
-              <span className={styles.recommendationIcon}>!</span>
-              <p>Fair performance. Review your budget limits and consider reducing discretionary spending.</p>
-            </div>
-          )}
-          {overallScore >= 60 && overallScore < 70 && (
-            <div className={styles.recommendation} style={{ borderLeft: '4px solid #e67e22' }}>
-              <span className={styles.recommendationIcon}>!</span>
-              <p>Poor financial health. Set stricter budget limits and focus on reducing expenses.</p>
-            </div>
-          )}
-          {overallScore < 60 && (
-            <div className={styles.recommendation} style={{ borderLeft: '4px solid #e74c3c' }}>
-              <span className={styles.recommendationIcon}>⚠</span>
-              <p>Critical status. Immediate action needed: Cut non-essential expenses and increase income.</p>
-            </div>
-          )}
 
-          {metrics.savings.details.savingsPercentage < 10 && (
-            <div className={styles.recommendation} style={{ borderLeft: '4px solid #e74c3c' }}>
-              <span className={styles.recommendationIcon}>•</span>
-              <p>Your savings rate is very low. Aim to save at least 10-20% of your income.</p>
-            </div>
-          )}
-
-          {metrics.expense.details.expensePercentage > 85 && (
-            <div className={styles.recommendation} style={{ borderLeft: '4px solid #e67e22' }}>
-              <span className={styles.recommendationIcon}>•</span>
-              <p>You're spending most of your income. Try to reduce expenses in high-cost categories.</p>
-            </div>
-          )}
-
-          {metrics.budget.details.categoriesTracked === 0 && (
-            <div className={styles.recommendation} style={{ borderLeft: '4px solid #f39c12' }}>
-              <span className={styles.recommendationIcon}>•</span>
-              <p>Create budgets for your spending categories to better track and control expenses.</p>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 };
