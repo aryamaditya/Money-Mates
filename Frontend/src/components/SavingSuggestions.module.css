@@ -1,0 +1,313 @@
+.container {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 16px;
+  padding: 32px;
+  margin: 24px 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.headerIcon {
+  font-size: 32px;
+  color: #667eea;
+}
+
+.headerContent h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 4px 0;
+}
+
+.headerContent p {
+  font-size: 14px;
+  color: #718096;
+  margin: 0;
+}
+
+.savingsHighlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 20px 24px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+.savingsAmount {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.savingsLabel {
+  font-size: 12px;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.suggestionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.suggestionCard {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border-left: 4px solid #667eea;
+}
+
+.suggestionCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.suggestionCard.severity-high {
+  border-left-color: #dc3545;
+}
+
+.suggestionCard.severity-medium {
+  border-left-color: #ffc107;
+}
+
+.suggestionCard.severity-low {
+  border-left-color: #28a745;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid #e9ecef;
+}
+
+.cardIcon {
+  font-size: 24px;
+  color: #667eea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+}
+
+.severityBadge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cardContent {
+  padding: 20px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 8px 0;
+}
+
+.cardDescription {
+  font-size: 14px;
+  color: #718096;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.cardFooter {
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.savingsInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.savingsInfo .savingsLabel {
+  font-size: 12px;
+  color: #718096;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.savingsInfo .savingsAmount {
+  font-size: 20px;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.actionBtn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.actionBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.actionBtn:active {
+  transform: translateY(0);
+}
+
+.noSuggestions {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  color: #cbd5e0;
+  margin-bottom: 16px;
+}
+
+.noSuggestions p {
+  font-size: 16px;
+  color: #718096;
+  margin: 0;
+}
+
+.tipsSection {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  border: 2px solid #e9ecef;
+}
+
+.tipsHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tipsIcon {
+  font-size: 20px;
+  color: #667eea;
+}
+
+.tipsHeader h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+}
+
+.tipsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.tipsList li {
+  font-size: 14px;
+  color: #4a5568;
+  padding: 12px;
+  background: #f7fafc;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.loadingContainer {
+  background: white;
+  border-radius: 12px;
+  padding: 60px 20px;
+  text-align: center;
+  color: #718096;
+  font-size: 16px;
+}
+
+.errorContainer {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 12px;
+  padding: 20px;
+  color: #c00;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .savingsHighlight {
+    width: 100%;
+  }
+
+  .suggestionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actionBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .tipsList {
+    grid-template-columns: 1fr;
+  }
+}

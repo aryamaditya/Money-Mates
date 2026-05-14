@@ -15,7 +15,19 @@ const CategoryDetail = ({ userId }) => {
   const fetchExpenses = async () => {
     try {
       const data = await categoryService.getCategoryExpenses(userId, categoryName);
-      setExpenses(data);
+      
+      // Filter expenses to current month only
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      
+      const currentMonthExpenses = data.filter(exp => {
+        const expDate = new Date(exp.dateAdded);
+        return expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear;
+      });
+      
+      console.log(`Filtered ${currentMonthExpenses.length} expenses for current month out of ${data.length} total`);
+      setExpenses(currentMonthExpenses);
     } catch (err) {
       console.error(err);
     }

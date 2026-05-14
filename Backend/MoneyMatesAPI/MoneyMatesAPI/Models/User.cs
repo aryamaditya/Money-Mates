@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace MoneyMatesAPI.Models
 {
@@ -18,5 +18,10 @@ namespace MoneyMatesAPI.Models
         public bool IsFirstLogin { get; set; } = true;
 
         public bool IsSimulated { get; set; } = false;
+
+        // User Profiling Fields for Peer Comparison
+        public string? IncomeBracket { get; set; }
+        public string? AgeGroup { get; set; }
+        public string? HouseholdSize { get; set; }
     }
 }

@@ -120,6 +120,51 @@ const categoryService = {
       throw err;
     }
   },
+
+  /**
+   * deleteCategory - Delete a specific budget category
+   * @param {number} userId - The user ID
+   * @param {string} categoryName - The name of the category to delete
+   * @returns {Promise<Object>} Success message
+   */
+  deleteCategory: async (userId, categoryName) => {
+    try {
+      const url = `${API_BASE_CATEGORY}/${userId}?categoryName=${encodeURIComponent(categoryName)}`;
+      console.log(`Deleting category from ${url}`);
+      const res = await fetch(url, {
+        method: "DELETE"
+      });
+      if (!res.ok) throw new Error(`Failed to delete category: ${res.status}`);
+      const data = await res.json();
+      console.log("deleteCategory result:", data);
+      return data;
+    } catch (err) {
+      console.error("deleteCategory error:", err);
+      throw err;
+    }
+  },
+
+  /**
+   * deleteAllCategories - Delete all budget categories for a user
+   * @param {number} userId - The user ID
+   * @returns {Promise<Object>} Success message with count of deleted categories
+   */
+  deleteAllCategories: async (userId) => {
+    try {
+      const url = `${API_BASE_CATEGORY}/${userId}`;
+      console.log(`Deleting all categories from ${url}`);
+      const res = await fetch(url, {
+        method: "DELETE"
+      });
+      if (!res.ok) throw new Error(`Failed to delete all categories: ${res.status}`);
+      const data = await res.json();
+      console.log("deleteAllCategories result:", data);
+      return data;
+    } catch (err) {
+      console.error("deleteAllCategories error:", err);
+      throw err;
+    }
+  },
 };
 
 export default categoryService;

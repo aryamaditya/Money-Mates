@@ -87,12 +87,18 @@ namespace MoneyMatesAPI.Controllers
                 .Where(b => b.UserId == userId)
                 .ToListAsync();
 
+            // Get all expenses for this user
+            var expenses = await _context.Expenses
+                .Where(e => e.UserId == userId)
+                .ToListAsync();
+
+            // Calculate category totals in memory
             var categories = budgets.Select(b => new
             {
-                name = b.Category,           // use budget category name
-                value = _context.Expenses
-                            .Where(e => e.UserId == userId && e.Category == b.Category)
-                            .Sum(e => e.Amount)   // total used amount
+                name = b.Category,
+                value = expenses
+                    .Where(e => e.Category == b.Category)
+                    .Sum(e => e.Amount)
             }).ToList();
 
             return Ok(categories);

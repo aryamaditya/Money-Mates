@@ -12,6 +12,11 @@ export default function Setup() {
   const [newCategory, setNewCategory] = useState("");
   const [error, setError] = useState("");
 
+  const [incomeBracket, setIncomeBracket] = useState("");
+  const [ageGroup, setAgeGroup] = useState("");
+  const [householdSize, setHouseholdSize] = useState("");
+  const [profileSet, setProfileSet] = useState(false);
+
   // Remaining budget calculation
   const remainingBudget =
     budgetSet
@@ -93,6 +98,12 @@ export default function Setup() {
       // Mark first login complete
       await fetch(`http://localhost:5262/api/users/complete-setup/${user.userID}`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          incomeBracket: incomeBracket || null,
+          ageGroup: ageGroup || null,
+          householdSize: householdSize || null
+        })
       });
 
       // Update localStorage
@@ -112,8 +123,33 @@ export default function Setup() {
         <h1>Welcome, {user.name}!</h1>
         <p>Set your monthly budget and allocate it to categories.</p>
 
-        {/* Step 1: Total Budget */}
-        {!budgetSet && (
+        {/* Step 1: User Profile */}
+        {!profileSet && (
+          <div className="profile-step" style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
+            <p>Tell us a bit about yourself to unlock personalized Peer Comparisons.</p>
+            <select value={incomeBracket} onChange={e => setIncomeBracket(e.target.value)} className="input-select" style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }}>
+              <option value="">Select Income Bracket (Optional)</option>
+              <option value="< $500">Under $500/month</option>
+              <option value="$500 - $1500">$500 - $1500/month</option>
+              <option value="$1500+">$1500+/month</option>
+            </select>
+            <select value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="input-select" style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }}>
+              <option value="">Select Age Group (Optional)</option>
+              <option value="20s">20s</option>
+              <option value="30s">30s</option>
+              <option value="40s+">40s and above</option>
+            </select>
+            <select value={householdSize} onChange={e => setHouseholdSize(e.target.value)} className="input-select" style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }}>
+              <option value="">Select Household Size (Optional)</option>
+              <option value="Just myself">Just myself</option>
+              <option value="Family">Family</option>
+            </select>
+            <button className="btn-primary" onClick={() => setProfileSet(true)} style={{ marginTop: "10px" }}>Continue to Budget</button>
+          </div>
+        )}
+
+        {/* Step 2: Total Budget */}
+        {profileSet && !budgetSet && (
           <div className="budget-step">
             <input
               type="number"
@@ -125,8 +161,8 @@ export default function Setup() {
           </div>
         )}
 
-        {/* Step 2: Categories */}
-        {budgetSet && (
+        {/* Step 3: Categories */}
+        {profileSet && budgetSet && (
           <div className="categories-step">
             <p>
               Total Budget: ${totalBudget} | Remaining: ${remainingBudget}

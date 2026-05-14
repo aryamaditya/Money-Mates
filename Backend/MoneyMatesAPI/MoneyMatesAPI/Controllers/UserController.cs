@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneyMatesAPI.Data;
 using MoneyMatesAPI.Models;
@@ -106,11 +106,14 @@ namespace MoneyMatesAPI.Controllers
             });
         }
         [HttpPost("complete-setup/{userId}")]
-        public async Task<IActionResult> CompleteSetup(int userId)
+        public async Task<IActionResult> CompleteSetup(int userId, [FromBody] CompleteSetupRequest request)
         {
             var user = await _context.Users.FindAsync(userId);
             if (user == null) return NotFound(new { message = "User not found." });
 
+            user.IncomeBracket = request.IncomeBracket;
+            user.AgeGroup = request.AgeGroup;
+            user.HouseholdSize = request.HouseholdSize;
             user.IsFirstLogin = false;
             await _context.SaveChangesAsync();
 
@@ -142,6 +145,9 @@ namespace MoneyMatesAPI.Controllers
 
             user.Name = request.Name ?? user.Name;
             user.Email = request.Email ?? user.Email;
+            user.IncomeBracket = request.IncomeBracket ?? user.IncomeBracket;
+            user.AgeGroup = request.AgeGroup ?? user.AgeGroup;
+            user.HouseholdSize = request.HouseholdSize ?? user.HouseholdSize;
 
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
@@ -238,6 +244,16 @@ namespace MoneyMatesAPI.Controllers
     {
         public string? Name { get; set; }
         public string? Email { get; set; }
+        public string? IncomeBracket { get; set; }
+        public string? AgeGroup { get; set; }
+        public string? HouseholdSize { get; set; }
+    }
+
+    public class CompleteSetupRequest
+    {
+        public string? IncomeBracket { get; set; }
+        public string? AgeGroup { get; set; }
+        public string? HouseholdSize { get; set; }
     }
 
     // DTO for changing password

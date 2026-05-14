@@ -7,6 +7,7 @@ import CategorySection from "./CategorySection";
 import DailyPlanner from '../DailyPlanner';
 import { FaArrowUp, FaArrowDown, FaPiggyBank, FaEye, FaEyeSlash, FaPlus, FaCalendarAlt, FaClock, FaBrain } from 'react-icons/fa';
 import incomeService from '../../services/incomeService';
+import MissingIncomePopup from './MissingIncomePopup';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ const Dashboard = () => {
   const [addingIncome, setAddingIncome] = useState(false);
   const [incomeError, setIncomeError] = useState('');
   const [showAllTransactionsModal, setShowAllTransactionsModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [hasIncomeThisMonth, setHasIncomeThisMonth] = useState(true);
   
   const currency = 'Rs';
   const userId = JSON.parse(localStorage.getItem("user"))?.userID || 1;
@@ -81,32 +84,42 @@ const Dashboard = () => {
   useEffect(() => {
     const { startOfMonth, endOfMonth } = getCurrentMonthRange();
     
-    // Fetch all expenses and income to filter by current month
-    Promise.all([
-      fetch(`http://localhost:5262/api/expenses/${userId}`).then(r => r.json()),
-      fetch(`http://localhost:5262/api/income/${userId}`).then(r => r.json())
-    ])
-      .then(([expenses, incomes]) => {
-        // Filter both by current month
-        const currentMonthExpenses = filterByCurrentMonth(expenses || []);
+    // Fetch income first for instant missing income check
+    fetch(`http://localhost:5262/api/income/${userId}`)
+      .then(r => r.json())
+      .then(incomes => {
         const currentMonthIncomes = filterByCurrentMonth(incomes || []);
+        const totalIncome = currentMonthIncomes.reduce((sum, inc) => sum + (inc.amount || 0), 0);
+        
+        if (totalIncome === 0) {
+          setHasIncomeThisMonth(false);
+        } else {
+          setHasIncomeThisMonth(true);
+        }
+        setLoading(false); // Stop loading popup state early
+        
+        // Now fetch expenses to complete dashboard
+        return fetch(`http://localhost:5262/api/expenses/${userId}`)
+          .then(r => r.json())
+          .then(expenses => {
+            const currentMonthExpenses = filterByCurrentMonth(expenses || []);
+            const monthTotals = calculateCurrentMonthTotals(expenses, incomes);
+            setTotals(monthTotals);
+            
+            console.log("Dashboard - Current month totals:", monthTotals);
 
-        // Calculate current month totals
-        const monthTotals = calculateCurrentMonthTotals(expenses, incomes);
-        setTotals(monthTotals);
-        console.log("Dashboard - Current month totals:", monthTotals);
+            const allCurrentMonth = [
+              ...currentMonthExpenses.map(exp => ({ ...exp, amount: -exp.amount })),
+              ...currentMonthIncomes.map(inc => ({ ...inc, amount: inc.amount }))
+            ].sort((a, b) => new Date(b.dateAdded || b.date) - new Date(a.dateAdded || a.date));
 
-        // Combine and sort transactions by date (most recent first)
-        const allCurrentMonth = [
-          ...currentMonthExpenses.map(exp => ({ ...exp, amount: -exp.amount })),
-          ...currentMonthIncomes.map(inc => ({ ...inc, amount: inc.amount }))
-        ].sort((a, b) => new Date(b.dateAdded || b.date) - new Date(a.dateAdded || a.date));
-
-        // Get last 5 transactions
-        setRecentTransactions(allCurrentMonth.slice(0, 5));
-        console.log("Dashboard - Last 5 current month transactions:", allCurrentMonth.slice(0, 5));
+            setRecentTransactions(allCurrentMonth.slice(0, 5));
+          });
       })
-      .catch(err => console.error("Failed to fetch expenses and income:", err));
+      .catch(err => {
+        console.error("Failed to fetch expenses and income:", err);
+        setLoading(false);
+      });
 
     // Fetch category breakdown for current month
     fetch(`http://localhost:5262/api/dashboard/categories/${userId}`)
@@ -147,6 +160,11 @@ const Dashboard = () => {
 
       const monthTotals = calculateCurrentMonthTotals(expenses, incomes);
       setTotals(monthTotals);
+      
+      if (monthTotals.totalIncome > 0) {
+        setHasIncomeThisMonth(true);
+      }
+      
       console.log("Totals refreshed - Current month totals:", monthTotals);
 
       // Also refresh chart data
@@ -238,6 +256,17 @@ const Dashboard = () => {
 
   return (
     <div className={styles.dashboardLayout}>
+      {!loading && !hasIncomeThisMonth && (
+        <MissingIncomePopup 
+          onAddIncome={() => {
+            setShowAddIncomeForm(true);
+            setHasIncomeThisMonth(true); // Temporarily hide it so user can fill the form
+          }}
+          onDismiss={() => {
+            setHasIncomeThisMonth(true); // Dismiss until reload
+          }}
+        />
+      )}
       <Sidebar />
 
       <main className={styles.mainContent}>

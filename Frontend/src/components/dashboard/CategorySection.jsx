@@ -24,6 +24,8 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
   const [billImage, setBillImage] = useState(null);
   const [billImagePreview, setBillImagePreview] = useState(null);
   const [viewingBillImage, setViewingBillImage] = useState(null); // For modal viewer
+  const [deletingCategoryName, setDeletingCategoryName] = useState(null);
+  const [deletingAllCategories, setDeletingAllCategories] = useState(false);
 
   // Icon mapping for categories - removed emojis for cleaner look
 
@@ -339,16 +341,45 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
       return;
     }
 
+    setDeletingCategoryName(categoryName);
     try {
-      // You'll need to implement this in your categoryService
-      // await categoryService.deleteCategory(userId, categoryName);
+      await categoryService.deleteCategory(userId, categoryName);
       console.log("Category deleted successfully");
       
       // Refresh categories
-      fetchCategories();
+      await fetchCategories();
+      alert("Category deleted successfully!");
     } catch (err) {
       console.error("Failed to delete category:", err);
       alert("Failed to delete category. Please try again.");
+    } finally {
+      setDeletingCategoryName(null);
+    }
+  };
+
+  const handleDeleteAllCategories = async () => {
+    if (categories.length === 0) {
+      alert("No categories to delete.");
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete ALL ${categories.length} categories? This action cannot be undone.`)) {
+      return;
+    }
+
+    setDeletingAllCategories(true);
+    try {
+      await categoryService.deleteAllCategories(userId);
+      console.log("All categories deleted successfully");
+      
+      // Refresh categories
+      await fetchCategories();
+      alert("All categories deleted successfully!");
+    } catch (err) {
+      console.error("Failed to delete all categories:", err);
+      alert("Failed to delete all categories. Please try again.");
+    } finally {
+      setDeletingAllCategories(false);
     }
   };
 
@@ -400,12 +431,35 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
             <h3 className="category-title">Budget Categories</h3>
             <p className="category-subtitle">Track your spending by category</p>
           </div>
-          <button 
-            className="btn-add-category"
-            onClick={() => setShowAddForm(!showAddForm)}
-          >
-            {showAddForm ? "✕ Cancel" : "+ Add Category"}
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              className="btn-add-category"
+              onClick={() => setShowAddForm(!showAddForm)}
+            >
+              {showAddForm ? "✕ Cancel" : "+ Add Category"}
+            </button>
+            {categories.length > 0 && (
+              <button 
+                className="btn-delete-all-categories"
+                onClick={handleDeleteAllCategories}
+                disabled={deletingAllCategories}
+                style={{
+                  padding: '10px 16px',
+                  background: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: deletingAllCategories ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  opacity: deletingAllCategories ? 0.6 : 1,
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {deletingAllCategories ? "Deleting..." : "🗑️ Delete All"}
+              </button>
+            )}
+          </div>
         </div>
 
         {showAddForm && (
@@ -590,9 +644,10 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
                           e.stopPropagation();
                           handleDeleteCategory(c.name);
                         }}
+                        disabled={deletingCategoryName === c.name}
                         title="Delete category"
                       >
-                        Delete
+                        {deletingCategoryName === c.name ? "Deleting..." : "Delete"}
                       </button>
                       <span className="expand-icon">
                         {expandedCategory === c.name ? "▲" : "▼"}

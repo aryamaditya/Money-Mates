@@ -33,6 +33,6 @@ namespace MoneyMatesAPI.Models
         [ForeignKey("PaidByUserId")]
         public User? PaidBy { get; set; }
 
-        public ICollection<GroupExpenseSplit>? Splits { get; set; }
+        public ICollection<GroupExpenseSplit> Splits { get; set; } = new List<GroupExpenseSplit>();
     }
 }

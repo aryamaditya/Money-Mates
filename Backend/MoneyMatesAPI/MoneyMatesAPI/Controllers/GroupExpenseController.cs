@@ -201,15 +201,18 @@ namespace MoneyMatesAPI.Controllers
                            !s.IsSettled)
                 .Include(s => s.GroupExpense)
                     .ThenInclude(e => e.PaidBy)
+                .ToListAsync();
+
+            var owesGrouped = owesData
                 .GroupBy(s => s.GroupExpense!.PaidByUserId)
                 .Select(g => new
                 {
                     creditorId = g.Key,
-                    creditorName = g.FirstOrDefault()!.GroupExpense!.PaidBy!.Name,
-                    creditorEmail = g.FirstOrDefault()!.GroupExpense!.PaidBy!.Email,
+                    creditorName = g.First().GroupExpense!.PaidBy!.Name,
+                    creditorEmail = g.First().GroupExpense!.PaidBy!.Email,
                     totalOwes = g.Sum(s => s.Amount)
                 })
-                .ToListAsync();
+                .ToList();
 
             // Get unsettled splits where others owe user money
             var owedData = await _context.GroupExpenseSplits
@@ -217,22 +220,25 @@ namespace MoneyMatesAPI.Controllers
                            s.GroupExpense.PaidByUserId == userId && 
                            !s.IsSettled)
                 .Include(s => s.UserOwes)
+                .ToListAsync();
+
+            var owedGrouped = owedData
                 .GroupBy(s => s.UserIdOwes)
                 .Select(g => new
                 {
                     debtorId = g.Key,
-                    debtorName = g.FirstOrDefault()!.UserOwes!.Name,
-                    debtorEmail = g.FirstOrDefault()!.UserOwes!.Email,
+                    debtorName = g.First().UserOwes!.Name,
+                    debtorEmail = g.First().UserOwes!.Email,
                     totalOwed = g.Sum(s => s.Amount)
                 })
-                .ToListAsync();
+                .ToList();
 
             return Ok(new
             {
                 groupId,
                 userId,
-                youOwe = owesData,
-                youAreOwed = owedData
+                youOwe = owesGrouped,
+                youAreOwed = owedGrouped
             });
         }
 

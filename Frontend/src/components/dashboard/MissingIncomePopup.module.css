@@ -1,0 +1,97 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease;
+}
+
+.modalContent {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  animation: slideUp 0.4s ease;
+}
+
+.iconContainer {
+  margin-bottom: 20px;
+}
+
+.icon {
+  font-size: 64px;
+  color: #f39c12;
+}
+
+.modalContent h2 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.modalContent p {
+  color: #555;
+  margin-bottom: 30px;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.actionBtn {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: #2c3e50;
+  font-weight: bold;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.actionBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(67, 233, 123, 0.3);
+}
+
+.actionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.dismissBtn {
+  background: transparent;
+  color: #7f8c8d;
+  font-weight: 500;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 5px;
+  text-decoration: underline;
+}
+
+.dismissBtn:hover {
+  color: #34495e;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}

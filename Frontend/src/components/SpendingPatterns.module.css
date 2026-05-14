@@ -3,6 +3,269 @@
   flex-direction: column;
   gap: 2rem;
   padding: 1rem;
+  animation: containerFadeIn 0.6s ease-out;
+}
+
+@keyframes containerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   ALERTS SECTION - BUDGET OVERSPENDING
+   ============================================ */
+
+.alertsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: alertsSectionSlideIn 0.6s ease-out;
+}
+
+@keyframes alertsSectionSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alertsHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #fee8e8 0%, #fff5f5 100%);
+  border-radius: 12px;
+  border-left: 4px solid #e74c3c;
+}
+
+.alertsIcon {
+  font-size: 1.5rem;
+  color: #e74c3c;
+  animation: warningPulse 2s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+  0%, 100% {
+    transform: scale(1);
+    color: #e74c3c;
+  }
+  50% {
+    transform: scale(1.1);
+    color: #c0392b;
+  }
+}
+
+.alertsHeader h3 {
+  margin: 0;
+  color: #c0392b;
+  font-size: 1.1rem;
+  font-weight: 700;
+  flex-grow: 1;
+}
+
+.alertCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.alertsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.alertCard {
+  background: white;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-top: 4px solid #e74c3c;
+  animation: alertCardSlideIn 0.5s ease-out;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.alertCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 0% 0%, rgba(231, 76, 60, 0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+@keyframes alertCardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alertCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(231, 76, 60, 0.15);
+}
+
+.alertCard.alert-warning {
+  border-top-color: #f39c12;
+}
+
+.alertCard.alert-critical {
+  border-top-color: #e74c3c;
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.02) 0%, rgba(192, 57, 43, 0.02) 100%);
+}
+
+.alertTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.2rem;
+}
+
+.alertCategory {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.categoryName {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.severityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  background: #fff3cd;
+  color: #856404;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.alertCard.alert-critical .severityBadge {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.alertProgressBar {
+  margin-bottom: 1.2rem;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 10px;
+  background: #ecf0f1;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0.6rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+  border-radius: 10px;
+  animation: progressGrow 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
+}
+
+@keyframes progressGrow {
+  from {
+    width: 0 !important;
+  }
+}
+
+.progressLabel {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #7f8c8d;
+  text-align: right;
+}
+
+.alertDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detailLabel {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #7f8c8d;
+}
+
+.detailValue {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.detailValue.overAmount {
+  color: #e74c3c;
+  animation: valueHighlight 2s ease-in-out infinite;
+}
+
+@keyframes valueHighlight {
+  0%, 100% {
+    text-shadow: none;
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+  }
+}
+
+.successCard {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(39, 174, 96, 0.05) 100%);
+  border-left-color: #27ae60;
+}
+
+.successCard .insightIcon {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+}
+
+.successCard .insightContent h3 {
+  color: #27ae60;
 }
 
 .loadingContainer, .errorContainer {
@@ -32,7 +295,7 @@
 }
 
 .insightCard {
-  background: white;
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(46, 204, 113, 0.05) 100%);
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -40,6 +303,24 @@
   align-items: center;
   gap: 1.5rem;
   border-left: 4px solid #3498db;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  animation: slideInLeft 0.5s ease-out;
+}
+
+.insightCard:hover {
+  transform: translateX(8px);
+  box-shadow: 0 6px 25px rgba(52, 152, 219, 0.15);
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .insightIcon {
@@ -52,6 +333,16 @@
   color: white;
   font-size: 1.25rem;
   background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(48, 207, 208, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(48, 207, 208, 0);
+  }
 }
 
 .insightContent h3 {
@@ -84,16 +375,61 @@
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  animation: chartFadeIn 0.6s ease-out;
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.chartCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(52, 152, 219, 0.15);
+}
+
+@keyframes chartFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .chartHeader {
   margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.headerTitleSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.headerIcon {
+  font-size: 1.5rem;
+  color: #3498db;
+  animation: iconRotate 0.5s ease-out;
+}
+
+@keyframes iconRotate {
+  from {
+    transform: rotate(-15deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(0);
+    opacity: 1;
+  }
 }
 
 .chartHeader h3 {
   margin: 0;
   color: #2c3e50;
   font-size: 1.2rem;
+  font-weight: 700;
 }
 
 .chartSubtitle {
@@ -105,4 +441,228 @@
 .chartWrapper {
   width: 100%;
   height: 300px;
+  animation: chartAnimateIn 0.8s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+@keyframes chartAnimateIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .alertsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .alertCard {
+    padding: 1.2rem;
+  }
+
+  .alertDetails {
+    padding: 0.8rem;
+    gap: 0.6rem;
+  }
+
+  .detailLabel {
+    font-size: 0.85rem;
+  }
+
+  .detailValue {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .alertsHeader {
+    padding: 0.8rem 1.2rem;
+  }
+
+  .alertsHeader h3 {
+    font-size: 1rem;
+  }
+
+  .alertsIcon {
+    font-size: 1.3rem;
+  }
+
+  .alertCount {
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+  }
+
+  .alertsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .alertCard {
+    padding: 1rem;
+  }
+
+  .categoryName {
+    font-size: 1rem;
+  }
+
+  .severityBadge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .progressTrack {
+    height: 8px;
+  }
+
+  .alertDetails {
+    padding: 0.8rem;
+  }
+
+  .detailLabel {
+    font-size: 0.8rem;
+  }
+
+  .detailValue {
+    font-size: 0.85rem;
+  }
+
+  .chartWrapper {
+    height: 250px;
+  }
+}
+
+@media (max-width: 600px) {
+  .alertsSection {
+    gap: 1rem;
+  }
+
+  .alertsHeader {
+    gap: 0.8rem;
+    padding: 0.7rem 1rem;
+  }
+
+  .alertsHeader h3 {
+    font-size: 0.95rem;
+  }
+
+  .alertsIcon {
+    font-size: 1.2rem;
+  }
+
+  .alertCount {
+    width: 22px;
+    height: 22px;
+    font-size: 0.75rem;
+  }
+
+  .alertsGrid {
+    gap: 1rem;
+  }
+
+  .alertCard {
+    padding: 0.9rem;
+    border-top-width: 3px;
+  }
+
+  .alertTop {
+    margin-bottom: 0.8rem;
+  }
+
+  .categoryName {
+    font-size: 0.95rem;
+  }
+
+  .severityBadge {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .alertProgressBar {
+    margin-bottom: 0.8rem;
+  }
+
+  .progressTrack {
+    height: 6px;
+  }
+
+  .progressLabel {
+    font-size: 0.8rem;
+  }
+
+  .alertDetails {
+    padding: 0.7rem;
+    gap: 0.5rem;
+  }
+
+  .detailRow {
+    gap: 0.5rem;
+  }
+
+  .detailLabel {
+    font-size: 0.75rem;
+  }
+
+  .detailValue {
+    font-size: 0.8rem;
+  }
+
+  .insightsSection {
+    gap: 1rem;
+  }
+
+  .insightCard {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .insightIcon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .insightContent h3 {
+    font-size: 1rem;
+  }
+
+  .insightContent p {
+    font-size: 0.9rem;
+  }
+
+  .chartCard {
+    padding: 1rem;
+  }
+
+  .chartHeader {
+    margin-bottom: 1rem;
+  }
+
+  .chartHeader h3 {
+    font-size: 1.05rem;
+  }
+
+  .chartSubtitle {
+    font-size: 0.8rem;
+  }
+
+  .headerIcon {
+    font-size: 1.3rem;
+  }
+
+  .headerTitleSection {
+    gap: 0.8rem;
+  }
+
+  .chartWrapper {
+    height: 200px;
+  }
 }

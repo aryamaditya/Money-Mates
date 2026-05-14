@@ -25,6 +25,6 @@ namespace MoneyMatesAPI.Models
         [ForeignKey("CreatedBy")]
         public User? Creator { get; set; }
 
-        public ICollection<GroupMember>? Members { get; set; }
+        public ICollection<GroupMember> Members { get; set; } = new List<GroupMember>();
     }
 }

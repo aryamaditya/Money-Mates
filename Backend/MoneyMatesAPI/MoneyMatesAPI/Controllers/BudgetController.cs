@@ -33,11 +33,38 @@ namespace MoneyMatesAPI.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserBudgets(int userId)
         {
-            var budgets = await _context.Budgets
-                .Where(b => b.UserId == userId)
-                .ToListAsync();
+            try
+            {
+                var budgets = await _context.Budgets
+                    .Where(b => b.UserId == userId)
+                    .ToListAsync();
 
-            return Ok(budgets);
+                return Ok(budgets);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        // PUT: api/budget/{budgetId} - update a budget
+        [HttpPut("{budgetId}")]
+        public async Task<IActionResult> UpdateBudget(int budgetId, [FromBody] BudgetUpdateRequest request)
+        {
+            if (request == null)
+                return BadRequest(new { message = "Invalid budget data." });
+
+            var budget = await _context.Budgets.FindAsync(budgetId);
+            if (budget == null)
+                return NotFound(new { message = "Budget not found." });
+
+            budget.Limit = request.Limit;
+            if (!string.IsNullOrEmpty(request.Category))
+                budget.Category = request.Category;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(budget);
         }
 
         // DELETE: api/budget/{budgetId} - delete a budget category
@@ -53,5 +80,11 @@ namespace MoneyMatesAPI.Controllers
 
             return Ok(new { message = "Budget deleted successfully." });
         }
+    }
+
+    public class BudgetUpdateRequest
+    {
+        public string? Category { get; set; }
+        public decimal Limit { get; set; }
     }
 }

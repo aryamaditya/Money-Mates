@@ -253,7 +253,7 @@ namespace MoneyMatesAPI.Controllers
     public class CreateDailyBudgetRequest
     {
         public int UserId { get; set; }
-        public string Category { get; set; }
+        public string? Category { get; set; }
         public decimal TotalDailyBudget { get; set; }
         public decimal AllocatedAmount { get; set; }
         public decimal? ActualSpending { get; set; }
@@ -266,6 +266,6 @@ namespace MoneyMatesAPI.Controllers
     /// </summary>
     public class UpdateBudgetStatusRequest
     {
-        public string Status { get; set; } // Over, Under, On-Track
+        public string? Status { get; set; } // Over, Under, On-Track
     }
 }

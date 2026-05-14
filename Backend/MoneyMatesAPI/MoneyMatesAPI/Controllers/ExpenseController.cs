@@ -40,12 +40,19 @@ namespace MoneyMatesAPI.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserExpenses(int userId)
         {
-            var expenses = await _context.Expenses
-                .Where(e => e.UserId == userId)
-                .OrderByDescending(e => e.DateAdded)
-                .ToListAsync();
+            try
+            {
+                var expenses = await _context.Expenses
+                    .Where(e => e.UserId == userId)
+                    .OrderByDescending(e => e.DateAdded)
+                    .ToListAsync();
 
-            return Ok(expenses);
+                return Ok(expenses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
         }
 
         // POST: api/expenses
@@ -54,6 +61,15 @@ namespace MoneyMatesAPI.Controllers
         {
             if (expense == null)
                 return BadRequest(new { message = "Invalid expense data." });
+
+            if (expense.UserId <= 0)
+                return BadRequest(new { message = "Invalid user ID." });
+
+            if (string.IsNullOrWhiteSpace(expense.Category))
+                return BadRequest(new { message = "Category is required." });
+
+            if (expense.Amount <= 0)
+                return BadRequest(new { message = "Amount must be greater than 0." });
 
             expense.DateAdded = DateTime.Now;
             _context.Expenses.Add(expense);

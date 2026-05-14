@@ -181,35 +181,36 @@ const FinancialHealthTracker = ({ userId }) => {
           </div>
         </div>
 
-        {/* Expense Ratio */}
+        {/* MoM Savings Trend */}
         <div className={styles.metricCard}>
           <div className={styles.metricHeader}>
             <div className={styles.metricIcon} style={{ background: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)' }}>
-              <FaWallet />
+              <FaChartLine />
             </div>
             <div className={styles.metricInfo}>
-              <h4>Expense Ratio</h4>
-              <p className={styles.metricWeight}>{metrics.expense.weight}% weight</p>
+              <h4>MoM Savings Trend</h4>
+              <p className={styles.metricWeight}>{metrics.trend.weight}% weight</p>
             </div>
             <div className={styles.metricScore} style={{ color: '#3498db' }}>
-              {metrics.expense.score}
+              {metrics.trend.score}
             </div>
           </div>
           <div className={styles.progressBar}>
             <div
               className={styles.progress}
               style={{
-                width: `${metrics.expense.score}%`,
+                width: `${metrics.trend.score}%`,
                 background: 'linear-gradient(90deg, #30cfd0 0%, #330867 100%)',
               }}
             />
           </div>
           <div className={styles.metricDetails}>
             <span>
-              Spending: {metrics.expense.details.expensePercentage.toFixed(1)}% of income
+              Trend: {metrics.trend.details.trendDifference > 0 ? '+' : ''}{metrics.trend.details.trendDifference.toFixed(1)}% vs Last Month
             </span>
           </div>
         </div>
+
       </div>
 
 
