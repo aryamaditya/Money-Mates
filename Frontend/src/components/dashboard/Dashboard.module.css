@@ -416,20 +416,38 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.formGroup input:invalid,
+.formGroup input:invalid:focus {
+  border-color: #e74c3c;
+  background: rgba(231, 76, 60, 0.05);
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.formGroup input:valid,
+.formGroup input:valid:focus {
+  border-color: #43e97b;
+  box-shadow: 0 0 0 3px rgba(67, 233, 123, 0.1);
+}
+
 .formGroup input:disabled,
 .formGroup select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  background: #f0f0f0;
 }
 
 .errorMsg {
   color: #e74c3c;
   font-size: 13px;
   margin-bottom: 12px;
-  padding: 10px 12px;
+  padding: 12px 16px;
   background: #fadbd8;
   border-radius: 8px;
-  border-left: 3px solid #e74c3c;
+  border-left: 4px solid #e74c3c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideInUp 0.3s ease-out;
 }
 
 .formActions {
@@ -448,27 +466,51 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .submitBtn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
 }
 
 .submitBtn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: translateY(-1px);
 }
 
 .submitBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 .cancelBtn {
   background: #f0f0f0;
   color: #333;
   border: 1px solid #e0e0e0;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: #e8e8e8;
+  border-color: #d0d0d0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cancelBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.cancelBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .cancelBtn:hover:not(:disabled) {
@@ -1020,19 +1062,95 @@
   .dashboardLayout {
     flex-direction: column;
   }
+  
   .sidebar {
     width: 100%;
     height: auto;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    position: relative;
+    padding: 20px;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
+
   .mainContent {
     padding: 20px;
+    padding-left: 20px;
   }
+
+  .sidebarLogo {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .sidebarNav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .sidebarNav li {
+    margin-bottom: 0;
+    flex: 1 1 calc(50% - 4px);
+    min-width: 120px;
+  }
+
+  .navLink,
+  .navLinkActive {
+    padding: 10px 12px;
+    font-size: 13px;
+    justify-content: center;
+  }
+
+  .navLinkActive::before {
+    display: none;
+  }
+
   .statCard {
     flex: 1 1 100%; /* One card per row on small mobile */
   }
-  .sidebarNav {
-      display: none; /* Might hide nav or make it a dropdown on small screens */
+
+  .heroContent {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .heroContent h1 {
+    font-size: 24px;
+  }
+
+  .balanceAmount {
+    font-size: 32px;
+  }
+
+  .balanceCard {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .heroMetaCards {
+    grid-template-columns: 1fr;
+  }
+
+  .chartsSection {
+    grid-template-columns: 1fr;
+  }
+
+  .aiCardContent {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .aiCardArrow {
+    display: none;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .recentSection {
+    padding: 20px;
   }
 }
 

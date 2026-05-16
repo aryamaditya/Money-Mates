@@ -1,22 +1,22 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaTachometerAlt, FaUsers, FaUser, FaSignOutAlt, FaHistory, FaBrain } from 'react-icons/fa';
 import styles from './Dashboard.module.css';
 
 /**
  * Navigation items array
  * Defines menu items shown in sidebar
- * isSelected: indicates which item is currently active
+ * path: route to navigate to
  * 
  * Currently implemented: Dashboard, Groups, Profile
  * Future features: More analytics modules
  */
 const navItems = [
-  { name: 'Dashboard', icon: <FaTachometerAlt />, isSelected: true, path: '/dashboard' },
-  { name: 'Past Data', icon: <FaHistory />, isSelected: false, path: '/past-data' },
-  { name: 'Groups', icon: <FaUsers />, isSelected: false, path: '/groups' },
-  { name: 'AI Insights', icon: <FaBrain />, isSelected: false, path: '/ai-insights' },
-  { name: 'Profile', icon: <FaUser />, isSelected: false, path: '/profile' },
+  { name: 'Dashboard', icon: <FaTachometerAlt />, path: '/dashboard' },
+  { name: 'Past Data', icon: <FaHistory />, path: '/past-data' },
+  { name: 'Groups', icon: <FaUsers />, path: '/groups' },
+  { name: 'AI Insights', icon: <FaBrain />, path: '/ai-insights' },
+  { name: 'Profile', icon: <FaUser />, path: '/profile' },
 ];
 
 /**
@@ -26,11 +26,13 @@ const navItems = [
  * 
  * Features:
  * - App branding (MoneyMates logo)
+ * - Dynamic active state based on current route
  * - Navigation menu with icons
  * - Logout functionality with session cleanup
  */
 const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   /**
    * handleLogout - Clear user session and redirect to login
@@ -52,6 +54,15 @@ const Sidebar = () => {
     }
   };
 
+  /**
+   * isActive - Check if a nav item is the current active route
+   * @param {string} path - The path to check
+   * @returns {boolean} True if the path matches current location
+   */
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
   return (
     <aside className={styles.sidebar}>
       {/* App branding/logo */}
@@ -69,7 +80,7 @@ const Sidebar = () => {
                   e.preventDefault();
                   handleNavClick(item.path);
                 }}
-                className={item.isSelected ? styles.navLinkActive : styles.navLink}
+                className={isActive(item.path) ? styles.navLinkActive : styles.navLink}
               >
                 <span style={{ marginRight: '10px' }}>{item.icon}</span>
                 {item.name}

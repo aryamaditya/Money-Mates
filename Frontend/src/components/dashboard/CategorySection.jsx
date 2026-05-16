@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "../Toast";
 import categoryService from "../../services/categoryService";
 import expenseService from "../../services/expenseService";
 import styles from "./Dashboard.module.css";
@@ -160,12 +161,12 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
     e.preventDefault();
     
     if (!newCategoryName.trim()) {
-      alert("Please enter a category name");
+      toast.error("Please enter a category name");
       return;
     }
 
     if (!newCategoryLimit || parseFloat(newCategoryLimit) <= 0) {
-      alert("Please enter a valid budget limit");
+      toast.error("Please enter a valid budget limit");
       return;
     }
 
@@ -177,12 +178,8 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
     // Validate that total category limits don't exceed total balance
     if (totalIfAdded > totalBalance) {
       const available = Math.max(totalBalance - totalCategoryLimits, 0);
-      alert(
-        `Budget limit exceeds available balance!\n\n` +
-        `Total Balance: Rs ${totalBalance.toLocaleString()}\n` +
-        `Current Category Limits: Rs ${totalCategoryLimits.toLocaleString()}\n` +
-        `Available to allocate: Rs ${available.toLocaleString()}\n\n` +
-        `Please enter a limit of Rs ${available.toLocaleString()} or less.`
+      toast.error(
+        `Budget exceeds available balance! Available: Rs ${available.toLocaleString()}`
       );
       return;
     }
@@ -196,12 +193,13 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
       setNewCategoryName("");
       setNewCategoryLimit("");
       setShowAddForm(false);
+      toast.success("Category added successfully!");
       
       // Refresh categories
       fetchCategories();
     } catch (err) {
       console.error("Failed to add category:", err);
-      alert("Failed to add category. Please try again.");
+      toast.error("Failed to add category. Please try again.");
     } finally {
       setAddingCategory(false);
     }
@@ -216,7 +214,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
     e.preventDefault();
     
     if (!editLimit || parseFloat(editLimit) <= 0) {
-      alert("Please enter a valid budget limit");
+      toast.error("Please enter a valid budget limit");
       return;
     }
 
@@ -225,7 +223,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
 
     // If user has overspent, the new limit must be at least the amount spent
     if (currentCategory.used > newLimit) {
-      alert(`Budget limit must be at least Rs ${currentCategory.used.toLocaleString()} to cover your current spending of Rs ${currentCategory.used.toLocaleString()}.`);
+      toast.error(`Budget must be at least Rs ${currentCategory.used.toLocaleString()} to cover your current spending.`);
       return;
     }
 
@@ -236,10 +234,11 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
       
       setEditingCategory(null);
       setEditLimit("");
+      toast.success("Category updated successfully!");
       fetchCategories();
     } catch (err) {
       console.error("Failed to update category:", err);
-      alert("Failed to update category. Please try again.");
+      toast.error("Failed to update category. Please try again.");
     } finally {
       setUpdatingCategory(false);
     }
@@ -249,7 +248,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
     e.preventDefault();
     
     if (!expenseAmount || parseFloat(expenseAmount) <= 0) {
-      alert("Please enter a valid amount");
+      toast.error("Please enter a valid amount");
       return;
     }
 
@@ -263,6 +262,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
       setBillImage(null);
       setBillImagePreview(null);
       setAddingExpenseCategory(null);
+      toast.success("Expense added successfully!");
       
       // Refresh categories to update the 'used' amount
       await fetchCategories();
@@ -289,7 +289,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
       }
     } catch (err) {
       console.error("Failed to add expense:", err);
-      alert("Failed to add expense. Please try again.");
+      toast.error("Failed to add expense. Please try again.");
     } finally {
       setAddingExpense(false);
     }
@@ -304,6 +304,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
     try {
       await expenseService.deleteExpense(expenseId);
       console.log("Expense deleted successfully");
+      toast.success("Expense deleted successfully!");
       
       // Refresh categories to update the 'used' amount
       await fetchCategories();
@@ -330,7 +331,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
       }
     } catch (err) {
       console.error("Failed to delete expense:", err);
-      alert("Failed to delete expense. Please try again.");
+      toast.error("Failed to delete expense. Please try again.");
     } finally {
       setDeletingExpenseId(null);
     }
@@ -348,10 +349,10 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
       
       // Refresh categories
       await fetchCategories();
-      alert("Category deleted successfully!");
+      toast.success("Category deleted successfully!");
     } catch (err) {
       console.error("Failed to delete category:", err);
-      alert("Failed to delete category. Please try again.");
+      toast.error("Failed to delete category. Please try again.");
     } finally {
       setDeletingCategoryName(null);
     }

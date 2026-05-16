@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "../components/Toast";
+import "../styles/Toast.css";
 import Landing from "./Landing";
 import Login from "./Login";
 import Signup from "./Signup";
@@ -17,6 +19,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import { FaHistory, FaBullseye, FaChartLine, FaLightbulb, FaSync } from 'react-icons/fa';
 import styles from './CategoryPrediction.module.css';
+import LoadingScreen from './LoadingScreen';
+import { toast } from './Toast';
 import expenseService from '../services/expenseService';
 import budgetService from '../services/budgetService';
 
@@ -11,6 +13,7 @@ const CategoryPrediction = ({ userId }) => {
   const [budgetInfo, setBudgetInfo] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalSpent, setTotalSpent] = useState(0);
   const [averageSpent, setAverageSpent] = useState(0);
@@ -19,6 +22,7 @@ const CategoryPrediction = ({ userId }) => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
+        setIsInitialLoading(true);
         const expenses = await expenseService.getUserExpenses(userId);
         await budgetService.getUserBudgets(userId);
 
@@ -28,6 +32,9 @@ const CategoryPrediction = ({ userId }) => {
       } catch (err) {
         console.error('Error fetching initial data:', err);
         setError('Failed to load categories');
+        toast.error('Failed to load categories');
+      } finally {
+        setIsInitialLoading(false);
       }
     };
 
@@ -69,6 +76,7 @@ const CategoryPrediction = ({ userId }) => {
     } catch (err) {
       console.error('Error selecting category:', err);
       setError('Failed to load category data');
+      toast.error('Failed to load category data');
       setLoading(false);
     }
   };
@@ -164,6 +172,10 @@ const CategoryPrediction = ({ userId }) => {
     }
   };
 
+  if (isInitialLoading) {
+    return <LoadingScreen message="Loading categories..." inline={true} />;
+  }
+
   if (!selectedCategory && categories.length === 0) {
     return (
       <div className={styles.container}>
@@ -198,6 +210,10 @@ const CategoryPrediction = ({ userId }) => {
         <div className={styles.error}>
           {error}
         </div>
+      )}
+
+      {selectedCategory && loading && (
+        <LoadingScreen message="Analyzing category data..." inline={true} />
       )}
 
       {selectedCategory && !loading && (

@@ -1,0 +1,259 @@
+/* Loading Screen Styles */
+
+.loading-screen {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Full Screen Variant (default) */
+.loading-screen-full {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 10000;
+}
+
+/* Content Area Variant (sidebar-aware) */
+.loading-screen-content {
+  position: fixed;
+  top: 0;
+  left: 280px;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  width: calc(100% - 280px);
+  height: 100vh;
+}
+
+/* Inline Variant (component-level, fills parent container) */
+.loading-screen-inline {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  min-height: 300px;
+  z-index: 10;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.loading-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Animated Background Blobs */
+.loading-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.3;
+  animation: blob-animation 8s infinite ease-in-out;
+}
+
+.loading-blob-1 {
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.4);
+  top: 10%;
+  left: -50px;
+  animation-delay: 0s;
+}
+
+.loading-blob-2 {
+  width: 250px;
+  height: 250px;
+  background: rgba(255, 255, 255, 0.3);
+  bottom: 10%;
+  right: -30px;
+  animation-delay: 2s;
+}
+
+.loading-blob-3 {
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.25);
+  top: 50%;
+  right: 10%;
+  animation-delay: 4s;
+}
+
+@keyframes blob-animation {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+/* Loading Content */
+.loading-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+
+/* Spinner Animation */
+.loading-spinner {
+  font-size: 64px;
+  color: white;
+  animation: spin 1.5s linear infinite;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading Title */
+.loading-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Loading Message */
+.loading-message {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  font-weight: 500;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading Dots */
+.loading-dots {
+  display: flex;
+  gap: 8px;
+  animation: fadeInUp 1s ease-out;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  animation: dot-bounce 1.4s infinite ease-in-out both;
+}
+
+.dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes dot-bounce {
+  0%, 80%, 100% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Loading Bar */
+.loading-bar-container {
+  position: absolute;
+  bottom: 40px;
+  width: 200px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-bar {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: loading-bar-animation 2s infinite;
+}
+
+@keyframes loading-bar-animation {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .loading-title {
+    font-size: 24px;
+  }
+
+  .loading-message {
+    font-size: 14px;
+  }
+
+  .loading-spinner {
+    font-size: 48px;
+  }
+
+  .loading-blob-1 {
+    width: 200px;
+    height: 200px;
+  }
+
+  .loading-blob-2 {
+    width: 150px;
+    height: 150px;
+  }
+
+  .loading-blob-3 {
+    width: 100px;
+    height: 100px;
+  }
+}

@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { toast } from '../Toast';
+import LoadingScreen from '../LoadingScreen';
 import styles from './Dashboard.module.css';
 import Sidebar from './Sidebar';
 import CategorySection from "./CategorySection";
 import DailyPlanner from '../DailyPlanner';
+import { SkeletonChart, SkeletonStats, SkeletonTransaction } from '../SkeletonLoader';
 import { FaArrowUp, FaArrowDown, FaPiggyBank, FaEye, FaEyeSlash, FaPlus, FaCalendarAlt, FaClock, FaBrain } from 'react-icons/fa';
 import incomeService from '../../services/incomeService';
 import MissingIncomePopup from './MissingIncomePopup';
@@ -82,13 +85,22 @@ const Dashboard = () => {
 
   // Fetch dashboard data
   useEffect(() => {
-    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
-    
-    // Fetch income first for instant missing income check
-    fetch(`http://localhost:5262/api/income/${userId}`)
-      .then(r => r.json())
-      .then(incomes => {
-        const currentMonthIncomes = filterByCurrentMonth(incomes || []);
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const { startOfMonth, endOfMonth } = getCurrentMonthRange();
+        
+        // Fetch all data in parallel
+        const [incomeRes, expenseRes, categoryRes, spendingRes] = await Promise.all([
+          fetch(`http://localhost:5262/api/income/${userId}`).then(r => r.json()),
+          fetch(`http://localhost:5262/api/expenses/${userId}`).then(r => r.json()),
+          fetch(`http://localhost:5262/api/dashboard/categories/${userId}`).then(r => r.json()),
+          fetch(`http://localhost:5262/api/dashboard/spending/${userId}`).then(r => r.json())
+        ]);
+
+        // Process income data
+        const incomes = incomeRes || [];
+        const currentMonthIncomes = filterByCurrentMonth(incomes);
         const totalIncome = currentMonthIncomes.reduce((sum, inc) => sum + (inc.amount || 0), 0);
         
         if (totalIncome === 0) {
@@ -96,49 +108,29 @@ const Dashboard = () => {
         } else {
           setHasIncomeThisMonth(true);
         }
-        setLoading(false); // Stop loading popup state early
+
+        // Process expense data
+        const expenses = expenseRes || [];
+        const currentMonthExpenses = filterByCurrentMonth(expenses);
+        const monthTotals = calculateCurrentMonthTotals(expenses, incomes);
+        setTotals(monthTotals);
         
-        // Now fetch expenses to complete dashboard
-        return fetch(`http://localhost:5262/api/expenses/${userId}`)
-          .then(r => r.json())
-          .then(expenses => {
-            const currentMonthExpenses = filterByCurrentMonth(expenses || []);
-            const monthTotals = calculateCurrentMonthTotals(expenses, incomes);
-            setTotals(monthTotals);
-            
-            console.log("Dashboard - Current month totals:", monthTotals);
+        console.log("Dashboard - Current month totals:", monthTotals);
 
-            const allCurrentMonth = [
-              ...currentMonthExpenses.map(exp => ({ ...exp, amount: -exp.amount })),
-              ...currentMonthIncomes.map(inc => ({ ...inc, amount: inc.amount }))
-            ].sort((a, b) => new Date(b.dateAdded || b.date) - new Date(a.dateAdded || a.date));
+        // Process recent transactions
+        const allCurrentMonth = [
+          ...currentMonthExpenses.map(exp => ({ ...exp, amount: -exp.amount })),
+          ...currentMonthIncomes.map(inc => ({ ...inc, amount: inc.amount }))
+        ].sort((a, b) => new Date(b.dateAdded || b.date) - new Date(a.dateAdded || a.date));
 
-            setRecentTransactions(allCurrentMonth.slice(0, 5));
-          });
-      })
-      .catch(err => {
-        console.error("Failed to fetch expenses and income:", err);
-        setLoading(false);
-      });
+        setRecentTransactions(allCurrentMonth.slice(0, 5));
 
-    // Fetch category breakdown for current month
-    fetch(`http://localhost:5262/api/dashboard/categories/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        const filtered = filterByCurrentMonth(data);
+        // Process category data
+        const filtered = filterByCurrentMonth(categoryRes || []);
         setCategoryData(filtered);
-      })
-      .catch(err => console.error("Failed to fetch categories:", err));
 
-    // Fetch monthly spending (ALL 12 months for chart)
-    fetch(`http://localhost:5262/api/dashboard/spending/${userId}`)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then(data => {
-        // Format all months data
-        const formattedData = data.map(d => ({
+        // Process spending data
+        const formattedData = (spendingRes || []).map(d => ({
           month: d.month,
           Income: d.income ?? d.Income ?? 0,
           Expense: d.expense ?? d.Expense ?? 0
@@ -146,8 +138,19 @@ const Dashboard = () => {
         
         setSpendingData(formattedData);
         console.log("Dashboard - Chart data (all 12 months):", formattedData);
-      })
-      .catch(err => console.error("Failed to fetch spending:", err));
+
+        // All data loaded, hide loading screen
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to fetch dashboard data:", err);
+        toast.error("Failed to load dashboard data. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    if (userId) {
+      fetchDashboardData();
+    }
   }, [userId]);
 
   // Refresh totals after adding income
@@ -229,7 +232,7 @@ const Dashboard = () => {
   const handleAddIncome = async (e) => {
     e.preventDefault();
     if (!incomeAmount || incomeAmount <= 0) {
-      setIncomeError('Please enter a valid amount');
+      toast.error('Please enter a valid amount');
       return;
     }
 
@@ -246,9 +249,10 @@ const Dashboard = () => {
       setIncomeAmount('');
       setIncomeSource('Salary');
       setShowAddIncomeForm(false);
+      toast.success('Income added successfully!');
     } catch (err) {
       console.error('Failed to add income:', err);
-      setIncomeError('Failed to add income');
+      toast.error('Failed to add income. Please try again.');
     } finally {
       setAddingIncome(false);
     }
@@ -270,6 +274,9 @@ const Dashboard = () => {
       <Sidebar />
 
       <main className={styles.mainContent}>
+        {/* Loading Screen - Content Area Version */}
+        {loading && <LoadingScreen message="Loading your financial data..." fullScreen={false} />}
+
         {/* Hero Section */}
         <section className={styles.heroSection}>
           <div className={styles.heroContent}>

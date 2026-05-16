@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import styles from './PastData.module.css';
 import Sidebar from '../components/dashboard/Sidebar';
+import LoadingScreen from '../components/LoadingScreen';
+import { toast } from '../components/Toast';
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 
 const PastData = () => {
@@ -79,9 +81,12 @@ const PastData = () => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (!storedUser) return;
+    if (!storedUser) {
+      setIsDataLoaded(true);
+      return;
+    }
 
-    // Fetch all data including both expenses AND income
+    // Fetch all data in parallel
     Promise.all([
       fetch(`http://localhost:5262/api/dashboard/spending/${userId}`).then(r => r.json()).catch(e => { console.error("Spending API failed:", e); return []; }),
       fetch(`http://localhost:5262/api/expenses/${userId}`).then(r => r.json()).catch(e => { console.error("Expenses API failed:", e); return []; }),
@@ -149,6 +154,7 @@ const PastData = () => {
       })
       .catch(err => {
         console.error("Failed to fetch past data:", err);
+        toast.error("Failed to load past data. Please try again.");
         setIsDataLoaded(true);
       });
   }, [userId]);
@@ -162,6 +168,9 @@ const PastData = () => {
       <Sidebar />
       
       <main className={styles.mainContent}>
+        {/* Loading Screen - Content Area Version */}
+        {!isDataLoaded && <LoadingScreen message="Loading your financial history..." fullScreen={false} />}
+
         <section className={styles.heroSection}>
           <div className={styles.heroContent}>
             <div>
@@ -174,7 +183,7 @@ const PastData = () => {
         {/* Month Selection */}
         <section className={styles.monthSelectionSection}>
           <h3>Select a Month</h3>
-          {availableMonths.length > 0 ? (
+          {isDataLoaded && availableMonths.length > 0 ? (
             <div className={styles.monthGrid}>
               {availableMonths.map((monthItem, idx) => (
                 <button
@@ -191,9 +200,11 @@ const PastData = () => {
               ))}
             </div>
           ) : (
-            <div className={styles.noDataMessage}>
-              <p>No past Data found</p>
-            </div>
+            isDataLoaded && (
+              <div className={styles.noDataMessage}>
+                <p>No past Data found</p>
+              </div>
+            )
           )}
         </section>
 
@@ -292,11 +303,7 @@ const PastData = () => {
             </section>
           </>
         ) : (
-          !isDataLoaded ? (
-            <div className={styles.loadingSection}>
-              <p>Loading...</p>
-            </div>
-          ) : availableMonths.length === 0 && (
+          isDataLoaded && availableMonths.length === 0 && (
             <div className={styles.emptyStateSection}>
               <p>No past Data found</p>
             </div>
