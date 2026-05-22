@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MoneyMatesAPI.Data;
 using MoneyMatesAPI.Models;
 using MoneyMatesAPI.Services;
@@ -25,11 +26,13 @@ namespace MoneyMatesAPI.Controllers
     {
         private readonly MoneyMatesDbContext _context;
         private readonly IGroqAIService _groqAIService;
+        private readonly ILogger<AIInsightsController> _logger;
 
-        public AIInsightsController(MoneyMatesDbContext context, IGroqAIService groqAIService)
+        public AIInsightsController(MoneyMatesDbContext context, IGroqAIService groqAIService, ILogger<AIInsightsController> logger)
         {
             _context = context;
             _groqAIService = groqAIService;
+            _logger = logger;
         }
 
         [HttpGet("peer-comparison/{userId}")]
@@ -218,19 +221,25 @@ namespace MoneyMatesAPI.Controllers
                     averageTrend = peerMetricsWithBothMonths.Any() ? peerMetricsWithBothMonths.Average(p => p.Trend) : 0m
                 };
 
-                // Call Groq AI in PARALLEL to generate insights faster (instead of sequential await)
-                var spendingTask = _groqAIService.GenerateInsightAsync("spending", spendingMetricData);
-                var savingsTask = _groqAIService.GenerateInsightAsync("savings", savingsMetricData);
-                var discretionaryTask = _groqAIService.GenerateInsightAsync("discretionary", discretionaryMetricData);
-                var trendTask = _groqAIService.GenerateInsightAsync("trend", trendMetricData);
-
-                // Wait for all 4 requests to complete
-                await Task.WhenAll(spendingTask, savingsTask, discretionaryTask, trendTask);
-
-                var spendingTip = spendingTask.Result;
-                var savingsTip = savingsTask.Result;
-                var discretionaryTip = discretionaryTask.Result;
-                var trendTip = trendTask.Result;
+                // Generate AI insights for each metric using Groq
+                // ✅ SEQUENTIAL CALLS (not parallel): Call one at a time to avoid Groq rate limits
+                // Groq free tier has 6000 TPM limit. Parallel calls were causing 429 rate limit errors.
+                _logger.LogInformation($"📊 Generating AI insights sequentially to respect Groq rate limits...");
+                
+                var spendingTip = await _groqAIService.GenerateInsightAsync("spending", spendingMetricData);
+                _logger.LogInformation($"✅ Spending insight generated. Waiting before next call...");
+                await Task.Delay(500); // Wait between calls
+                
+                var savingsTip = await _groqAIService.GenerateInsightAsync("savings", savingsMetricData);
+                _logger.LogInformation($"✅ Savings insight generated. Waiting before next call...");
+                await Task.Delay(500);
+                
+                var discretionaryTip = await _groqAIService.GenerateInsightAsync("discretionary", discretionaryMetricData);
+                _logger.LogInformation($"✅ Discretionary insight generated. Waiting before next call...");
+                await Task.Delay(500);
+                
+                var trendTip = await _groqAIService.GenerateInsightAsync("trend", trendMetricData);
+                _logger.LogInformation($"✅ Trend insight generated.");
 
                 return Ok(new
                 {

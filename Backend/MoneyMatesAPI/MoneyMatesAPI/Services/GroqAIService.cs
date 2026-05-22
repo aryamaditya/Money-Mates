@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MoneyMatesAPI.Models;
@@ -18,15 +19,17 @@ namespace MoneyMatesAPI.Services
         private readonly HttpClient _httpClient;
         private readonly GroqSettings _settings;
         private readonly ILogger<GroqAIService> _logger;
+        private readonly SemaphoreSlim _rateLimiter; // Limit concurrent API calls to prevent rate limit
 
         public GroqAIService(HttpClient httpClient, GroqSettings settings, ILogger<GroqAIService> logger)
         {
             _httpClient = httpClient;
             _settings = settings;
             _logger = logger;
+            _rateLimiter = new SemaphoreSlim(1, 1); // Only 1 concurrent request at a time to avoid rate limits
             
             // Set timeout for this specific HttpClient instance
-            _httpClient.Timeout = TimeSpan.FromSeconds(10); // Increased from 5 to 10 seconds to reduce unnecessary retries on slow API responses
+            _httpClient.Timeout = TimeSpan.FromSeconds(15); // Increased from 10 to 15 seconds for better reliability
             
             // Set Authorization header with API key
             if (!string.IsNullOrEmpty(settings.ApiKey))
@@ -53,77 +56,99 @@ namespace MoneyMatesAPI.Services
             try
             {
                 var prompt = BuildPrompt(metricType, metricData);
-                _logger.LogInformation($"🔄 [{metricType.ToUpper()}] Calling Groq API for metric: {metricType}");
-                _logger.LogInformation($"📝 [{metricType.ToUpper()}] FULL PROMPT BEING SENT:\n{prompt}");
-                _logger.LogInformation($"📊 [{metricType.ToUpper()}] Metric data: {JsonSerializer.Serialize(metricData)}");
+                _logger.LogInformation($"🔄 [{metricType.ToUpper()}] Waiting for rate limiter... (max 1 concurrent request)");
                 
-                for (int attempt = 0; attempt <= _settings.MaxRetries; attempt++)
+                // Acquire semaphore to limit concurrent requests
+                await _rateLimiter.WaitAsync();
+                _logger.LogInformation($"🔄 [{metricType.ToUpper()}] Rate limiter acquired. Calling Groq API for metric: {metricType}");
+                
+                try
                 {
-                    try
+                    _logger.LogInformation($"📝 [{metricType.ToUpper()}] FULL PROMPT BEING SENT:\n{prompt}");
+                    _logger.LogInformation($"📊 [{metricType.ToUpper()}] Metric data: {JsonSerializer.Serialize(metricData)}");
+                    
+                    for (int attempt = 0; attempt <= _settings.MaxRetries; attempt++)
                     {
-                        var response = await CallGroqAPI(prompt, metricType);
-                        
-                        if (!string.IsNullOrWhiteSpace(response))
+                        try
                         {
-                            if (response.Length > 1000)
+                            var response = await CallGroqAPI(prompt, metricType);
+                            
+                            if (!string.IsNullOrWhiteSpace(response))
                             {
-                                _logger.LogWarning($"⚠️ [{metricType.ToUpper()}] Response is {response.Length} chars (exceeds 1000 limit) but still accepting on attempt {attempt + 1}. Response: {response}");
+                                if (response.Length > 1000)
+                                {
+                                    _logger.LogWarning($"⚠️ [{metricType.ToUpper()}] Response is {response.Length} chars (exceeds 1000 limit) but still accepting on attempt {attempt + 1}. Response: {response}");
+                                }
+                                else
+                                {
+                                    _logger.LogInformation($"✅ [{metricType.ToUpper()}] Groq API success on attempt {attempt + 1} ({response.Length} chars). Response: {response}");
+                                }
+                                
+                                // Add delay before next request to prevent rate limiting
+                                if (attempt < _settings.MaxRetries)
+                                {
+                                    _logger.LogInformation($"⏳ [{metricType.ToUpper()}] Waiting 1000ms before releasing rate limiter for next request...");
+                                    await Task.Delay(1000);
+                                }
+                                
+                                return response;
                             }
                             else
                             {
-                                _logger.LogInformation($"✅ [{metricType.ToUpper()}] Groq API success on attempt {attempt + 1} ({response.Length} chars). Response: {response}");
+                                _logger.LogWarning($"⚠️ [{metricType.ToUpper()}] Groq API returned empty response on attempt {attempt + 1}");
                             }
-                            return response;
                         }
-                        else
+                        catch (TaskCanceledException ex)
                         {
-                            _logger.LogWarning($"⚠️ [{metricType.ToUpper()}] Groq API returned empty response on attempt {attempt + 1}");
+                            _logger.LogError($"⏱️ [{metricType.ToUpper()}] TIMEOUT on attempt {attempt + 1}/{_settings.MaxRetries + 1}: {ex.Message}");
+                            if (attempt >= _settings.MaxRetries)
+                            {
+                                _logger.LogError($"❌ [{metricType.ToUpper()}] Max retries exceeded. Will use fallback.");
+                                break;
+                            }
+                            var delayMs = 500 * (attempt + 2); // Exponential backoff: 1000ms, 1500ms, 2000ms
+                            _logger.LogInformation($"⏳ [{metricType.ToUpper()}] Waiting {delayMs}ms before retry...");
+                            await Task.Delay(delayMs);
+                        }
+                        catch (HttpRequestException ex)
+                        {
+                            _logger.LogError($"🌐 [{metricType.ToUpper()}] HTTP ERROR on attempt {attempt + 1}/{_settings.MaxRetries + 1}: {ex.Message}");
+                            if (ex.InnerException != null)
+                                _logger.LogError($"   Inner exception: {ex.InnerException.Message}");
+                            if (attempt >= _settings.MaxRetries)
+                            {
+                                _logger.LogError($"❌ [{metricType.ToUpper()}] Max retries exceeded. Will use fallback.");
+                                break;
+                            }
+                            var delayMs = 500 * (attempt + 2); // Exponential backoff
+                            _logger.LogInformation($"⏳ [{metricType.ToUpper()}] Waiting {delayMs}ms before retry...");
+                            await Task.Delay(delayMs);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"⚠️ [{metricType.ToUpper()}] ERROR on attempt {attempt + 1}/{_settings.MaxRetries + 1}: {ex.GetType().Name}: {ex.Message}");
+                            if (ex.InnerException != null)
+                                _logger.LogError($"   Inner exception: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
+                            if (attempt >= _settings.MaxRetries)
+                            {
+                                _logger.LogError($"❌ [{metricType.ToUpper()}] Max retries exceeded. Will use fallback.");
+                                break;
+                            }
+                            var delayMs = 500 * (attempt + 2); // Exponential backoff
+                            _logger.LogInformation($"⏳ [{metricType.ToUpper()}] Waiting {delayMs}ms before retry...");
+                            await Task.Delay(delayMs);
                         }
                     }
-                    catch (TaskCanceledException ex)
-                    {
-                        _logger.LogError($"⏱️ [{metricType.ToUpper()}] TIMEOUT on attempt {attempt + 1}/{_settings.MaxRetries + 1}: {ex.Message}");
-                        if (attempt >= _settings.MaxRetries)
-                        {
-                            _logger.LogError($"❌ [{metricType.ToUpper()}] Max retries exceeded. Will use fallback.");
-                            break;
-                        }
-                        var delayMs = 500 * (attempt + 1);
-                        _logger.LogInformation($"⏳ [{metricType.ToUpper()}] Waiting {delayMs}ms before retry...");
-                        await Task.Delay(delayMs);
-                    }
-                    catch (HttpRequestException ex)
-                    {
-                        _logger.LogError($"🌐 [{metricType.ToUpper()}] HTTP ERROR on attempt {attempt + 1}/{_settings.MaxRetries + 1}: {ex.Message}");
-                        if (ex.InnerException != null)
-                            _logger.LogError($"   Inner exception: {ex.InnerException.Message}");
-                        if (attempt >= _settings.MaxRetries)
-                        {
-                            _logger.LogError($"❌ [{metricType.ToUpper()}] Max retries exceeded. Will use fallback.");
-                            break;
-                        }
-                        var delayMs = 500 * (attempt + 1);
-                        _logger.LogInformation($"⏳ [{metricType.ToUpper()}] Waiting {delayMs}ms before retry...");
-                        await Task.Delay(delayMs);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"⚠️ [{metricType.ToUpper()}] ERROR on attempt {attempt + 1}/{_settings.MaxRetries + 1}: {ex.GetType().Name}: {ex.Message}");
-                        if (ex.InnerException != null)
-                            _logger.LogError($"   Inner exception: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
-                        if (attempt >= _settings.MaxRetries)
-                        {
-                            _logger.LogError($"❌ [{metricType.ToUpper()}] Max retries exceeded. Will use fallback.");
-                            break;
-                        }
-                        var delayMs = 500 * (attempt + 1);
-                        _logger.LogInformation($"⏳ [{metricType.ToUpper()}] Waiting {delayMs}ms before retry...");
-                        await Task.Delay(delayMs);
-                    }
-                }
 
-                _logger.LogWarning($"❌ Groq API failed for {metricType} after {_settings.MaxRetries + 1} attempts. Using fallback tip.");
-                return GetFallbackTip(metricType);
+                    _logger.LogWarning($"❌ Groq API failed for {metricType} after {_settings.MaxRetries + 1} attempts. Using fallback tip.");
+                    return GetFallbackTip(metricType);
+                }
+                finally
+                {
+                    // Always release the semaphore
+                    _rateLimiter.Release();
+                    _logger.LogInformation($"🔓 [{metricType.ToUpper()}] Rate limiter released");
+                }
             }
             catch (Exception ex)
             {
