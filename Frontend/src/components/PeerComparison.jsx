@@ -91,23 +91,50 @@ const PeerComparison = ({ userId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedMetric, setSelectedMetric] = useState(null);
+  const [metrics, setMetrics] = useState({
+    totalSpending: { loaded: false, data: null, loading: true },
+    savingsRate: { loaded: false, data: null, loading: true },
+    discretionary: { loaded: false, data: null, loading: true },
+    trend: { loaded: false, data: null, loading: true }
+  });
+  const [peerGroupSize, setPeerGroupSize] = useState(0);
+  const [hasEnoughPeers, setHasEnoughPeers] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAllMetrics = async () => {
       try {
-        setLoading(true);
+        // Fetch all metrics in parallel, but render them as they complete
         const response = await axios.get(`${API_BASE_URL}/aiinsights/peer-comparison/${userId}`);
-        setData(response.data);
+        
+        if (!response.data.hasEnoughPeers) {
+          setHasEnoughPeers(false);
+          setData(response.data);
+          setLoading(false);
+          return;
+        }
+
+        setHasEnoughPeers(true);
+        setPeerGroupSize(response.data.peerGroupSize);
+
+        // Update each metric as we receive it
+        setMetrics(prev => ({
+          ...prev,
+          totalSpending: { loaded: true, data: response.data.totalSpending, loading: false },
+          savingsRate: { loaded: true, data: response.data.savingsRate, loading: false },
+          discretionary: { loaded: true, data: response.data.discretionary, loading: false },
+          trend: { loaded: true, data: response.data.trend, loading: false }
+        }));
+
+        setLoading(false);
       } catch (err) {
         console.error('Error fetching peer comparison data:', err);
         setError('Failed to load peer comparison data.');
-      } finally {
         setLoading(false);
       }
     };
 
     if (userId) {
-      fetchData();
+      fetchAllMetrics();
     }
   }, [userId]);
 
@@ -156,7 +183,7 @@ const PeerComparison = ({ userId }) => {
     );
   }, []);
 
-  if (loading) {
+  if (loading && !hasEnoughPeers && !Object.values(metrics).some(m => m.loaded)) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}></div>
@@ -173,9 +200,7 @@ const PeerComparison = ({ userId }) => {
     );
   }
 
-  if (!data) return null;
-
-  if (!data.hasEnoughPeers) {
+  if (!hasEnoughPeers && data) {
     return (
       <div className={styles.emptyStateContainer}>
         <h3>We need a little more time!</h3>
@@ -184,144 +209,211 @@ const PeerComparison = ({ userId }) => {
     );
   }
 
+  const MetricCard = ({ metricKey, title, icon, gradient, metric }) => {
+    if (!metric.loaded) {
+      return (
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <div className={styles.titleGroup}>
+              <div className={styles.iconWrapper} style={{ background: gradient }}>
+                {icon}
+              </div>
+              <h3>{title}</h3>
+            </div>
+          </div>
+          <div className={styles.cardBody}>
+            <div className={styles.spinner}></div>
+            <p style={{ textAlign: 'center', marginTop: '10px' }}>Loading {title}...</p>
+          </div>
+        </div>
+      );
+    }
+
+    const { data: metricData } = metric;
+    if (!metricData) return null;
+
+    return (
+      <>
+        {metricKey === 'totalSpending' && (
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <div className={styles.titleGroup}>
+                <div className={styles.iconWrapper} style={{ background: gradient }}>
+                  💸
+                </div>
+                <h3>Total Spending</h3>
+              </div>
+              <InfoIcon metricKey="totalSpending" onShowInfo={handleShowInfo} />
+            </div>
+            <div className={styles.cardBody}>
+              <div className={styles.statRow}>
+                <span className={styles.label}>You</span>
+                <span className={styles.value}>Rs. {metricData.userAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              </div>
+              <div className={styles.progressSection}>
+                {renderProgressBar(metricData.userAmount, metricData.averageAmount)}
+              </div>
+              <div className={styles.statRow}>
+                <span className={styles.label}>Peer Avg</span>
+                <span className={styles.value}>Rs. {metricData.averageAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              </div>
+            </div>
+            <div className={styles.cardFooter}>
+              {getPercentileBadge(metricData.percentile, false)}
+            </div>
+            <div className={styles.actionableTip}>
+              <p>💡 {metricData.tip}</p>
+            </div>
+          </div>
+        )}
+
+        {metricKey === 'savingsRate' && (
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <div className={styles.titleGroup}>
+                <div className={styles.iconWrapper} style={{ background: gradient }}>
+                  💰
+                </div>
+                <h3>Savings Rate</h3>
+              </div>
+              <InfoIcon metricKey="savingsRate" onShowInfo={handleShowInfo} />
+            </div>
+            <div className={styles.cardBody}>
+              <div className={styles.statRow}>
+                <span className={styles.label}>You</span>
+                <span className={styles.value}>{metricData.userRate.toFixed(1)}%</span>
+              </div>
+              <div className={styles.progressSection}>
+                {renderProgressBar(metricData.userRate, metricData.averageRate, true)}
+              </div>
+              <div className={styles.statRow}>
+                <span className={styles.label}>Peer Avg</span>
+                <span className={styles.value}>{metricData.averageRate.toFixed(1)}%</span>
+              </div>
+            </div>
+            <div className={styles.cardFooter}>
+              {getPercentileBadge(metricData.percentile, true)}
+            </div>
+            <div className={styles.actionableTip}>
+              <p>💡 {metricData.tip}</p>
+            </div>
+          </div>
+        )}
+
+        {metricKey === 'discretionary' && (
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <div className={styles.titleGroup}>
+                <div className={styles.iconWrapper} style={{ background: gradient }}>
+                  🛍️
+                </div>
+                <h3>Discretionary Spending</h3>
+              </div>
+              <InfoIcon metricKey="discretionary" onShowInfo={handleShowInfo} />
+            </div>
+            <div className={styles.cardBody}>
+              <div className={styles.statRow}>
+                <span className={styles.label}>You</span>
+                <span className={styles.value}>{metricData.userRatio.toFixed(1)}% of budget</span>
+              </div>
+              <div className={styles.progressSection}>
+                {renderProgressBar(metricData.userRatio, metricData.averageRatio)}
+              </div>
+              <div className={styles.statRow}>
+                <span className={styles.label}>Peer Avg</span>
+                <span className={styles.value}>{metricData.averageRatio.toFixed(1)}% of budget</span>
+              </div>
+            </div>
+            <div className={styles.cardFooter}>
+              {getPercentileBadge(metricData.percentile, false)}
+            </div>
+            <div className={styles.actionableTip}>
+              <p>💡 {metricData.tip}</p>
+            </div>
+          </div>
+        )}
+
+        {metricKey === 'trend' && (
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <div className={styles.titleGroup}>
+                <div className={styles.iconWrapper} style={{ background: gradient }}>
+                  📈
+                </div>
+                <h3>Savings Trend</h3>
+              </div>
+              <InfoIcon metricKey="trend" onShowInfo={handleShowInfo} />
+            </div>
+            <div className={styles.cardBody}>
+              <div className={styles.statRow}>
+                <span className={styles.label}>You (MoM)</span>
+                <span className={styles.value}>{metricData.userTrend > 0 ? '+' : ''}{metricData.userTrend.toFixed(1)}%</span>
+              </div>
+              <div className={styles.progressSection}>
+                {/* No progress bar for trend, just the numbers */}
+              </div>
+              <div className={styles.statRow}>
+                <span className={styles.label}>Peer Avg (MoM)</span>
+                <span className={styles.value}>{metricData.averageTrend > 0 ? '+' : ''}{metricData.averageTrend.toFixed(1)}%</span>
+              </div>
+            </div>
+            <div className={styles.cardFooter}>
+              {getTrendBadge(metricData.userTrend, metricData.averageTrend)}
+            </div>
+            <div className={styles.actionableTip}>
+              <p>💡 {metricData.tip}</p>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+
   return (
     <div className={styles.container}>
       <InfoModal metric={selectedMetric} onClose={handleCloseInfo} />
       
       <div className={styles.header}>
         <h2>Anonymous Benchmarking</h2>
-        <p>See how your financial habits compare to {data.peerGroupSize} peers with a similar profile.</p>
+        <p>See how your financial habits compare to {peerGroupSize} peers with a similar profile.</p>
       </div>
 
       <div className={styles.cardsGrid}>
         {/* Total Spending Card */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <div className={styles.titleGroup}>
-              <div className={styles.iconWrapper} style={{ background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' }}>
-                💸
-              </div>
-              <h3>Total Spending</h3>
-            </div>
-            <InfoIcon metricKey="totalSpending" onShowInfo={handleShowInfo} />
-          </div>
-          <div className={styles.cardBody}>
-            <div className={styles.statRow}>
-              <span className={styles.label}>You</span>
-              <span className={styles.value}>Rs. {data.totalSpending.userAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-            </div>
-            <div className={styles.progressSection}>
-              {renderProgressBar(data.totalSpending.userAmount, data.totalSpending.averageAmount)}
-            </div>
-            <div className={styles.statRow}>
-              <span className={styles.label}>Peer Avg</span>
-              <span className={styles.value}>Rs. {data.totalSpending.averageAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-            </div>
-          </div>
-          <div className={styles.cardFooter}>
-            {getPercentileBadge(data.totalSpending.percentile, false)}
-          </div>
-          <div className={styles.actionableTip}>
-            <p>💡 {data.totalSpending.tip}</p>
-          </div>
-        </div>
+        <MetricCard 
+          metricKey="totalSpending" 
+          title="Total Spending" 
+          icon="💸"
+          gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"
+          metric={metrics.totalSpending}
+        />
 
         {/* Savings Rate Card */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <div className={styles.titleGroup}>
-              <div className={styles.iconWrapper} style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }}>
-                💰
-              </div>
-              <h3>Savings Rate</h3>
-            </div>
-            <InfoIcon metricKey="savingsRate" onShowInfo={handleShowInfo} />
-          </div>
-          <div className={styles.cardBody}>
-            <div className={styles.statRow}>
-              <span className={styles.label}>You</span>
-              <span className={styles.value}>{data.savingsRate.userRate.toFixed(1)}%</span>
-            </div>
-            <div className={styles.progressSection}>
-              {renderProgressBar(data.savingsRate.userRate, data.savingsRate.averageRate, true)}
-            </div>
-            <div className={styles.statRow}>
-              <span className={styles.label}>Peer Avg</span>
-              <span className={styles.value}>{data.savingsRate.averageRate.toFixed(1)}%</span>
-            </div>
-          </div>
-          <div className={styles.cardFooter}>
-            {getPercentileBadge(data.savingsRate.percentile, true)}
-          </div>
-          <div className={styles.actionableTip}>
-            <p>💡 {data.savingsRate.tip}</p>
-          </div>
-        </div>
+        <MetricCard 
+          metricKey="savingsRate" 
+          title="Savings Rate" 
+          icon="💰"
+          gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"
+          metric={metrics.savingsRate}
+        />
 
         {/* Discretionary Spending Card */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <div className={styles.titleGroup}>
-              <div className={styles.iconWrapper} style={{ background: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)' }}>
-                🛍️
-              </div>
-              <h3>Discretionary Spending</h3>
-            </div>
-            <InfoIcon metricKey="discretionary" onShowInfo={handleShowInfo} />
-          </div>
-          <div className={styles.cardBody}>
-            <div className={styles.statRow}>
-              <span className={styles.label}>You</span>
-              <span className={styles.value}>{data.discretionary.userRatio.toFixed(1)}% of budget</span>
-            </div>
-            <div className={styles.progressSection}>
-              {renderProgressBar(data.discretionary.userRatio, data.discretionary.averageRatio)}
-            </div>
-            <div className={styles.statRow}>
-              <span className={styles.label}>Peer Avg</span>
-              <span className={styles.value}>{data.discretionary.averageRatio.toFixed(1)}% of budget</span>
-            </div>
-          </div>
-          <div className={styles.cardFooter}>
-            {getPercentileBadge(data.discretionary.percentile, false)}
-          </div>
-          <div className={styles.actionableTip}>
-            <p>💡 {data.discretionary.tip}</p>
-          </div>
-        </div>
+        <MetricCard 
+          metricKey="discretionary" 
+          title="Discretionary Spending" 
+          icon="🛍️"
+          gradient="linear-gradient(135deg, #30cfd0 0%, #330867 100%)"
+          metric={metrics.discretionary}
+        />
 
         {/* Trend Card */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <div className={styles.titleGroup}>
-              <div className={styles.iconWrapper} style={{ background: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' }}>
-                📈
-              </div>
-              <h3>Savings Trend</h3>
-            </div>
-            <InfoIcon metricKey="trend" onShowInfo={handleShowInfo} />
-          </div>
-          <div className={styles.cardBody}>
-            <div className={styles.statRow}>
-              <span className={styles.label}>You (MoM)</span>
-              <span className={styles.value}>{data.trend.userTrend > 0 ? '+' : ''}{data.trend.userTrend.toFixed(1)}%</span>
-            </div>
-            <div className={styles.progressSection}>
-              {/* No progress bar for trend, just the numbers */}
-            </div>
-            <div className={styles.statRow}>
-              <span className={styles.label}>Peer Avg (MoM)</span>
-              <span className={styles.value}>{data.trend.averageTrend > 0 ? '+' : ''}{data.trend.averageTrend.toFixed(1)}%</span>
-            </div>
-          </div>
-          <div className={styles.cardFooter}>
-            {getTrendBadge(data.trend.userTrend, data.trend.averageTrend)}
-          </div>
-          <div className={styles.actionableTip}>
-            <p>💡 {data.trend.tip}</p>
-          </div>
-        </div>
-
+        <MetricCard 
+          metricKey="trend" 
+          title="Savings Trend" 
+          icon="📈"
+          gradient="linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)"
+          metric={metrics.trend}
+        />
       </div>
     </div>
   );

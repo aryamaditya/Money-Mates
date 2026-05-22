@@ -145,6 +145,16 @@
   margin: 0;
 }
 
+.cardReasoning {
+  font-size: 13px;
+  color: #a0aec0;
+  line-height: 1.5;
+  margin: 12px 0 0 0;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+  font-style: italic;
+}
+
 .cardFooter {
   padding: 16px 20px;
   background: #f8f9fa;

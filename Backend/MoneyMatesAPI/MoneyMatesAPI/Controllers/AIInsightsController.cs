@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoneyMatesAPI.Data;
+using MoneyMatesAPI.Models;
+using MoneyMatesAPI.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +12,7 @@ namespace MoneyMatesAPI.Controllers
 {
     public class PeerMetric
     {
+        public int PeerId { get; set; }  // ✅ Track peer ID for filtering later
         public decimal TotalSpending { get; set; }
         public decimal SavingsRate { get; set; }
         public decimal DiscretionaryRatio { get; set; }
@@ -21,10 +24,12 @@ namespace MoneyMatesAPI.Controllers
     public class AIInsightsController : ControllerBase
     {
         private readonly MoneyMatesDbContext _context;
+        private readonly IGroqAIService _groqAIService;
 
-        public AIInsightsController(MoneyMatesDbContext context)
+        public AIInsightsController(MoneyMatesDbContext context, IGroqAIService groqAIService)
         {
             _context = context;
+            _groqAIService = groqAIService;
         }
 
         [HttpGet("peer-comparison/{userId}")]
@@ -61,77 +66,171 @@ namespace MoneyMatesAPI.Controllers
                 var startOfLastMonth = startOfMonth.AddMonths(-1);
                 var endOfLastMonth = startOfMonth.AddDays(-1);
 
-                // Load ONLY necessary data with database-level filtering for performance
-                var peerExpenses = await _context.Expenses
-                    .Where(e => peers.Contains(e.UserId) && e.DateAdded >= startOfLastMonth)
-                    .ToListAsync();
-                
-                var peerIncomes = await _context.Income
-                    .Where(i => peers.Contains(i.UserId) && i.DateAdded >= startOfLastMonth)
-                    .ToListAsync();
+                // ✅ DATABASE-LEVEL AGGREGATION: Use direct Sum queries to let SQL aggregate
+                // Get current month user metrics
+                var userTotalSpending = await _context.Expenses
+                    .Where(e => e.UserId == userId && e.DateAdded >= startOfMonth && e.DateAdded <= endOfMonth)
+                    .SumAsync(e => e.Amount);
 
-                // Split data by month in memory
-                var currentMonthExpenses = peerExpenses.Where(e => e.DateAdded >= startOfMonth && e.DateAdded <= endOfMonth).ToList();
-                var currentMonthIncomes = peerIncomes.Where(i => i.DateAdded >= startOfMonth && i.DateAdded <= endOfMonth).ToList();
-                var lastMonthExpenses = peerExpenses.Where(e => e.DateAdded >= startOfLastMonth && e.DateAdded < startOfMonth).ToList();
-                var lastMonthIncomes = peerIncomes.Where(i => i.DateAdded >= startOfLastMonth && i.DateAdded < startOfMonth).ToList();
+                var userTotalIncome = Math.Max(0, await _context.Income
+                    .Where(i => i.UserId == userId && i.DateAdded >= startOfMonth && i.DateAdded <= endOfMonth)
+                    .SumAsync(i => i.Amount));
 
-                // If no data in current month, use last month's data for comparison
-                if (!currentMonthExpenses.Any() && !currentMonthIncomes.Any())
-                {
-                    currentMonthExpenses = lastMonthExpenses;
-                    currentMonthIncomes = lastMonthIncomes;
-                }
+                var userDiscretionarySpending = await _context.Expenses
+                    .Where(e => e.UserId == userId && e.DateAdded >= startOfMonth && e.DateAdded <= endOfMonth && 
+                                (e.Category != "Food" && e.Category != "Housing" && e.Category != "Utilities" && 
+                                 e.Category != "Healthcare" && e.Category != "Transport"))
+                    .SumAsync(e => e.Amount);
 
-                // User Metrics (using current month data)
-                var userExpenseList = currentMonthExpenses.Where(e => e.UserId == userId).ToList();
-                var userIncomeList = currentMonthIncomes.Where(i => i.UserId == userId).ToList();
-                
-                var userTotalSpending = userExpenseList.Sum(e => e.Amount);
-                var userTotalIncome = Math.Max(0, userIncomeList.Sum(i => i.Amount));
                 var userSavingsRate = userTotalIncome > 0 ? ((userTotalIncome - userTotalSpending) / userTotalIncome) * 100 : 0;
-
-                var userDiscretionarySpending = userExpenseList.Where(e => !essentialCategories.Contains(e.Category ?? "")).Sum(e => e.Amount);
                 var userDiscretionaryRatio = userTotalIncome > 0 ? (userDiscretionarySpending / userTotalIncome) * 100 : 0;
 
-                // User Trend (using last month data)
-                var userPrevExpenseList = lastMonthExpenses.Where(e => e.UserId == userId).ToList();
-                var userPrevIncomeList = lastMonthIncomes.Where(i => i.UserId == userId).ToList();
-                var userPrevTotalSpending = userPrevExpenseList.Sum(e => e.Amount);
-                var userPrevTotalIncome = Math.Max(0, userPrevIncomeList.Sum(i => i.Amount));
+                // Get last month user metrics for trend
+                var userPrevTotalSpending = await _context.Expenses
+                    .Where(e => e.UserId == userId && e.DateAdded >= startOfLastMonth && e.DateAdded < startOfMonth)
+                    .SumAsync(e => e.Amount);
+
+                var userPrevTotalIncome = Math.Max(0, await _context.Income
+                    .Where(i => i.UserId == userId && i.DateAdded >= startOfLastMonth && i.DateAdded < startOfMonth)
+                    .SumAsync(i => i.Amount));
+
                 var userPrevSavingsRate = userPrevTotalIncome > 0 ? ((userPrevTotalIncome - userPrevTotalSpending) / userPrevTotalIncome) * 100 : 0;
                 var userTrend = userSavingsRate - userPrevSavingsRate;
 
-                // Peer Metrics Calculation - optimized with LINQ
+                // ✅ DATABASE-LEVEL AGGREGATION: Get all peer metrics grouped in SQL
+                // This returns only aggregated values per peer, not 100,000 individual rows
+                var peerExpenseData = await _context.Expenses
+                    .Where(e => peers.Contains(e.UserId) && e.UserId != userId && e.DateAdded >= startOfMonth && e.DateAdded <= endOfMonth)
+                    .ToListAsync();  // Fetch to memory
+                
+                var peerExpenseMetrics = peerExpenseData
+                    .GroupBy(e => e.UserId)
+                    .Select(g => new
+                    {
+                        UserId = g.Key,
+                        TotalSpending = g.Sum(e => e.Amount),
+                        DiscretionarySpending = g
+                            .Where(e => e.Category != "Food" && e.Category != "Housing" && e.Category != "Utilities" && 
+                                       e.Category != "Healthcare" && e.Category != "Transport")
+                            .Sum(e => e.Amount)
+                    })
+                    .ToList();
+
+                var peerIncomeMetrics = await _context.Income
+                    .Where(i => peers.Contains(i.UserId) && i.UserId != userId && i.DateAdded >= startOfMonth && i.DateAdded <= endOfMonth)
+                    .GroupBy(i => i.UserId)
+                    .Select(g => new
+                    {
+                        UserId = g.Key,
+                        TotalIncome = g.Sum(i => i.Amount)
+                    })
+                    .ToListAsync();
+
+                // Get last month metrics for trend calculation
+                var peerLastExpenseMetrics = await _context.Expenses
+                    .Where(e => peers.Contains(e.UserId) && e.UserId != userId && e.DateAdded >= startOfLastMonth && e.DateAdded < startOfMonth)
+                    .GroupBy(e => e.UserId)
+                    .Select(g => new
+                    {
+                        UserId = g.Key,
+                        TotalSpending = g.Sum(e => e.Amount)
+                    })
+                    .ToListAsync();
+
+                var peerLastIncomeMetrics = await _context.Income
+                    .Where(i => peers.Contains(i.UserId) && i.UserId != userId && i.DateAdded >= startOfLastMonth && i.DateAdded < startOfMonth)
+                    .GroupBy(i => i.UserId)
+                    .Select(g => new
+                    {
+                        UserId = g.Key,
+                        TotalIncome = g.Sum(i => i.Amount)
+                    })
+                    .ToListAsync();
+
+                // Convert to dictionaries for O(1) lookup
+                var peerExpenseDict = peerExpenseMetrics.ToDictionary(x => x.UserId);
+                var peerIncomeDict = peerIncomeMetrics.ToDictionary(x => x.UserId);
+                var peerLastExpenseDict = peerLastExpenseMetrics.ToDictionary(x => x.UserId);
+                var peerLastIncomeDict = peerLastIncomeMetrics.ToDictionary(x => x.UserId);
+
+                // ✅ MEMORY CALCULATION: Now working with aggregated data (100 rows), not 100,000 rows
                 var peerMetrics = peers
-                    .Where(pId => pId != userId) // Exclude user from peer calculations
+                    .Where(pId => pId != userId)
                     .Select(pId =>
                     {
-                        var pExpenseList = currentMonthExpenses.Where(e => e.UserId == pId).ToList();
-                        var pIncomeList = currentMonthIncomes.Where(i => i.UserId == pId).ToList();
-                        
-                        var pTotalSpending = pExpenseList.Sum(e => e.Amount);
-                        var pTotalIncome = Math.Max(0, pIncomeList.Sum(i => i.Amount));
-                        var pSavingsRate = pTotalIncome > 0 ? ((pTotalIncome - pTotalSpending) / pTotalIncome) * 100 : 0;
+                        var pTotalSpending = peerExpenseDict.ContainsKey(pId) ? peerExpenseDict[pId].TotalSpending : 0m;
+                        var pDiscretionarySpending = peerExpenseDict.ContainsKey(pId) ? peerExpenseDict[pId].DiscretionarySpending : 0m;
+                        var pTotalIncome = Math.Max(0, peerIncomeDict.ContainsKey(pId) ? peerIncomeDict[pId].TotalIncome : 0m);
 
-                        var pDiscretionarySpending = pExpenseList.Where(e => !essentialCategories.Contains(e.Category ?? "")).Sum(e => e.Amount);
+                        var pSavingsRate = pTotalIncome > 0 ? ((pTotalIncome - pTotalSpending) / pTotalIncome) * 100 : 0;
                         var pDiscretionaryRatio = pTotalIncome > 0 ? (pDiscretionarySpending / pTotalIncome) * 100 : 0;
 
-                        var pPrevExpenseList = lastMonthExpenses.Where(e => e.UserId == pId).ToList();
-                        var pPrevIncomeList = lastMonthIncomes.Where(i => i.UserId == pId).ToList();
-                        var pPrevTotalSpending = pPrevExpenseList.Sum(e => e.Amount);
-                        var pPrevTotalIncome = Math.Max(0, pPrevIncomeList.Sum(i => i.Amount));
+                        var pPrevTotalSpending = peerLastExpenseDict.ContainsKey(pId) ? peerLastExpenseDict[pId].TotalSpending : 0m;
+                        var pPrevTotalIncome = Math.Max(0, peerLastIncomeDict.ContainsKey(pId) ? peerLastIncomeDict[pId].TotalIncome : 0m);
                         var pPrevSavingsRate = pPrevTotalIncome > 0 ? ((pPrevTotalIncome - pPrevTotalSpending) / pPrevTotalIncome) * 100 : 0;
                         var pTrend = pSavingsRate - pPrevSavingsRate;
 
-                        return new PeerMetric { 
-                            TotalSpending = pTotalSpending, 
-                            SavingsRate = pSavingsRate, 
-                            DiscretionaryRatio = pDiscretionaryRatio, 
-                            Trend = pTrend 
+                        return new PeerMetric
+                        {
+                            PeerId = pId,  // ✅ Store peer ID
+                            TotalSpending = pTotalSpending,
+                            SavingsRate = pSavingsRate,
+                            DiscretionaryRatio = pDiscretionaryRatio,
+                            Trend = pTrend
                         };
                     })
                     .ToList();
+
+                // Generate AI insights for each metric using Groq
+                // ✅ BUG FIX 1: Only average peers who have expenses in current month (not zeros)
+                var peerIdsWithCurrentExpenses = new HashSet<int>(peerExpenseMetrics.Select(p => p.UserId));
+                var peerMetricsWithExpenses = peerMetrics.Where(p => peerIdsWithCurrentExpenses.Contains(p.PeerId)).ToList();
+                
+                var spendingMetricData = new
+                {
+                    userAmount = userTotalSpending,
+                    averageAmount = peerMetricsWithExpenses.Any() ? peerMetricsWithExpenses.Average(p => p.TotalSpending) : 0m,
+                    percentile = peerMetrics.Any() ? Math.Round((decimal)(peerMetrics.Count(p => p.TotalSpending < userTotalSpending) / (double)peerMetrics.Count) * 100) : 0
+                };
+
+                var savingsMetricData = new
+                {
+                    userRate = userSavingsRate,
+                    averageRate = peerMetrics.Any() ? peerMetrics.Average(p => p.SavingsRate) : 0m,
+                    percentile = peerMetrics.Any() ? Math.Round((decimal)(peerMetrics.Count(p => p.SavingsRate < userSavingsRate) / (double)peerMetrics.Count) * 100) : 0
+                };
+
+                var discretionaryMetricData = new
+                {
+                    userRatio = userDiscretionaryRatio,
+                    averageRatio = peerMetrics.Any() ? peerMetrics.Average(p => p.DiscretionaryRatio) : 0m,
+                    userAmount = userDiscretionarySpending,
+                    percentile = peerMetrics.Any() ? Math.Round((decimal)(peerMetrics.Count(p => p.DiscretionaryRatio < userDiscretionaryRatio) / (double)peerMetrics.Count) * 100) : 0
+                };
+
+                // ✅ BUG FIX 2: Only average trends for peers with data in BOTH months
+                var peerIdsWithPreviousExpenses = new HashSet<int>(peerLastExpenseMetrics.Select(p => p.UserId));
+                var peerMetricsWithBothMonths = peerMetrics.Where(p => peerIdsWithCurrentExpenses.Contains(p.PeerId) && peerIdsWithPreviousExpenses.Contains(p.PeerId)).ToList();
+                
+                var trendMetricData = new
+                {
+                    userTrend = userTrend,
+                    averageTrend = peerMetricsWithBothMonths.Any() ? peerMetricsWithBothMonths.Average(p => p.Trend) : 0m
+                };
+
+                // Call Groq AI in PARALLEL to generate insights faster (instead of sequential await)
+                var spendingTask = _groqAIService.GenerateInsightAsync("spending", spendingMetricData);
+                var savingsTask = _groqAIService.GenerateInsightAsync("savings", savingsMetricData);
+                var discretionaryTask = _groqAIService.GenerateInsightAsync("discretionary", discretionaryMetricData);
+                var trendTask = _groqAIService.GenerateInsightAsync("trend", trendMetricData);
+
+                // Wait for all 4 requests to complete
+                await Task.WhenAll(spendingTask, savingsTask, discretionaryTask, trendTask);
+
+                var spendingTip = spendingTask.Result;
+                var savingsTip = savingsTask.Result;
+                var discretionaryTip = discretionaryTask.Result;
+                var trendTip = trendTask.Result;
 
                 return Ok(new
                 {
@@ -140,30 +239,30 @@ namespace MoneyMatesAPI.Controllers
                     totalSpending = new
                     {
                         userAmount = userTotalSpending,
-                        averageAmount = peerMetrics.Any() ? peerMetrics.Average(p => p.TotalSpending) : 0m,
-                        percentile = peerMetrics.Any() ? Math.Round((decimal)(peerMetrics.Count(p => p.TotalSpending < userTotalSpending) / (double)peerMetrics.Count) * 100) : 0,
-                        tip = GetSpendingTip(peerMetrics, userTotalSpending)
+                        averageAmount = spendingMetricData.averageAmount,
+                        percentile = spendingMetricData.percentile,
+                        tip = spendingTip
                     },
                     savingsRate = new
                     {
                         userRate = userSavingsRate,
-                        averageRate = peerMetrics.Any() ? peerMetrics.Average(p => p.SavingsRate) : 0m,
-                        percentile = peerMetrics.Any() ? Math.Round((decimal)(peerMetrics.Count(p => p.SavingsRate < userSavingsRate) / (double)peerMetrics.Count) * 100) : 0,
-                        tip = GetSavingsTip(peerMetrics, userSavingsRate)
+                        averageRate = savingsMetricData.averageRate,
+                        percentile = savingsMetricData.percentile,
+                        tip = savingsTip
                     },
                     discretionary = new
                     {
                         userRatio = userDiscretionaryRatio,
-                        averageRatio = peerMetrics.Any() ? peerMetrics.Average(p => p.DiscretionaryRatio) : 0m,
+                        averageRatio = discretionaryMetricData.averageRatio,
                         userAmount = userDiscretionarySpending,
-                        percentile = peerMetrics.Any() ? Math.Round((decimal)(peerMetrics.Count(p => p.DiscretionaryRatio < userDiscretionaryRatio) / (double)peerMetrics.Count) * 100) : 0,
-                        tip = GetDiscretionaryTip(userDiscretionaryRatio)
+                        percentile = discretionaryMetricData.percentile,
+                        tip = discretionaryTip
                     },
                     trend = new
                     {
                         userTrend = userTrend,
-                        averageTrend = peerMetrics.Any() ? peerMetrics.Average(p => p.Trend) : 0,
-                        tip = GetTrendTip(peerMetrics, userTrend)
+                        averageTrend = trendMetricData.averageTrend,
+                        tip = trendTip
                     }
                 });
             }
@@ -175,30 +274,6 @@ namespace MoneyMatesAPI.Controllers
                 }
                 return StatusCode(500, new { message = $"Internal server error: {ex.Message}" });
             }
-        }
-
-        // Helper methods for tips
-        private string GetSpendingTip(List<PeerMetric> peerMetrics, decimal userTotal)
-        {
-            var spendingPercentile = peerMetrics.Any() ? (peerMetrics.Count(p => p.TotalSpending < userTotal) / (double)peerMetrics.Count) * 100 : 0;
-            return spendingPercentile > 50 ? "Consider reducing your top discretionary expense by 10% to reach the top 50%." : "You are spending less than most peers. Keep it up!";
-        }
-
-        private string GetSavingsTip(List<PeerMetric> peerMetrics, decimal userRate)
-        {
-            var savingsPercentile = peerMetrics.Any() ? (peerMetrics.Count(p => p.SavingsRate < userRate) / (double)peerMetrics.Count) * 100 : 0;
-            return savingsPercentile < 50 ? "Your peers save more on average. Try setting aside 5% of your income automatically." : "You are in the top half of savers in your group!";
-        }
-
-        private string GetDiscretionaryTip(decimal userRatio)
-        {
-            return userRatio > 30 ? "Your discretionary spending is high. Limit non-essentials to 30% of your budget." : "Great job keeping discretionary spending low!";
-        }
-
-        private string GetTrendTip(List<PeerMetric> peerMetrics, decimal userTrend)
-        {
-            var avgTrend = peerMetrics.Any() ? peerMetrics.Average(p => p.Trend) : 0m;
-            return userTrend < avgTrend ? "Your savings trend is dropping compared to your peers. Review last month's expenses." : "Your financial habits are improving faster than your peers!";
         }
 
         [HttpGet("financial-health/{userId}")]

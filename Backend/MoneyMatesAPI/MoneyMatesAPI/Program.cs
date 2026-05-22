@@ -1,8 +1,10 @@
 using MoneyMatesAPI.Hubs;
 using MoneyMatesAPI.Data;
 using MoneyMatesAPI.Services;
+using MoneyMatesAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,31 @@ builder.Services.AddDbContext<MoneyMatesDbContext>(options =>
 // Add File Upload Service
 // ---------------------------
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+
+// ---------------------------
+// Load Environment Variables and Configure Groq AI Service
+// ---------------------------
+// Load .env file if it exists
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+if (File.Exists(envPath))
+{
+    DotNetEnv.Env.Load(envPath);
+}
+
+var groqSettings = new GroqSettings
+{
+    ApiKey = Environment.GetEnvironmentVariable("GROQ_API_KEY") ?? builder.Configuration["GroqSettings:ApiKey"] ?? "",
+    Model = Environment.GetEnvironmentVariable("GROQ_MODEL") ?? "llama-3.1-8b-instant",
+    ApiUrl = "https://api.groq.com/openai/v1/chat/completions",
+    TimeoutSeconds = 10,
+    MaxRetries = 2
+};
+
+// Register Groq settings as singleton
+builder.Services.AddSingleton(groqSettings);
+
+// Register HttpClient for Groq API
+builder.Services.AddHttpClient<IGroqAIService, GroqAIService>();
 
 // ---------------------------
 // Add SimulatedDataSeeder

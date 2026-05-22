@@ -281,3 +281,5 @@ D:\College Work\FYP\Money-Mates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\ne
 D:\College Work\FYP\Money-Mates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\net8.0\MoneyMatesAPI.pdb
 D:\College Work\FYP\Money-Mates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\net8.0\MoneyMatesAPI.genruntimeconfig.cache
 D:\College Work\FYP\Money-Mates\Backend\MoneyMatesAPI\MoneyMatesAPI\obj\Debug\net8.0\ref\MoneyMatesAPI.dll
+D:\College Work\FYP\Money-Mates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\DotNetEnv.dll
+D:\College Work\FYP\Money-Mates\Backend\MoneyMatesAPI\MoneyMatesAPI\bin\Debug\net8.0\Sprache.dll

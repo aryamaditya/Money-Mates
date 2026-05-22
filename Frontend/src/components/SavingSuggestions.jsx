@@ -2,84 +2,234 @@ import React, { useEffect, useState } from 'react';
 import { FaLightbulb, FaBullseye, FaArrowDown, FaPiggyBank, FaChartBar } from 'react-icons/fa';
 import styles from './SavingSuggestions.module.css';
 import expenseService from '../services/expenseService';
+import budgetService from '../services/budgetService';
+import incomeService from '../services/incomeService';
 
 const SavingSuggestions = ({ userId }) => {
   const [loading, setLoading] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
   const [totalMonthlySavings, setTotalMonthlySavings] = useState(0);
   const [error, setError] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [tips, setTips] = useState([]);
+  const [tipsLoading, setTipsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchAndAnalyze = async () => {
-      try {
-        setLoading(true);
-        const expenses = await expenseService.getUserExpenses(userId);
-
-        if (!expenses || expenses.length === 0) {
-          setLoading(false);
-          return;
-        }
-
-        // Get current month and year
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-
-        // Get last 3 months for analysis
-        const threeMonthsAgo = new Date(now);
-        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 2);
-
-        // Filter expenses for current month
-        const currentMonthExpenses = expenses.filter(exp => {
-          const expDate = new Date(exp.dateAdded);
-          return expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear;
-        });
-
-        // Filter last 3 months
-        const lastThreeMonthsExpenses = expenses.filter(exp => {
-          const expDate = new Date(exp.dateAdded);
-          return expDate >= threeMonthsAgo;
-        });
-
-        // Analyze spending by category
-        const categoryAnalysis = {};
-        lastThreeMonthsExpenses.forEach(exp => {
-          const cat = exp.category || 'Other';
-          if (!categoryAnalysis[cat]) {
-            categoryAnalysis[cat] = { total: 0, count: 0, avg: 0 };
-          }
-          categoryAnalysis[cat].total += exp.amount;
-          categoryAnalysis[cat].count += 1;
-        });
-
-        // Calculate averages
-        Object.keys(categoryAnalysis).forEach(cat => {
-          categoryAnalysis[cat].avg = categoryAnalysis[cat].total / 3; // 3 months average
-        });
-
-        // Generate suggestions
-        const generatedSuggestions = generateSavingSuggestions(categoryAnalysis, currentMonthExpenses);
-        
-        setSuggestions(generatedSuggestions);
-
-        // Calculate potential monthly savings
-        const potentialSavings = generatedSuggestions.reduce((sum, sugg) => sum + sugg.savingsAmount, 0);
-        setTotalMonthlySavings(potentialSavings);
-
-        setLoading(false);
-      } catch (err) {
-        console.error('Error analyzing spending:', err);
-        setError('Failed to generate suggestions');
-        setLoading(false);
+  // Generate Smart Saving Tips via Groq (general financial advice only, no app features)
+  const generateSmartTips = async (categoryAnalysis) => {
+    try {
+      const apiKey = process.env.REACT_APP_GROQ_API_KEY;
+      if (!apiKey) {
+        console.warn('Groq API key not found in environment variables');
+        return null;
       }
-    };
 
-    if (userId) {
-      fetchAndAnalyze();
+      const prompt = `All monetary amounts are in Nepali Rupees (Rs.) - use Rs. symbol not $.
+
+You are a financial advisor AI. Based on this spending analysis, provide 5 practical, actionable financial tips for saving money.
+
+⚠️ CRITICAL: DO NOT mention any app features, UI elements, buttons, or settings. Only provide general financial advice.
+❌ BANNED PHRASES: "Delete All", "feature", "button", "chart", "screen", "app", "interface", "menu", "dashboard"
+✅ ALLOWED: General financial strategies, budgeting tips, spending habits, savings techniques
+
+Spending Analysis:
+${JSON.stringify(categoryAnalysis, null, 2)}
+
+Return ONLY a valid JSON array with this structure (no markdown, no extra text):
+[
+  {
+    "tip": "Brief financial tip (one line, max 12 words)"
+  }
+]
+
+Guideliness:
+- Each tip must be actionable and general financial advice
+- Tips should be practical and universally applicable
+- NO app-specific instructions or feature references whatsoever
+- Focus on real-world financial management strategies`;
+
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-8b-instant',
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 500
+        })
+      });
+
+      if (!response.ok) {
+        console.error('Groq API error:', response.status, response.statusText);
+        return null;
+      }
+
+      const data = await response.json();
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        const content = data.choices[0].message.content.trim();
+        // Parse JSON from response
+        const jsonMatch = content.match(/\[\s\S]*\]/);
+        if (jsonMatch) {
+          return JSON.parse(jsonMatch[0]);
+        }
+      }
+      return null;
+    } catch (err) {
+      console.error('Error generating smart tips:', err);
+      return null;
     }
-  }, [userId]);
+  };
 
-  const generateSavingSuggestions = (analysis, currentMonthExpenses) => {
+  // Call Groq API for AI-generated suggestions
+  const callGroqAPI = async (analysisData) => {
+    try {
+      const apiKey = process.env.REACT_APP_GROQ_API_KEY;
+      if (!apiKey) {
+        console.warn('Groq API key not found in environment variables');
+        return null;
+      }
+
+      const prompt = `All monetary amounts are in Nepali Rupees (Rs.) - use Rs. symbol not $.
+
+You are a financial advisor AI. Based on the following spending analysis, provide 3-5 specific, actionable saving suggestions.
+
+CRITICAL INSTRUCTION:
+⚠️ ONLY suggest reducing a spending category if the current month spending EXCEEDS the three-month average.
+⚠️ Do NOT suggest reducing any category where current spending is AT or BELOW the historical average.
+⚠️ For categories where current spending is BELOW average, suggest maintaining or continuing the good control, or redirect advice to other high-spending categories.
+
+SPENDING DATA:
+${JSON.stringify(analysisData, null, 2)}
+
+Return ONLY a valid JSON array with this structure (no markdown, no extra text):
+[
+  {
+    "title": "Suggestion title",
+    "description": "Detailed advice with specific actions",
+    "category": "Category name",
+    "priority": "High|Medium|Low",
+    "savingsAmount": 1000,
+    "reasoning": "Why this will save money"
+  }
+]
+
+Guidelines:
+- High priority: Category spending >30% above its 3-month average OR >20% of total budget
+- Medium priority: Category spending 15-30% above its 3-month average
+- Low priority: Optimization opportunities in lower-spending categories
+- IGNORE categories where currentMonthSpending <= threeMonthAverage (these are already under control)
+- Provide specific action steps, not generic advice
+- Calculate realistic savings amounts based on reducing overspending to the 3-month average
+- All currency in descriptions must use 'Rs.' symbol`;
+
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-8b-instant',
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 1000
+        })
+      });
+
+      if (!response.ok) {
+        console.error('Groq API error:', response.status, response.statusText);
+        return null;
+      }
+
+      const data = await response.json();
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        const content = data.choices[0].message.content.trim();
+        // Parse JSON from response
+        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          return JSON.parse(jsonMatch[0]);
+        }
+      }
+      return null;
+    } catch (err) {
+      console.error('Error calling Groq API:', err);
+      return null;
+    }
+  };
+
+  // Generate suggestions using AI with fallback to rules engine
+  const generateSavingSuggestions = async (analysis, currentMonthExpenses, budgetLimits, totalIncome) => {
+    try {
+      setAiLoading(true);
+
+      // Prepare analysis data for AI
+      const analysisData = {
+        categories: Object.entries(analysis).map(([name, data]) => ({
+          name,
+          threeMonthAverage: parseFloat(data.avg.toFixed(2)),
+          currentMonthSpending: parseFloat(
+            (currentMonthExpenses
+              .filter(exp => (exp.category || 'Other') === name)
+              .reduce((sum, exp) => sum + exp.amount, 0))
+              .toFixed(2)
+          ),
+          budgetLimit: budgetLimits[name] || null
+        })),
+        totalCurrentMonthSpending: parseFloat(
+          currentMonthExpenses.reduce((sum, exp) => sum + exp.amount, 0).toFixed(2)
+        ),
+        totalMonthlyIncome: parseFloat(totalIncome.toFixed(2))
+      };
+
+      // Call AI API
+      const aiSuggestions = await callGroqAPI(analysisData);
+
+      if (aiSuggestions && Array.isArray(aiSuggestions) && aiSuggestions.length > 0) {
+        // Convert AI suggestions to component format
+        return aiSuggestions.map((sugg, index) => ({
+          id: `ai-suggestion-${index}`,
+          category: sugg.category || 'General',
+          type: 'ai-recommendation',
+          title: sugg.title,
+          description: sugg.description,
+          savingsAmount: Math.round(sugg.savingsAmount || 0),
+          severity: sugg.priority?.toLowerCase() === 'high' ? 'high' 
+            : sugg.priority?.toLowerCase() === 'medium' ? 'medium' 
+            : 'low',
+          icon: sugg.priority?.toLowerCase() === 'high' ? FaPiggyBank
+            : sugg.priority?.toLowerCase() === 'medium' ? FaArrowDown
+            : FaChartBar,
+          action: `Apply this suggestion (Est. savings: Rs ${Math.round(sugg.savingsAmount || 0).toLocaleString()})`,
+          reasoning: sugg.reasoning
+        }));
+      }
+
+      // Fallback to rules engine if AI fails
+      console.log('AI suggestion failed, falling back to rules engine');
+      return generateRulesEngineSuggestions(analysis, currentMonthExpenses);
+    } catch (err) {
+      console.error('Error generating AI suggestions:', err);
+      // Fallback to rules engine
+      return generateRulesEngineSuggestions(analysis, currentMonthExpenses);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Original rules-based suggestion engine (fallback)
+  const generateRulesEngineSuggestions = (analysis, currentMonthExpenses) => {
     const suggestions = [];
     const currentTotal = currentMonthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
 
@@ -144,10 +294,115 @@ const SavingSuggestions = ({ userId }) => {
     return suggestions.sort((a, b) => b.savingsAmount - a.savingsAmount);
   };
 
-  if (loading) {
+  useEffect(() => {
+    const fetchAndAnalyze = async () => {
+      try {
+        setLoading(true);
+        const expenses = await expenseService.getUserExpenses(userId);
+
+        if (!expenses || expenses.length === 0) {
+          setLoading(false);
+          return;
+        }
+
+        // Get current month and year
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        // Get last 3 months for analysis
+        const threeMonthsAgo = new Date(now);
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 2);
+
+        // Filter expenses for current month
+        const currentMonthExpenses = expenses.filter(exp => {
+          const expDate = new Date(exp.dateAdded);
+          return expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear;
+        });
+
+        // Filter last 3 months
+        const lastThreeMonthsExpenses = expenses.filter(exp => {
+          const expDate = new Date(exp.dateAdded);
+          return expDate >= threeMonthsAgo;
+        });
+
+        // Analyze spending by category
+        const categoryAnalysis = {};
+        lastThreeMonthsExpenses.forEach(exp => {
+          const cat = exp.category || 'Other';
+          if (!categoryAnalysis[cat]) {
+            categoryAnalysis[cat] = { total: 0, count: 0, avg: 0 };
+          }
+          categoryAnalysis[cat].total += exp.amount;
+          categoryAnalysis[cat].count += 1;
+        });
+
+        // Calculate averages
+        Object.keys(categoryAnalysis).forEach(cat => {
+          categoryAnalysis[cat].avg = categoryAnalysis[cat].total / 3; // 3 months average
+        });
+
+        // Fetch budget limits and total income
+        const budgets = await budgetService.getUserBudgets(userId);
+        const totalIncomeData = await incomeService.getTotalIncome(userId);
+        const totalIncome = parseFloat(totalIncomeData) || 0;
+
+        // Create budget limits map
+        const budgetLimits = {};
+        if (budgets && Array.isArray(budgets)) {
+          budgets.forEach(budget => {
+            budgetLimits[budget.category] = budget.limit;
+          });
+        }
+
+        // Generate AI suggestions with fallback to rules engine
+        const generatedSuggestions = await generateSavingSuggestions(
+          categoryAnalysis, 
+          currentMonthExpenses,
+          budgetLimits,
+          totalIncome
+        );
+        
+        setSuggestions(generatedSuggestions);
+
+        // Calculate potential monthly savings
+        const potentialSavings = generatedSuggestions.reduce((sum, sugg) => sum + sugg.savingsAmount, 0);
+        setTotalMonthlySavings(potentialSavings);
+
+        // Generate Smart Saving Tips
+        setTipsLoading(true);
+        const generatedTips = await generateSmartTips(categoryAnalysis);
+        if (generatedTips && Array.isArray(generatedTips) && generatedTips.length > 0) {
+          setTips(generatedTips);
+        } else {
+          // Fallback to default tips if Groq fails
+          setTips([
+            { tip: 'Track your spending daily to identify patterns' },
+            { tip: 'Set category-wise budgets and stick to them' },
+            { tip: 'Review monthly trends to understand spending habits' },
+            { tip: 'Automate transfers to savings account on payday' },
+            { tip: 'Practice the 50/30/20 budgeting rule' }
+          ]);
+        }
+        setTipsLoading(false);
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Error analyzing spending:', err);
+        setError('Failed to generate suggestions');
+        setLoading(false);
+      }
+    };
+
+    if (userId) {
+      fetchAndAnalyze();
+    }
+  }, [userId]);
+
+  if (loading || aiLoading) {
     return (
       <div className={styles.loadingContainer}>
-        <p>Analyzing your spending patterns...</p>
+        <p>{loading ? 'Analyzing your spending patterns...' : 'Generating AI suggestions...'}</p>
       </div>
     );
   }
@@ -208,6 +463,11 @@ const SavingSuggestions = ({ userId }) => {
                 <div className={styles.cardContent}>
                   <h3 className={styles.cardTitle}>{suggestion.title}</h3>
                   <p className={styles.cardDescription}>{suggestion.description}</p>
+                  {suggestion.reasoning && (
+                    <p className={styles.cardReasoning}>
+                      <strong>Why:</strong> {suggestion.reasoning}
+                    </p>
+                  )}
                 </div>
 
                 <div className={styles.cardFooter}>
@@ -232,13 +492,19 @@ const SavingSuggestions = ({ userId }) => {
           <FaBullseye className={styles.tipsIcon} />
           <h3>Smart Saving Tips</h3>
         </div>
-        <ul className={styles.tipsList}>
-          <li>💡 Track your spending daily to identify patterns</li>
-          <li>💡 Set category-wise budgets and stick to them</li>
-          <li>💡 Use the "Delete All" feature to reset monthly budgets</li>
-          <li>💡 Review your monthly comparison chart for trends</li>
-          <li>💡 Automate transfers to savings account on payday</li>
-        </ul>
+        {tipsLoading ? (
+          <p style={{ fontSize: '0.9rem', color: '#666' }}>Loading personalized tips...</p>
+        ) : (
+          <ul className={styles.tipsList}>
+            {tips.length > 0 ? (
+              tips.map((tip, index) => (
+                <li key={index}>💡 {tip.tip}</li>
+              ))
+            ) : (
+              <li>💡 Monitor your spending regularly for better financial health</li>
+            )}
+          </ul>
+        )}
       </div>
     </div>
   );
