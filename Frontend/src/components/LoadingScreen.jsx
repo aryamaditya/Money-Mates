@@ -33,21 +33,7 @@ const LoadingScreen = ({ message = 'Loading your financial data...', fullScreen 
           </div>
           <h2 className="loading-title">Money-Mates</h2>
           <p className="loading-message">{message}</p>
-          
-          {/* Animated Progress Dots */}
-          <div className="loading-dots">
-            <span className="dot"></span>
-            <span className="dot"></span>
-            <span className="dot"></span>
-          </div>
         </div>
-
-        {/* Loading Bar - only for full screen variants */}
-        {!inline && (
-          <div className="loading-bar-container">
-            <div className="loading-bar"></div>
-          </div>
-        )}
       </div>
     </div>
   );

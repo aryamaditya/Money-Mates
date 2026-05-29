@@ -26,3 +26,9 @@ yarn-error.log*
 *.env
 bin/
 obj/
+.vs/
+GroupUploads/
+Personal Bills/
+*.dll
+*.exe
+*.pdb

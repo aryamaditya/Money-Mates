@@ -23,15 +23,13 @@ export const SkeletonChart = () => (
 
 export const SkeletonStats = () => (
   <div className="skeleton-stats">
-    {[1, 2, 3].map((i) => (
-      <div key={i} className="skeleton-stat-item">
-        <div className="skeleton-avatar"></div>
-        <div style={{ flex: 1 }}>
-          <div className="skeleton-line" style={{ width: '60%', marginBottom: '8px' }}></div>
-          <div className="skeleton-line" style={{ width: '80%' }}></div>
-        </div>
+    <div className="skeleton-stat-item">
+      <div className="skeleton-avatar"></div>
+      <div style={{ flex: 1 }}>
+        <div className="skeleton-line" style={{ width: '60%', marginBottom: '8px' }}></div>
+        <div className="skeleton-line" style={{ width: '80%' }}></div>
       </div>
-    ))}
+    </div>
   </div>
 );
 

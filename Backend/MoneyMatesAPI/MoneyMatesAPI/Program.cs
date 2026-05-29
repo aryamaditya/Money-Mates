@@ -115,25 +115,49 @@ app.UseCors("AllowReactApp");
 // ---------------------------
 // Configure Static File Serving for Uploads
 // ---------------------------
-string uploadsPath = @"D:\College Work\FYP\MoneyMates\GroupUploads";
+string groupUploadsPath = @"D:\College Work\FYP\Money-Mates\GroupUploads";
+string personalBillsPath = @"D:\College Work\FYP\Money-Mates\Personal Bills";
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
-logger.LogInformation($"Configuring static files at: {uploadsPath}");
+logger.LogInformation($"Configuring static files at: {groupUploadsPath}");
+logger.LogInformation($"Configuring static files at: {personalBillsPath}");
 
 // Create the GroupUploads directory if it doesn't exist
-if (!Directory.Exists(uploadsPath))
+if (!Directory.Exists(groupUploadsPath))
 {
-    Directory.CreateDirectory(uploadsPath);
-    logger.LogInformation($"Created GroupUploads directory at {uploadsPath}");
+    Directory.CreateDirectory(groupUploadsPath);
+    logger.LogInformation($"Created GroupUploads directory at {groupUploadsPath}");
 }
 else
 {
-    logger.LogInformation($"GroupUploads directory already exists at {uploadsPath}");
+    logger.LogInformation($"GroupUploads directory already exists at {groupUploadsPath}");
 }
 
+// Create the Personal Bills directory if it doesn't exist
+if (!Directory.Exists(personalBillsPath))
+{
+    Directory.CreateDirectory(personalBillsPath);
+    logger.LogInformation($"Created Personal Bills directory at {personalBillsPath}");
+}
+else
+{
+    logger.LogInformation($"Personal Bills directory already exists at {personalBillsPath}");
+}
+
+// Enable default static files middleware
+app.UseStaticFiles();
+
+// Enable custom static files for group uploads
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(groupUploadsPath),
+    RequestPath = "/uploads"
+});
+
+// Enable custom static files for personal bills
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(personalBillsPath),
     RequestPath = "/uploads"
 });
 

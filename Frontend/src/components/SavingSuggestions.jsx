@@ -498,10 +498,10 @@ Guidelines:
           <ul className={styles.tipsList}>
             {tips.length > 0 ? (
               tips.map((tip, index) => (
-                <li key={index}>💡 {tip.tip}</li>
+                <li key={index}>{tip.tip}</li>
               ))
             ) : (
-              <li>💡 Monitor your spending regularly for better financial health</li>
+              <li>Monitor your spending regularly for better financial health</li>
             )}
           </ul>
         )}

@@ -223,7 +223,7 @@ const DailyPlanner = ({ userId }) => {
       {!dailyPlan ? (
         <div className="no-plan-section">
           <div className="empty-state">
-            <p>📅 No plan set for today</p>
+            <p>No plan set for today</p>
             <button 
               className="btn-add-plan"
               onClick={() => setShowAddPlanModal(true)}

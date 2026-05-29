@@ -24,7 +24,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
   const [deletingExpenseId, setDeletingExpenseId] = useState(null);
   const [billImage, setBillImage] = useState(null);
   const [billImagePreview, setBillImagePreview] = useState(null);
-  const [viewingBillImage, setViewingBillImage] = useState(null); // For modal viewer
+  const [viewingBillImage, setViewingBillImage] = useState(null); // For modal viewer - deprecated, keeping for backwards compat
   const [deletingCategoryName, setDeletingCategoryName] = useState(null);
   const [deletingAllCategories, setDeletingAllCategories] = useState(false);
 
@@ -254,6 +254,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
 
     setAddingExpense(true);
     try {
+      // Pass the file object directly, not base64
       await expenseService.addExpense(userId, categoryName, parseFloat(expenseAmount), billImage);
       console.log("Expense added successfully with bill image");
       
@@ -402,15 +403,17 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
       return;
     }
 
-    // Create preview
+    // Store the file object directly
+    setBillImage(file);
+    
+    // Create preview for display
     const reader = new FileReader();
     reader.onload = (event) => {
-      const base64String = event.target?.result;
-      setBillImage(base64String);
-      setBillImagePreview(base64String);
-      console.log("Image converted to base64, size:", base64String?.length || 0);
+      const previewUrl = event.target?.result;
+      setBillImagePreview(previewUrl);
+      console.log("Image preview created, file size:", file.size, "bytes");
     };
-    reader.readAsDataURL(file); 
+    reader.readAsDataURL(file);
   };
 
   // Calculate status: "safe", "warning", or "exceeded"
@@ -457,7 +460,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
                   transition: 'all 0.3s ease'
                 }}
               >
-                {deletingAllCategories ? "Deleting..." : "🗑️ Delete All"}
+                {deletingAllCategories ? "Deleting..." : "Delete All"}
               </button>
             )}
           </div>
@@ -746,8 +749,8 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
                                 {e.billImageBase64 && (
                                   <button 
                                     className="bill-icon-btn" 
-                                    title="Click to view bill photo"
-                                    onClick={() => setViewingBillImage(e.billImageBase64)}
+                                    title="Click to view bill photo in new tab"
+                                    onClick={() => window.open(`http://localhost:5262/uploads/${e.billImageBase64}`, '_blank')}
                                     style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#667eea', fontSize: '12px', padding: '4px' }}
                                   >View Bill</button>
                                 )}
@@ -866,25 +869,7 @@ const CategorySection = ({ userId, totalBalance = 0, onExpenseAdded }) => {
         </div>
       )}
 
-      {/* Bill Image Viewer Modal */}
-      {viewingBillImage && (
-        <div className="bill-image-modal-overlay" onClick={() => setViewingBillImage(null)}>
-          <div className="bill-image-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button 
-              className="bill-image-modal-close"
-              onClick={() => setViewingBillImage(null)}
-              title="Close (ESC)"
-            >
-              ✕
-            </button>
-            <img 
-              src={viewingBillImage} 
-              alt="Bill" 
-              className="bill-image-modal-img"
-            />
-          </div>
-        </div>
-      )}
+
       </div>
     </div>
   );

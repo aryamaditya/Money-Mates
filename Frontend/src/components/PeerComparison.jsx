@@ -262,7 +262,7 @@ const PeerComparison = ({ userId }) => {
               {getPercentileBadge(metricData.percentile, false)}
             </div>
             <div className={styles.actionableTip}>
-              <p>💡 {metricData.tip}</p>
+              <p>{metricData.tip}</p>
             </div>
           </div>
         )}
@@ -295,7 +295,7 @@ const PeerComparison = ({ userId }) => {
               {getPercentileBadge(metricData.percentile, true)}
             </div>
             <div className={styles.actionableTip}>
-              <p>💡 {metricData.tip}</p>
+              <p>{metricData.tip}</p>
             </div>
           </div>
         )}
@@ -328,7 +328,7 @@ const PeerComparison = ({ userId }) => {
               {getPercentileBadge(metricData.percentile, false)}
             </div>
             <div className={styles.actionableTip}>
-              <p>💡 {metricData.tip}</p>
+              <p>{metricData.tip}</p>
             </div>
           </div>
         )}
@@ -361,7 +361,7 @@ const PeerComparison = ({ userId }) => {
               {getTrendBadge(metricData.userTrend, metricData.averageTrend)}
             </div>
             <div className={styles.actionableTip}>
-              <p>💡 {metricData.tip}</p>
+              <p>{metricData.tip}</p>
             </div>
           </div>
         )}

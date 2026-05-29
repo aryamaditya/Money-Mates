@@ -1,0 +1,7 @@
+.env 
+*.env 
+bin/ 
+obj/ 
+.vs/ 
+GroupUploads/ 
+Personal Bills/ 

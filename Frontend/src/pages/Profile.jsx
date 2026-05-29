@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUser, FaLock, FaEdit, FaSave, FaTimes, FaCheck, FaArrowLeft, FaShieldAlt, FaBell, FaSignOutAlt, FaClock, FaEnvelope, FaPhone } from "react-icons/fa";
+import { FaUser, FaLock, FaEdit, FaSave, FaTimes, FaCheck, FaArrowLeft, FaShieldAlt, FaSignOutAlt, FaClock, FaEnvelope, FaDownload } from "react-icons/fa";
 import { getUserProfile, updateUserProfile, changePassword } from "../services/profileService";
 import exportService from "../services/exportService";
 import styles from "./Profile.css";
@@ -25,10 +25,13 @@ export default function Profile() {
   const [success, setSuccess] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [changePwdMode, setChangePwdMode] = useState(false);
-  const [activeTab, setActiveTab] = useState("account");
   const [exporting, setExporting] = useState(false);
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [budgetCount, setBudgetCount] = useState(0);
+  const [lastLogin, setLastLogin] = useState(null);
 
-  // Fetch profile on mount
+  // Fetch profile and account statistics
   useEffect(() => {
     const fetchProfile = async () => {
       if (!userId) {
@@ -40,6 +43,29 @@ export default function Profile() {
         const profile = await getUserProfile(userId);
         setName(profile.name);
         setEmail(profile.email);
+        
+        // Fetch account statistics
+        try {
+          const [expensesRes, incomeRes, budgetsRes] = await Promise.all([
+            fetch(`http://localhost:5262/api/expenses/${userId}`).then(r => r.json()),
+            fetch(`http://localhost:5262/api/income/${userId}`).then(r => r.json()),
+            fetch(`http://localhost:5262/api/dashboard/categories/${userId}`).then(r => r.json())
+          ]);
+          
+          const totalExp = (expensesRes || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+          const totalInc = (incomeRes || []).reduce((sum, i) => sum + (i.amount || 0), 0);
+          
+          setTotalExpenses(totalExp);
+          setTotalIncome(totalInc);
+          setBudgetCount((budgetsRes || []).length);
+          
+          // Set last login - use from profile or current time
+          const lastLoginTime = profile.lastLogin ? new Date(profile.lastLogin).toLocaleString() : new Date().toLocaleString();
+          setLastLogin(lastLoginTime);
+        } catch (err) {
+          console.error("Failed to fetch statistics", err);
+        }
+        
         setLoading(false);
       } catch (err) {
         setError("Failed to load profile");
@@ -111,7 +137,7 @@ export default function Profile() {
     setError("");
     setSuccess("");
     try {
-      await exportService.exportCurrentMonthData(userId, "combined");
+      await exportService.exportCurrentMonthData(userId, "combined", name);
       setSuccess("Data exported successfully! Check your downloads folder.");
       setTimeout(() => setSuccess(""), 4000);
     } catch (err) {
@@ -144,288 +170,284 @@ export default function Profile() {
         <div style={{ width: "40px" }}></div>
       </div>
 
-      {/* Hero Section */}
-      <div className="profileHero">
-        <div className="profileAvatarLarge">
-          <FaUser />
-        </div>
-        <div className="profileHeroContent">
-          <h2>{name}</h2>
-          <p>{email}</p>
-          <div className="profileHeroStats">
-            <div className="heroStat">
-              <FaClock size={16} />
-              <span>Member since {new Date().getFullYear()}</span>
-            </div>
-            <div className="heroStat">
-              <FaShieldAlt size={16} />
-              <span>Account Secure</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Alert Messages */}
       {error && (
         <div className="alertBox alertError">
           <FaTimes />
           <span>{error}</span>
-          <button onClick={() => setError("")}><FaTimes /></button>
+          <button onClick={() => setError('')}><FaTimes /></button>
         </div>
       )}
       {success && (
         <div className="alertBox alertSuccess">
           <FaCheck />
           <span>{success}</span>
-          <button onClick={() => setSuccess("")}><FaTimes /></button>
+          <button onClick={() => setSuccess('')}><FaTimes /></button>
         </div>
       )}
 
-      {/* Tab Navigation */}
-      <div className="tabNavigation">
-        <button 
-          className={`tabBtn ${activeTab === "account" ? "active" : ""}`}
-          onClick={() => setActiveTab("account")}
-        >
-          <FaUser />
-          <span>Account</span>
-        </button>
-        <button 
-          className={`tabBtn ${activeTab === "security" ? "active" : ""}`}
-          onClick={() => setActiveTab("security")}
-        >
-          <FaLock />
-          <span>Security</span>
-        </button>
-        <button 
-          className={`tabBtn ${activeTab === "preferences" ? "active" : ""}`}
-          onClick={() => setActiveTab("preferences")}
-        >
-          <FaBell />
-          <span>Preferences</span>
-        </button>
-      </div>
+      {/* Main Content */}
+      <div className="profileContentWrapper">
+        {/* Profile Header Section */}
+        <section className="profileSection profileHeader">
+          <div className="headerBannerGradient"></div>
+          <div className="headerContent">
+            <div className="profileAvatarLarge">
+              <FaUser />
+            </div>
+            <div className="headerInfo">
+              <h2>{name}</h2>
+              <p className="headerEmail">{email}</p>
+              <div className="headerBadges">
+                <span className="badge badgeSecure"><FaShieldAlt /> Secure</span>
+                <span className="badge badgeMember"><FaClock /> Since {new Date().getFullYear()}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="statsRow">
+            <div className="statCard">
+              <div className="statValue">Rs {totalExpenses.toLocaleString()}</div>
+              <div className="statLabel">Total Expenses</div>
+            </div>
+            <div className="statCard">
+              <div className="statValue">Rs {totalIncome.toLocaleString()}</div>
+              <div className="statLabel">Total Income</div>
+            </div>
+            <div className="statCard">
+              <div className="statValue">{new Date().getFullYear()}</div>
+              <div className="statLabel">Member Since</div>
+            </div>
+            <div className="statCard">
+              <div className="statValue">{budgetCount}</div>
+              <div className="statLabel">Budgets</div>
+            </div>
+          </div>
+        </section>
 
-      {/* Content Sections */}
-      <div className="profileContent">
-        {/* Account Tab */}
-        {activeTab === "account" && (
-          <div className="tabContent accountTab">
-            <div className="sectionHeader">
+        {/* Account Information Section */}
+        <section className="profileSection">
+          <div className="sectionHeader">
+            <div>
               <h3>Account Information</h3>
-              {!editMode && (
-                <button className="editBtn" onClick={() => setEditMode(true)}>
-                  <FaEdit /> Edit
-                </button>
-              )}
+              <p className="sectionSubtitle">Manage your personal details</p>
             </div>
+            {!editMode && (
+              <button className="editBtn" onClick={() => setEditMode(true)}>
+                <FaEdit /> Edit
+              </button>
+            )}
+          </div>
 
-            {!editMode ? (
-              <div className="infoGrid">
-                <div className="infoCard">
-                  <div className="infoIcon"><FaUser /></div>
-                  <div className="infoText">
-                    <label>Full Name</label>
-                    <p>{name}</p>
-                  </div>
-                </div>
-                <div className="infoCard">
-                  <div className="infoIcon"><FaEnvelope /></div>
-                  <div className="infoText">
-                    <label>Email Address</label>
-                    <p>{email}</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleUpdateProfile} className="editForm">
-                <div className="formGroup">
+          {!editMode ? (
+            <div className="infoGrid">
+              <div className="infoCard">
+                <div className="infoIcon"><FaUser /></div>
+                <div className="infoText">
                   <label>Full Name</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your full name"
-                    className="formInput"
-                  />
+                  <p>{name}</p>
                 </div>
-
-                <div className="formGroup">
+              </div>
+              <div className="infoCard">
+                <div className="infoIcon"><FaEnvelope /></div>
+                <div className="infoText">
                   <label>Email Address</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    className="formInput"
-                  />
+                  <p>{email}</p>
                 </div>
-
-                <div className="formActions">
-                  <button type="submit" className="btnPrimary">
-                    <FaSave /> Save Changes
-                  </button>
-                  <button 
-                    type="button" 
-                    className="btnSecondary"
-                    onClick={() => setEditMode(false)}
-                  >
-                    <FaTimes /> Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        )}
-
-        {/* Security Tab */}
-        {activeTab === "security" && (
-          <div className="tabContent securityTab">
-            <div className="sectionHeader">
-              <h3>Security Settings</h3>
+              </div>
             </div>
-
-            {!changePwdMode ? (
-              <div className="securityInfo">
-                <div className="securityCard">
-                  <div className="securityCardIcon">
-                    <FaShieldAlt />
-                  </div>
-                  <div className="securityCardContent">
-                    <h4>Password</h4>
-                    <p>Keep your account safe by using a strong password</p>
-                    <button 
-                      className="btnPrimary" 
-                      onClick={() => setChangePwdMode(true)}
-                    >
-                      <FaLock /> Change Password
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleChangePassword} className="editForm">
-                <div className="formGroup">
-                  <label>Current Password</label>
-                  <input
-                    type="password"
-                    value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
-                    placeholder="Enter current password"
-                    className="formInput"
-                  />
-                </div>
-
-                <div className="formDivider"></div>
-
-                <div className="formGroup">
-                  <label>New Password</label>
-                  <input
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password (min. 6 characters)"
-                    className="formInput"
-                  />
-                </div>
-
-                <div className="formGroup">
-                  <label>Confirm Password</label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm new password"
-                    className="formInput"
-                  />
-                </div>
-
-                <div className="formActions">
-                  <button type="submit" className="btnPrimary">
-                    <FaSave /> Update Password
-                  </button>
-                  <button 
-                    type="button" 
-                    className="btnSecondary"
-                    onClick={() => setChangePwdMode(false)}
-                  >
-                    <FaTimes /> Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        )}
-
-        {/* Preferences Tab */}
-        {activeTab === "preferences" && (
-          <div className="tabContent preferencesTab">
-            <div className="sectionHeader">
-              <h3>Preferences</h3>
-            </div>
-
-            <div className="preferencesList">
-              <div className="preferenceItem">
-                <div className="preferenceInfo">
-                  <h4>Email Notifications</h4>
-                  <p>Receive updates about your account activity</p>
-                </div>
-                <label className="toggle">
-                  <input type="checkbox" defaultChecked />
-                  <span></span>
-                </label>
+          ) : (
+            <form onSubmit={handleUpdateProfile} className="editForm">
+              <div className="formGroup">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your full name"
+                  className="formInput"
+                />
               </div>
 
-              <div className="preferenceItem">
-                <div className="preferenceInfo">
-                  <h4>Two-Factor Authentication</h4>
-                  <p>Add an extra layer of security to your account</p>
-                </div>
-                <label className="toggle">
-                  <input type="checkbox" />
-                  <span></span>
-                </label>
+              <div className="formGroup">
+                <label>Email Address</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="formInput"
+                />
               </div>
 
-              <div className="preferenceItem">
-                <div className="preferenceInfo">
-                  <h4>Marketing Communications</h4>
-                  <p>Receive news and updates about Money-Mates</p>
-                </div>
-                <label className="toggle">
-                  <input type="checkbox" defaultChecked />
-                  <span></span>
-                </label>
-              </div>
-
-              <div className="preferenceItem">
-                <div className="preferenceInfo">
-                  <h4>Data Export</h4>
-                  <p>Download your account data and transactions</p>
-                </div>
+              <div className="formActions">
+                <button type="submit" className="btnPrimary">
+                  <FaSave /> Save Changes
+                </button>
                 <button 
-                  className="btnSecondary" 
-                  onClick={handleExportData}
-                  disabled={exporting}
+                  type="button" 
+                  className="btnSecondary"
+                  onClick={() => setEditMode(false)}
                 >
-                  <FaSave /> {exporting ? "Exporting..." : "Download"}
+                  <FaTimes /> Cancel
                 </button>
               </div>
-            </div>
+            </form>
+          )}
+        </section>
 
-            <div className="dangerZone">
-              <h4>Danger Zone</h4>
-              <button className="btnDanger" onClick={() => {
-                if (window.confirm("Are you sure you want to log out?")) {
-                  localStorage.clear();
-                  navigate("/");
-                }
-              }}>
-                <FaSignOutAlt /> Log Out
+        {/* Security Section */}
+        <section className="profileSection">
+          <div className="sectionHeader">
+            <div>
+              <h3><FaLock /> Security Settings</h3>
+              <p className="sectionSubtitle">Protect your account</p>
+            </div>
+          </div>
+
+          {!changePwdMode ? (
+            <div className="securityCardsGrid">
+              <div className="securityCard">
+                <div className="securityCardIcon">
+                  <FaLock />
+                </div>
+                <div className="securityCardContent">
+                  <h4>Password</h4>
+                  <p>Keep your account safe with a strong password</p>
+                  <button 
+                    className="btnPrimary" 
+                    onClick={() => setChangePwdMode(true)}
+                    style={{marginTop: '12px', width: '100%'}}
+                  >
+                    <FaLock /> Change Password
+                  </button>
+                </div>
+              </div>
+              
+              <div className="securityCard">
+                <div className="securityCardIcon">
+                  <FaClock />
+                </div>
+                <div className="securityCardContent">
+                  <h4>Last Login</h4>
+                  <p>{lastLogin || 'Loading...'}</p>
+                </div>
+              </div>
+              
+              <div className="securityCard">
+                <div className="securityCardIcon">
+                  <FaShieldAlt />
+                </div>
+                <div className="securityCardContent">
+                  <h4>Account Status</h4>
+                  <p className="statusActive">✓ Active & Secure</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleChangePassword} className="editForm">
+              <div className="formGroup">
+                <label>Current Password</label>
+                <input
+                  type="password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  placeholder="Enter current password"
+                  className="formInput"
+                />
+              </div>
+
+              <div className="formDivider"></div>
+
+              <div className="formGroup">
+                <label>New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password (min. 6 characters)"
+                  className="formInput"
+                />
+              </div>
+
+              <div className="formGroup">
+                <label>Confirm Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm new password"
+                  className="formInput"
+                />
+              </div>
+
+              <div className="formActions">
+                <button type="submit" className="btnPrimary">
+                  <FaSave /> Update Password
+                </button>
+                <button 
+                  type="button" 
+                  className="btnSecondary"
+                  onClick={() => setChangePwdMode(false)}
+                >
+                  <FaTimes /> Cancel
+                </button>
+              </div>
+            </form>
+          )}
+        </section>
+
+        {/* Data Export Section */}
+        <section className="profileSection">
+          <div className="sectionHeader">
+            <div>
+              <h3>Data Export</h3>
+              <p className="sectionSubtitle">Download your financial data</p>
+            </div>
+          </div>
+          
+          <div className="exportCard">
+            <div className="exportIcon"><FaDownload /></div>
+            <div className="exportContent">
+              <h4>Download Your Data</h4>
+              <p>Export all your expenses and income data for this month as CSV</p>
+              <button 
+                className="btnPrimary" 
+                onClick={handleExportData}
+                disabled={exporting}
+                style={{marginTop: '12px'}}
+              >
+                <FaDownload /> {exporting ? "Exporting..." : "Download CSV"}
               </button>
             </div>
           </div>
-        )}
+        </section>
+
+        {/* Danger Zone Section */}
+        <section className="profileSection dangerZoneSection">
+          <div className="sectionHeader">
+            <div>
+              <h3>Danger Zone</h3>
+              <p className="sectionSubtitle">Irreversible actions</p>
+            </div>
+          </div>
+          
+          <div className="dangerZone">
+            <div className="dangerIcon"><FaSignOutAlt /></div>
+            <div className="dangerContent">
+              <h4>Log Out of Your Account</h4>
+              <p>You will be logged out from all devices</p>
+            </div>
+            <button className="btnDanger" onClick={() => {
+              if (window.confirm("Are you sure you want to log out?")) {
+                localStorage.clear();
+                navigate("/");
+              }
+            }}>
+              <FaSignOutAlt /> Log Out
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   );

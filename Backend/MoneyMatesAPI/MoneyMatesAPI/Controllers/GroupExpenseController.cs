@@ -366,7 +366,7 @@ namespace MoneyMatesAPI.Controllers
         [HttpGet("diagnostic/files")]
         public IActionResult CheckSavedFiles()
         {
-            string uploadsPath = @"D:\College Work\FYP\MoneyMates\GroupUploads";
+            string uploadsPath = @"D:\College Work\FYP\Money-Mates\GroupUploads";
             
             try
             {

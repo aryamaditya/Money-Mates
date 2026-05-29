@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "./Login.css";
 import "../pages/ForgotPassword.css";
 
 export default function ForgotPassword() {
@@ -11,6 +12,7 @@ export default function ForgotPassword() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleVerifyEmail = async (e) => {
     e.preventDefault();
@@ -78,8 +80,10 @@ export default function ForgotPassword() {
       });
 
       if (response.ok) {
-        setMessage("Password reset successfully! Redirecting to login...");
-        setTimeout(() => navigate("/"), 2000);
+        setShowSuccessModal(true);
+        setTimeout(() => {
+          navigate("/");
+        }, 2500);
       } else {
         const errData = await response.json();
         // Handle both message and errors array from backend
@@ -97,124 +101,118 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="page">
-      <div className="card left">
-        <div className="brand">
-          <h1 className="brand-title">MoneyMates</h1>
-          <div className="brand-sub">Smart Expense Tracker</div>
-        </div>
+    <div className="page-wrapper">
+      <div className="page">
+        {/* Full Page Video Background */}
+        <video autoPlay muted loop playsInline className="page-bg-video">
+          <source src="/videos/final video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
 
-        <div className="welcome">
-          <h2>Reset Your Password</h2>
-          <p className="muted">
-            {emailVerified
-              ? "Enter your new password"
-              : "Enter your email address to reset your password"}
-          </p>
-        </div>
+        {/* Page Content Overlay */}
+        <div className="page-content">
+          {/* Logo positioned top-right */}
+          <img src="/logos/logo.png" alt="MoneyMates Logo" className="page-logo" />
+          
+          <div className="card left">
+            <div className="login-content">
+              <div className="brand">
+                <h1 className="brand-title">MoneyMates</h1>
+                <div className="brand-sub">Smart Expense Tracker</div>
+              </div>
 
-        {!emailVerified ? (
-          <form className="form" onSubmit={handleVerifyEmail}>
-            <label className="label">Email Address</label>
-            <input
-              className="input"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+              <div className="welcome">
+                <h2>Reset Your Password</h2>
+                <p className="muted">
+                  {emailVerified
+                    ? "Enter your new password"
+                    : "Enter your email address to reset your password"}
+                </p>
+              </div>
 
-            {error && <p style={{ color: "red", marginTop: "8px" }}>{error}</p>}
-            {message && <p style={{ color: "green", marginTop: "8px" }}>{message}</p>}
+              {!emailVerified ? (
+                <form className="form" onSubmit={handleVerifyEmail}>
+                  <label className="label">Email Address</label>
+                  <input
+                    className="input"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
 
-            <button className="btn-primary" type="submit" disabled={loading}>
-              {loading ? "Verifying..." : "Verify Email"}
-            </button>
-          </form>
-        ) : (
-          <form className="form" onSubmit={handleResetPassword}>
-            <label className="label">New Password</label>
-            <input
-              className="input"
-              type="password"
-              placeholder="At least 8 characters"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
+                  {error && <p style={{ color: "red", marginTop: "8px" }}>{error}</p>}
+                  {message && <p style={{ color: "green", marginTop: "8px" }}>{message}</p>}
 
-            <label className="label">Confirm Password</label>
-            <input
-              className="input"
-              type="password"
-              placeholder="Confirm password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+                  <button className="btn-primary" type="submit" disabled={loading}>
+                    {loading ? "Verifying..." : "Verify Email"}
+                  </button>
+                </form>
+              ) : (
+                <form className="form" onSubmit={handleResetPassword}>
+                  <label className="label">New Password</label>
+                  <input
+                    className="input"
+                    type="password"
+                    placeholder="At least 8 characters"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                  />
 
-            {error && <p style={{ color: "red", marginTop: "8px" }}>{error}</p>}
-            {message && <p style={{ color: "green", marginTop: "8px" }}>{message}</p>}
+                  <label className="label">Confirm Password</label>
+                  <input
+                    className="input"
+                    type="password"
+                    placeholder="Confirm password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
 
-            <button className="btn-primary" type="submit" disabled={loading}>
-              {loading ? "Resetting..." : "Reset Password"}
-            </button>
+                  {error && <p style={{ color: "red", marginTop: "8px" }}>{error}</p>}
 
-            <button
-              type="button"
-              onClick={() => {
-                setEmailVerified(false);
-                setEmail("");
-                setNewPassword("");
-                setConfirmPassword("");
-                setError("");
-                setMessage("");
-              }}
-              className="btn-secondary"
-            >
-              Back
-            </button>
-          </form>
-        )}
+                  <button className="btn-primary" type="submit" disabled={loading}>
+                    {loading ? "Resetting..." : "Reset Password"}
+                  </button>
 
-        <p className="center muted" style={{ marginTop: "20px" }}>
-          Remember your password? <Link to="/" className="link">Log in</Link>
-        </p>
-      </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmailVerified(false);
+                      setEmail("");
+                      setNewPassword("");
+                      setConfirmPassword("");
+                      setError("");
+                      setMessage("");
+                    }}
+                    className="btn-secondary"
+                  >
+                    Back to Email
+                  </button>
+                </form>
+              )}
 
-      <div className="card right">
-        <div className="promo">
-          <h2>Take control of your finances</h2>
-          <p className="muted light">
-            Track expenses, get AI-powered insights and achieve your financial goals with ease.
-          </p>
-
-          <div className="feature">
-            <div className="feature-icon"></div>
-            <div>
-              <div className="feature-title">Smart Analytics</div>
-              <div className="feature-sub muted">Visualize spending patterns</div>
-            </div>
-          </div>
-
-          <div className="feature">
-            <div className="feature-icon"></div>
-            <div>
-              <div className="feature-title">AI Suggestions</div>
-              <div className="feature-sub muted">Get personalized saving tips</div>
-            </div>
-          </div>
-
-          <div className="feature">
-            <div className="feature-icon"></div>
-            <div>
-              <div className="feature-title">Group Expenses</div>
-              <div className="feature-sub muted">Split bills with friends</div>
+              <p className="center muted" style={{ marginTop: "20px" }}>
+                Remember your password? <Link to="/" className="link">Log in</Link>
+              </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Password Reset Success Modal */}
+      {showSuccessModal && (
+        <div className="login-success-overlay">
+          <div className="login-success-modal">
+            <div className="success-icon">✓</div>
+            <h2>Password Changed Successfully!</h2>
+            <p>Your password has been reset.</p>
+            <p className="redirect-text">Redirecting to login...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

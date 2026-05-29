@@ -9,6 +9,8 @@ export default function Signup() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [validationErrors, setValidationErrors] = useState({});
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [userName, setUserName] = useState("");
 
   const validateName = (value) => {
     if (!value.trim()) return "Name is required";
@@ -99,13 +101,24 @@ export default function Signup() {
       const response = await fetch("http://localhost:5262/api/users/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+        body: JSON.stringify({ 
+          Name: name.trim(), 
+          Email: email.trim(), 
+          Password: password 
+        }),
       });
 
       const data = await response.json();
-
-      if (response.ok && data.userID) {
-        navigate("/");
+      
+      if (response.ok && (data.userID || data.userId)) {
+        console.log("Signup successful!");
+        setUserName(name.trim());
+        setShowSuccessModal(true);
+        
+        // Redirect after 2 seconds
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
       } else if (!response.ok && data.errors) {
         const messages = Object.values(data.errors).flat().join(", ");
         setError(messages);
@@ -211,6 +224,18 @@ export default function Signup() {
       </div>
       </div>
       </div>
+
+      {/* Signup Success Modal */}
+      {showSuccessModal && (
+        <div className="login-success-overlay">
+          <div className="login-success-modal">
+            <div className="success-icon">✓</div>
+            <h2>Account Created Successfully!</h2>
+            <p>Welcome, {userName}!</p>
+            <p className="redirect-text">Redirecting to login...</p>
+          </div>
+        </div>
+      )}
 
       {/* About Us Section */}
       <div className="about-us-section">

@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "./Login.css";
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [userName, setUserName] = useState("");
 
-  // Load saved email on component mount
-  useEffect(() => {
-    const savedEmail = localStorage.getItem("savedEmail");
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setRememberMe(true);
-    }
-  }, []);
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -34,16 +29,16 @@ export default function Login() {
         const data = await response.json();
         // Save user info in localStorage
         localStorage.setItem("user", JSON.stringify(data));
+
         
-        // Save email if "Remember me" is checked
-        if (rememberMe) {
-          localStorage.setItem("savedEmail", email);
-        } else {
-          localStorage.removeItem("savedEmail");
-        }
+        // Show success modal
+        setUserName(data.name || "User");
+        setShowSuccessModal(true);
         
-        // Redirect directly to dashboard
-        navigate("/dashboard");
+        // Redirect after 2 seconds
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 2000);
       } else {
         const errData = await response.json();
         setError(errData.message || "Invalid email or password");
@@ -106,14 +101,6 @@ export default function Login() {
           {error && <p style={{ color: "red", marginTop: "8px" }}>{error}</p>}
 
           <div className="row-between">
-            <label className="checkbox-label">
-              <input 
-                type="checkbox" 
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              /> 
-              <span>Remember me</span>
-            </label>
             <Link to="/forgot-password" className="link">Forgot Password?</Link>
           </div>
 
@@ -130,13 +117,20 @@ export default function Login() {
       </div>
       </div>
 
+      {/* Login Success Modal */}
+      {showSuccessModal && (
+        <div className="login-success-overlay">
+          <div className="login-success-modal">
+            <div className="success-icon">✓</div>
+            <h2>Login Successful!</h2>
+            <p>Welcome back, {userName}!</p>
+            <p className="redirect-text">Redirecting to dashboard...</p>
+          </div>
+        </div>
+      )}
+
       {/* About Us Section */}
       <div className="about-us-section">
-        {/* Video Background for About Us */}
-        <video autoPlay muted loop playsInline className="about-bg-video">
-          <source src="/videos/Video 3.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
         
         <div className="about-container">
           <h2 className="about-title">About MoneyMates</h2>

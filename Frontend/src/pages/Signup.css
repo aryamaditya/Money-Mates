@@ -9,6 +9,10 @@
   padding: 20px;
 }
 
+.page-wrapper {
+  position: relative;
+}
+
 .signup-wrapper {
   width: 100%;
   max-width: 500px;

@@ -19,6 +19,7 @@ const Dashboard = () => {
   const [spendingData, setSpendingData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
+  const [allTransactions, setAllTransactions] = useState([]);
   const [showBalance, setShowBalance] = useState(true);
   const [showAddIncomeForm, setShowAddIncomeForm] = useState(false);
   const [incomeAmount, setIncomeAmount] = useState('');
@@ -124,6 +125,7 @@ const Dashboard = () => {
         ].sort((a, b) => new Date(b.dateAdded || b.date) - new Date(a.dateAdded || a.date));
 
         setRecentTransactions(allCurrentMonth.slice(0, 5));
+        setAllTransactions(allCurrentMonth);
 
         // Process category data
         const filtered = filterByCurrentMonth(categoryRes || []);
@@ -208,6 +210,7 @@ const Dashboard = () => {
 
       // Get last 5
       setRecentTransactions(allCurrentMonth.slice(0, 5));
+      setAllTransactions(allCurrentMonth);
       console.log("Transactions refreshed - Last 5 current month:", allCurrentMonth.slice(0, 5));
 
       // Also refresh chart data
@@ -521,9 +524,9 @@ const Dashboard = () => {
                 </button>
               </div>
               <div className={styles.modalBody}>
-                {recentTransactions && recentTransactions.length > 0 ? (
+                {allTransactions && allTransactions.length > 0 ? (
                   <div className={styles.allTransactionsList}>
-                    {recentTransactions.map((tx, idx) => (
+                    {allTransactions.map((tx, idx) => (
                       <div key={idx} className={styles.transactionItemModal}>
                         <div className={styles.txInfoModal}>
                           <p className={styles.txCategoryModal}>{tx.description}</p>

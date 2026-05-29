@@ -33,40 +33,39 @@ const expenseService = {
   },
 
   /**
-   * addExpense - Create a new expense entry
+   * addExpense - Create a new expense entry with optional bill image file
    * @param {number} userId - The user ID who owns this expense
    * @param {string} category - Budget category (e.g., "Food", "Transport")
    * @param {number} amount - Expense amount in rupees
-   * @param {string} billImageBase64 - Optional Base64 encoded bill photo
+   * @param {File} billImageFile - Optional File object (from input element)
    * @returns {Promise<Object>} Created expense object with ID and all properties
-   * 
-   * IMPORTANT: Sends PascalCase properties (UserId, Category, Amount, BillImageBase64)
-   * to match ASP.NET Core backend conventions
    */
-  addExpense: async (userId, category, amount, billImageBase64 = null) => {
+  addExpense: async (userId, category, amount, billImageFile = null) => {
     try {
-      // Build payload with proper data types and PascalCase property names
-      const payload = {
-        UserId: parseInt(userId),           // Convert to integer
-        Category: String(category),         // Ensure string
-        Amount: parseFloat(amount),         // Convert to decimal number
-        BillImageBase64: billImageBase64    // Include base64 image if provided (null if no photo)
-      };
+      // Use FormData for multipart/form-data request
+      const formData = new FormData();
+      formData.append('UserId', parseInt(userId));
+      formData.append('Category', String(category));
+      formData.append('Amount', parseFloat(amount));
       
-      console.log(`Adding expense to ${API_BASE_EXPENSES}:`, {
-        UserId: payload.UserId,
-        Category: payload.Category,
-        Amount: payload.Amount,
-        HasImage: !!payload.BillImageBase64  // Log whether image is included
+      // Add bill image file if provided
+      if (billImageFile) {
+        formData.append('BillImage', billImageFile);
+        console.log(`Adding bill image file: ${billImageFile.name} (${billImageFile.size} bytes)`);
+      }
+
+      console.log(`Adding expense:`, {
+        UserId: parseInt(userId),
+        Category: String(category),
+        Amount: parseFloat(amount),
+        HasImage: !!billImageFile
       });
       
       // Send POST request to backend
       const res = await fetch(API_BASE_EXPENSES, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
+        // Don't set Content-Type header - browser will set it with boundary for multipart/form-data
+        body: formData
       });
       
       console.log(`Response status: ${res.status}`);

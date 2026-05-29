@@ -210,6 +210,11 @@
   transform: scale(0.98);
 }
 
+.refreshBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .suggestionsList {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -288,6 +293,52 @@
   font-size: 0.85rem;
   opacity: 0.8;
   font-style: italic;
+}
+
+/* AI Badge and Generation Indicator */
+.aiBadge {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.aiGeneration {
+  display: inline-block;
+  color: #FFD700;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-left: 0.8rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.suggestionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.suggestionTitle h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .error {
