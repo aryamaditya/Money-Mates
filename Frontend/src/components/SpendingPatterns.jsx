@@ -223,7 +223,7 @@ const SpendingPatterns = ({ userId }) => {
                   <div className={styles.alertCategory}>
                     <span className={styles.categoryName}>{alert.category}</span>
                     <span className={styles.severityBadge}>
-                      {alert.severity === 'critical' ? '🔴 Critical' : '⚠️ Warning'}
+                      {alert.severity === 'critical' ? 'Critical' : 'Warning'}
                     </span>
                   </div>
                 </div>

@@ -47,22 +47,22 @@ const InfoModal = memo(({ metric, onClose }) => {
         <h2>{metric.title}</h2>
         
         <div className={styles.infoSection}>
-          <h4>📖 What is it?</h4>
+          <h4>What is it?</h4>
           <p>{metric.description}</p>
         </div>
 
         <div className={styles.infoSection}>
-          <h4>🔢 How is it calculated?</h4>
+          <h4>How is it calculated?</h4>
           <p>{metric.howCalculated}</p>
         </div>
 
         <div className={styles.infoSection}>
-          <h4>💡 What does it mean?</h4>
+          <h4>What does it mean?</h4>
           <p>{metric.whatItMeans}</p>
         </div>
 
         <div className={styles.infoSection}>
-          <h4>📊 Benchmark</h4>
+          <h4>Benchmark</h4>
           <p>{metric.benchmark}</p>
         </div>
       </div>
