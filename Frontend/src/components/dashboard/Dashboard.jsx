@@ -37,7 +37,8 @@ const Dashboard = () => {
   const getCurrentMonthRange = () => {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    endOfMonth.setMilliseconds(endOfMonth.getMilliseconds() - 1); // Set to 23:59:59.999 of last day
     return { startOfMonth, endOfMonth };
   };
 
@@ -57,8 +58,9 @@ const Dashboard = () => {
     const currentMonthExpenses = filterByCurrentMonth(expenses || []);
     const currentMonthIncomes = filterByCurrentMonth(incomes || []);
 
-    const totalExpenses = currentMonthExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
-    const totalIncome = currentMonthIncomes.reduce((sum, inc) => sum + (inc.amount || 0), 0);
+    // Handle both camelCase and PascalCase property names
+    const totalExpenses = currentMonthExpenses.reduce((sum, exp) => sum + (exp.amount ?? exp.Amount ?? 0), 0);
+    const totalIncome = currentMonthIncomes.reduce((sum, inc) => sum + (inc.amount ?? inc.Amount ?? 0), 0);
     const totalSavings = totalIncome - totalExpenses;
 
     return {
@@ -73,7 +75,7 @@ const Dashboard = () => {
   const getDaysLeftInMonth = () => {
     const today = new Date();
     const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    const daysLeft = lastDay.getDate() - today.getDate();
+    const daysLeft = lastDay.getDate() - today.getDate() + 1; // +1 to include today
     return daysLeft;
   };
 
@@ -120,8 +122,8 @@ const Dashboard = () => {
 
         // Process recent transactions
         const allCurrentMonth = [
-          ...currentMonthExpenses.map(exp => ({ ...exp, amount: -exp.amount })),
-          ...currentMonthIncomes.map(inc => ({ ...inc, amount: inc.amount }))
+          ...currentMonthExpenses.map(exp => ({ ...exp, amount: -(exp.amount ?? exp.Amount ?? 0) })),
+          ...currentMonthIncomes.map(inc => ({ ...inc, amount: inc.amount ?? inc.Amount ?? 0 }))
         ].sort((a, b) => new Date(b.dateAdded || b.date) - new Date(a.dateAdded || a.date));
 
         setRecentTransactions(allCurrentMonth.slice(0, 5));
@@ -204,8 +206,8 @@ const Dashboard = () => {
 
       // Combine and sort
       const allCurrentMonth = [
-        ...currentMonthExpenses.map(exp => ({ ...exp, amount: -exp.amount })),
-        ...currentMonthIncomes.map(inc => ({ ...inc, amount: inc.amount }))
+        ...currentMonthExpenses.map(exp => ({ ...exp, amount: -(exp.amount ?? exp.Amount ?? 0) })),
+        ...currentMonthIncomes.map(inc => ({ ...inc, amount: inc.amount ?? inc.Amount ?? 0 }))
       ].sort((a, b) => new Date(b.dateAdded || b.date) - new Date(a.dateAdded || a.date));
 
       // Get last 5
@@ -245,8 +247,9 @@ const Dashboard = () => {
       
       await incomeService.addIncome(userId, parseFloat(incomeAmount), incomeSource);
       
-      // Refresh totals to show updated balance and income
+      // Refresh both totals AND transactions to update all UI
       await refreshTotals();
+      await refreshTransactions();
       
       // Reset form
       setIncomeAmount('');

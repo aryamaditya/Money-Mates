@@ -64,10 +64,10 @@ namespace MoneyMatesAPI.Controllers
 
                 var now = DateTime.Now;
                 var startOfMonth = new DateTime(now.Year, now.Month, 1);
-                var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+                var endOfMonth = startOfMonth.AddMonths(1).AddSeconds(-1); // Include entire last day until 23:59:59
                 
                 var startOfLastMonth = startOfMonth.AddMonths(-1);
-                var endOfLastMonth = startOfMonth.AddDays(-1);
+                var endOfLastMonth = startOfMonth.AddSeconds(-1); // Include entire last day of previous month
 
                 // ✅ DATABASE-LEVEL AGGREGATION: Use direct Sum queries to let SQL aggregate
                 // Get current month user metrics
@@ -292,10 +292,10 @@ namespace MoneyMatesAPI.Controllers
             {
                 var now = DateTime.Now;
                 var startOfMonth = new DateTime(now.Year, now.Month, 1);
-                var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+                var endOfMonth = startOfMonth.AddMonths(1).AddSeconds(-1); // Include entire last day until 23:59:59
 
                 var startOfPrevMonth = startOfMonth.AddMonths(-1);
-                var endOfPrevMonth = startOfMonth.AddDays(-1);
+                var endOfPrevMonth = startOfMonth.AddSeconds(-1); // Include entire last day of previous month
 
                 // Fetch data
                 var expenses = await _context.Expenses.Where(e => e.UserId == userId && e.DateAdded >= startOfMonth && e.DateAdded <= endOfMonth).ToListAsync();

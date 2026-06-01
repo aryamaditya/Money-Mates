@@ -45,10 +45,10 @@ const incomeService = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId,
-        amount,
-        source,
-        dateAdded: new Date().toISOString()  // Set current datetime
+        UserId: userId,
+        Amount: amount,
+        Source: source,
+        DateAdded: new Date().toISOString()
       })
     });
     if (!res.ok) throw new Error(`Failed to add income: ${res.status}`);
